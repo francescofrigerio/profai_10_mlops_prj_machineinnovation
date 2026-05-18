@@ -1,6 +1,14 @@
+"""
+   funzioni di utilita' (Debug e altro)
+"""
 import logging
+from collections import Counter
 
 def print_counter(my_dataset_label,label_map,title):
+    """
+        stampa la suddivisione delle label del dataset
+        usando la classe Counter
+    """
     # 3. Estrai le etichette del train set e contale con Counter
     counter_num = Counter(my_dataset_label)
 
@@ -14,12 +22,13 @@ def print_counter(my_dataset_label,label_map,title):
     print(f"--- End Suddivisione Sentiment nel dataset di {title} ---")
 
 
-"""
-    Configurazione di base
-    Qui decidiamo il livello minimo (WARNING) e il formato del messaggio
-    nel codice con setTrace attivo il debug
-"""
+
 def init_debug_logger():
+    """
+        Configurazione di base
+        Qui decidiamo il livello minimo (WARNING) e il formato del messaggio
+        nel codice con setTrace attivo il debug
+    """
     logging.basicConfig( level=logging.WARNING,
                             # level=logging.DEBUG,
                             format='%(asctime)s - %(levelname)s - [%(funcName)s] - %(message)s',
@@ -33,6 +42,9 @@ def init_debug_logger():
     return logger
 
 def test_debug_division(logger,a, b):
+    """
+        Funzione per testare il logger debug con ogni trace level
+    """
     logger.debug(f"Inizio funzione con parametri: a={a}, b={b}")
 
     if b == 0:
@@ -45,4 +57,3 @@ def test_debug_division(logger,a, b):
     risultato = a / b
     logger.info(f"Divisione completata con successo. Risultato: {risultato}")
     return risultato
-

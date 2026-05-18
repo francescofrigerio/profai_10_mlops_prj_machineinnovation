@@ -1,7 +1,12 @@
+"""
+   Codice per eseguire il train del modello
+
+
+"""
 # Configuration and Parametrization
 import random
 import logging
-import shutils
+import shutil
 
 from utils.login_mlops_hf import Login
 
@@ -17,7 +22,7 @@ from transformers import set_seed
 import re
 # Load dataset
 from datasets import load_dataset
-from collections import Counter
+
 
 # metrics definitions
 
@@ -53,13 +58,10 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
-
-
-"""
-    Riproducibilità dei risultati
-"""
 def set_all_seeds(seed=42):
-
+    """
+        Riproducibilità dei risultati
+    """
     random.seed(seed)
     np.random.seed(seed)
 
@@ -76,9 +78,11 @@ def set_all_seeds(seed=42):
     # HuggingFace
     set_seed(seed)
 
-
-# PREPROCESS FUNCTION
 def preprocess_tweet(text):
+    """
+        implementa il preprocessing completo del testo 
+    """
+
     # utenti
     text = re.sub(r'@\w+', '@user', text)
     # link
@@ -90,7 +94,9 @@ def preprocess_tweet(text):
     return text
 
 def preprocess_function(examples):
-
+    """
+        funzione di preprocessing usando il tokenizer 
+    """
     texts = [preprocess_tweet(t) for t in examples["text"]]
 
     return tokenizer( texts,
@@ -100,7 +106,10 @@ def preprocess_function(examples):
                       max_length=128
                     )
 
-def train():
+def train(model):
+   """
+       esegue il train del modello
+   """
    mlflow.set_tracking_uri("file:./mlruns")
    # 2. DEFINISCI IL NOME DELL'ESPERIMENTO
    experiment_name = "twitter_sentiment_roberta_base_2"
@@ -235,7 +244,7 @@ def train():
          # liberioimmediatamente i GB occupati dai checkpoint temporanei.                                                      #
          shutil.rmtree(CONFIG.OUTPUT_DIR)    
 
-   
+
 
 
 
@@ -293,10 +302,11 @@ if __name__ == '__main__':
     dataset = load_dataset("tweet_eval", "sentiment")
 
     tokenized_dataset = dataset.map(preprocess_function,
-                                batched=True
+                                batched=True)
 
     # CONFIGURAZIONE DI MlFlow
     # 1. IMPOSTA PRIMA IL TRACKING URI
-    train()
+    train(model,tokenizer,tokenized_dataset)
 
-    
+
+
