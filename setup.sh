@@ -52,7 +52,7 @@ if [ "$1" == "--init" ]; then
     mkdir -p src/train src/utils
     touch src/train/train.py   # script con training models
     touch src/train/pipeline.py # pipeline preprocessing+train+validation+test+evaluate
-    touch src/train/evaluate.py # validazione delle metriche 
+    touch src/train/metrics.py # validazione delle metriche 
     touch src/utils/.gitkeep
     
     # Cartella app/ e relative sottocartelle/file
