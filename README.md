@@ -36,6 +36,11 @@ Installazione Struttura del progetto:
 Per iniziare a lavorare, attivare l'ambiente nel terminale con:
 source .venv/bin/activate
 
+Per controllare la correttezza sintattica dei file python
+ruff check filename.py
+pylint filename.py
+
+
 
 
 

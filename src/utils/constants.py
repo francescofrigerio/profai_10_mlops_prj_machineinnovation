@@ -32,7 +32,7 @@ class ConfigDebugConstants:
     MLFLOW_RUN_NAME: str ="twitter-sentiment-roberta-debug"
     MLFLOW_MODE_RUN: str ="DEBUG"
     MLFLOW_DATASET_TYPE: str ="SMALL"
-    FLAG_NO_CUDA: bool =True
+    FLAG_USE_CPU: bool =True
     MAX_STEPS: int = 20
     FLAG_DEBUG_MODE: bool =True
     FLAG_MONITOR_METRICS: bool =True
@@ -67,7 +67,7 @@ class ConfigProdConstants:
     MLFLOW_MODE_RUN: str ="PROD"
     MLFLOW_DATASET_TYPE: str ="ALL"
 
-    FLAG_NO_CUDA: bool = False
+    FLAG_USE_CPU: bool = False
     FLAG_DEBUG_MODE: bool= False
     FLAG_MONITOR_METRICS: bool =True
 

@@ -18,7 +18,7 @@ run_checks() {
     echo "Verifica Ambiente e Hardware "
     if [ -d ".venv" ]; then
         echo "Visualizzazione pacchetti installati:"
-        .venv/bin/pip list | grep -E "torch|transformers|fastapi|mlflow|uvicorn|requests|pydantic" || true
+        .venv/bin/pip list | grep -E "torch|transformers|fastapi|mlflow|uvicorn|requests|pydantic|pylint|ruff" || true
         echo "----------------------------------------------------"
         echo "Verifica GPU/CPU via PyTorch:"
         .venv/bin/python -c "import torch; print('GPU Disponibile:', torch.cuda.is_available()); print('Nome GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Nessuna GPU. Uso CPU')"
