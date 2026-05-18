@@ -49,10 +49,10 @@ if [ "$1" == "--init" ]; then
 
      # Cartella src/ e relative sottocartelle/file
      # codice per ciclo ML training test evaluate
-    mkdir -p src/training src/utils
-    touch src/train.py   # script con training models
-    touch src/pipeline.py # pipeline preprocessing+train+validation+test+evaluate
-    touch src/evaluate.py # validazione delle metriche 
+    mkdir -p src/train src/utils
+    touch src/train/train.py   # script con training models
+    touch src/train/pipeline.py # pipeline preprocessing+train+validation+test+evaluate
+    touch src/train/evaluate.py # validazione delle metriche 
     touch src/utils/.gitkeep
     
     # Cartella app/ e relative sottocartelle/file
