@@ -36,6 +36,19 @@ Installazione Struttura del progetto:
 Per iniziare a lavorare, attivare l'ambiente nel terminale con:
 source .venv/bin/activate
 
+Per visualizzare help in linea digitare
+./setup.sh
+--------------------------------------------------------------------
+HELP IN LINEA
+1-> setup.sh --init  (inizializza progetto , install. librerie/venv) 
+2-> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) 
+3-> setup.sh --install  (installazione librerie tramite requirements.txt) 
+4-> setup.sh --checks  (controllo GPU/CPU verifica installazione librerie) 
+5-> source .venv/bin/activate per attivare l'ambiente virtuale
+6-> deactivate per disattivare l'ambiente virtuale
+--------------------------------------------------------------------
+
+
 Per controllare la correttezza sintattica dei file python
 ruff check filename.py
 pylint filename.py

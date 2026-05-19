@@ -6,10 +6,14 @@ set -e
 # Funzione per i controlli ordinari (GPU, Python, ecc.)
 run_help() {
     echo "----------------------------------------------------"
+    echo "HELP IN LINEA"
+
     echo "1-> setup.sh --init  (inizializza progetto , install. librerie/venv) "
     echo "2-> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) "
     echo "3-> setup.sh --install  (installazione librerie tramite requirements.txt) "
     echo "4-> setup.sh --checks  (controllo GPU/CPU verifica installazione librerie) "
+    echo "5-> source .venv/bin/activate per attivare l'ambiente virtuale"
+    echo "6-> deactivate per disattivare l'ambiente virtuale"
     echo "----------------------------------------------------"
 }
 
