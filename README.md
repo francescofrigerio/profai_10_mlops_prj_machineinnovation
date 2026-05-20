@@ -38,20 +38,29 @@ source .venv/bin/activate
 
 Per visualizzare help in linea digitare
 ./setup.sh
---------------------------------------------------------------------
+----------------------------------------------------
+1. Verifica Python 
+Python 3.12.1
+----------------------------------------------------
 HELP IN LINEA
-1-> setup.sh --init  (inizializza progetto , install. librerie/venv) 
-2-> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) 
-3-> setup.sh --install  (installazione librerie tramite requirements.txt) 
-4-> setup.sh --checks  (controllo GPU/CPU verifica installazione librerie) 
-5-> source .venv/bin/activate per attivare l'ambiente virtuale
-6-> deactivate per disattivare l'ambiente virtuale
---------------------------------------------------------------------
+1 -> setup.sh --init  (inizializza progetto , install. librerie/venv) 
+2 -> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) 
+3 -> setup.sh --install  (installazione librerie tramite requirements.txt) 
+4 -> setup.sh --checks  (controllo GPU/CPU verifica installazione librerie) 
+5 -> source .venv/bin/activate per attivare l'ambiente virtuale
+6 -> deactivate per disattivare l'ambiente virtuale
+7 -> ruff check file.py controllo superficiale di un file python
+8 -> cd src + PYTHONPATH=. pylint train/file.py per controllo profondo di un file python
+9 -> cd src + PYTHONPATH=. python train_baseline.py --mode PROD Per avviare in produzione
+10-> cd src + PYTHONPATH=. python train_baseline.py --mode DEBUG Per avviare in debug(default)
+11-> cd src + PYTHONPATH=. python train_baseline.py --help per vedere l'help in linea
+----------------------------------------------------
+
 
 
 Per controllare la correttezza sintattica dei file python
-ruff check filename.py
-pylint filename.py
+
+
 
 
 

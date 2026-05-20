@@ -1,4 +1,5 @@
 """
+    const_baseline
     Definzioni delle costanti usate in training evaluate e pipeline
 """
 from dataclasses import dataclass
@@ -20,7 +21,7 @@ class ConfigDebugConstants:
     SEED: int = 42
 
     # Training
-    OUTPUT_DIR: str = "./sentiment-model-base-2-debug"
+    OUTPUT_DIR: str = "./outputs-baseline-debug"
     LEARNING_RATE: float =2e-5
     BATCH_SIZE: int =4
     NUM_EPOCHS: int = 1
@@ -32,6 +33,7 @@ class ConfigDebugConstants:
     MLFLOW_RUN_NAME: str ="twitter-sentiment-roberta-debug"
     MLFLOW_MODE_RUN: str ="DEBUG"
     MLFLOW_DATASET_TYPE: str ="SMALL"
+    MLFLOW_ARTIFACT_PATH: str = "out-model-baseline-debug"
     FLAG_USE_CPU: bool =True
     MAX_STEPS: int = 20
     FLAG_DEBUG_MODE: bool =True
@@ -40,6 +42,9 @@ class ConfigDebugConstants:
     # Export table
     FLAG_DROP_EXPORT_TABLE: bool =True
     FLAG_CREATE_EXPORT_TABLE: bool =True
+    # In ConfigDebugConstants
+    METRICS_DB_PATH: str = "metrics_debug.db"
+
 
 # SETUP CONFIGURAZIONE
 # pylint: disable=invalid-name,too-many-instance-attributes
@@ -54,7 +59,7 @@ class ConfigProdConstants:
     SEED: int = 42
 
     # Training
-    OUTPUT_DIR: str = "./sentiment-model-base-2"
+    OUTPUT_DIR: str = "./outputs-baseline-prod"
     LEARNING_RATE:float =2e-5
     BATCH_SIZE: int=16
     NUM_EPOCHS: int = 3
@@ -66,6 +71,7 @@ class ConfigProdConstants:
     MLFLOW_RUN_NAME: str ="twitter-sentiment-roberta-prod"
     MLFLOW_MODE_RUN: str ="PROD"
     MLFLOW_DATASET_TYPE: str ="ALL"
+    MLFLOW_ARTIFACT_PATH: str = "out-model-baseline-prod"
 
     FLAG_USE_CPU: bool = False
     FLAG_DEBUG_MODE: bool= False
@@ -74,3 +80,6 @@ class ConfigProdConstants:
     # Export table
     FLAG_DROP_EXPORT_TABLE: bool =True
     FLAG_CREATE_EXPORT_TABLE: bool =True
+    # In ConfigProdConstants (magari in produzione punta a una cartella di rete o un volume persistente)
+    METRICS_DB_PATH: str = "metrics_prod.db"
+

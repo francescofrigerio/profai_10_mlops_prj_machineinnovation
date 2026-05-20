@@ -1,6 +1,16 @@
 """
-   Codice per eseguire il train del modello
+    train_baseline.py
+    Modulo per la Pipeline di MLOps / Training Workflow: 
+    processo automatizzato che scarica i dati, 
+    pulisce il testo, addestra, valuta (ROC, Confusion Matrix) 
+    e salva su SQLite.
+
+    Program entrypoint
+    python train.train_baseline.py DEBUG
+    python train.train_baseline.py PROD
 """
+import argparse
+import os
 # Configuration and Parametrization
 import random
 import logging
@@ -38,7 +48,6 @@ from transformers import (  AutoModelForSequenceClassification,
                             DataCollatorWithPadding,
                             Trainer,
                             TrainingArguments,
-                            pipeline,
                             set_seed )
 
 # Inferenza
@@ -63,12 +72,12 @@ from sklearn.metrics import roc_curve, auc
 
 
 from utils.login_mlops_hf import Login
-from utils.constants import ConfigDebugConstants,ConfigProdConstants
+from utils.const_baseline import ConfigDebugConstants,ConfigProdConstants
 from utils.utils import print_counter,init_debug_logger,test_debug_division
 
 # Init global config
-CONFIG_ = ConfigProdConstants()
-CONFIG = ConfigDebugConstants()
+# CONFIG_ = ConfigProdConstants()
+#CONFIG = ConfigDebugConstants()
 
 # Init global logger
 logger = init_debug_logger()
@@ -78,8 +87,6 @@ label_mapping = { 0: "Negative",
                   1: "Neutral",
                   2: "Positive"
                 }
-
-class_names = [label_mapping[i] for i in range(CONFIG.NUM_CLASSES)]
 
 # model and tokenizer
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
@@ -143,7 +150,7 @@ def test_baseline(trainer_,
 
     logger.info("\nTEST METRICS")
     for key, value in test_metrics.items():
-        logger.info(f"{key}: {value}")
+        logger.info("%s: %s", key, value)
 
     # Logging MLflow
     mlflow.log_metrics({ "test_accuracy": test_metrics.get("eval_accuracy"),
@@ -154,11 +161,12 @@ def test_baseline(trainer_,
                         })
     return test_metrics
 
-def plot_confusion_matrix(trainer_):
+def plot_confusion_matrix(trainer_,
+                          tokenized_dataset_):
     """
         plot confusion matrix on test data
     """
-    predictions = trainer_.predict(tokenized_dataset["test"])
+    predictions = trainer_.predict(tokenized_dataset_["test"])
 
     y_true = predictions.label_ids
     y_pred = np.argmax(predictions.predictions, axis=1)
@@ -169,17 +177,27 @@ def plot_confusion_matrix(trainer_):
     sns.heatmap(cm, annot=True, fmt="d")
     plt.title("Confusion Matrix")
 
-    plt.savefig("confusion_matrix.png")
-    mlflow.log_artifact("confusion_matrix.png")
+    # plt.savefig("confusion_matrix.png")
+    # mlflow.log_artifact("confusion_matrix.png")
+    # FIX: Salvataggio dentro la cartella unificata di output
+    save_path = os.path.join(CONFIG.OUTPUT_DIR, "confusion_matrix.png")
+    plt.savefig(save_path)
+    plt.close()
+    mlflow.log_artifact(save_path)
 
 
-def plot_roc_curve(trainer_):
+def plot_roc_curve(trainer_,
+                   tokenized_dataset_):
     """
         Ripassare la logica e le definizioni
         ROC richiede score/probabilità continue
         NON classi discrete
     """
-    predictions = trainer_.predict(tokenized_dataset["test"])
+
+    # define class names for sentyment analysy
+    class_names = [label_mapping[i] for i in range(CONFIG.NUM_CLASSES)]
+
+    predictions = trainer_.predict(tokenized_dataset_["test"])
     # labels reali
     y_true = predictions.label_ids
     # KO sono valori discreti
@@ -237,7 +255,14 @@ def plot_roc_curve(trainer_):
         plt.title('Receiver Operating Characteristic (ROC) Multiclass')
         plt.legend(loc="lower right")
         plt.grid(True)
-        plt.show()
+
+        # FIX: Salvataggio strutturato
+        save_path = os.path.join(CONFIG.OUTPUT_DIR, "roc_curve.png")
+        plt.savefig(save_path)
+        plt.close()
+        mlflow.log_artifact(save_path)
+
+        # plt.show()
 
 def create_table_baseline(path_connect="metrics.db"):
     """
@@ -302,7 +327,7 @@ def insert_table_baseline(metrics,
     # Inserimento manuale
     cursor.execute("""INSERT INTO model_metrics_baseline
                       (timestamp, dom_name,accuracy, precision, recall, f1_score)
-                      VALUES (?,?,? , ?, ?, ?, ?)
+                      VALUES (?,?,?,?,?,?,?)
                    """,
                    (timestamp,dom_name,exp_id, acc, prec, rec, f1))
 
@@ -311,10 +336,14 @@ def insert_table_baseline(metrics,
 
 def train_baseline( model_ ,
                     train_dataset_,
-                    val_dataset_ ):
+                    val_dataset_,
+                    tokenized_dataset_ ):
     """
-        esegue il train del modello
+        esegue train e test del modello , grafici ed export data 
     """
+
+    db_path = os.path.join(CONFIG.OUTPUT_DIR, CONFIG.METRICS_DB_PATH)
+    model_weights_dir = os.path.join(CONFIG.OUTPUT_DIR, "model_weights")
 
     # CONFIGURAZIONE DI MlFlow
     # 1. IMPOSTA PRIMA IL TRACKING URI
@@ -335,16 +364,25 @@ def train_baseline( model_ ,
     # MFlow Logging
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
     # str_run_name="twitter-sentiment-roberta-debug"
-    str_run_name=CONFIG.MLFLOW_RUN_NAME
-    str_mode_run=CONFIG.MLFLOW_MODE_RUN
-    str_dataset_type=CONFIG.MLFLOW_DATASET_TYPE
+    # str_run_name=CONFIG.MLFLOW_RUN_NAME
+    # str_mode_run=CONFIG.MLFLOW_MODE_RUN
+    # str_dataset_type=CONFIG.MLFLOW_DATASET_TYPE
+    # Raggruppiamo i metadati in un unico dizionario (1 sola variabile invece di 3)
+    run_metadata = {
+        "run_name": CONFIG.MLFLOW_RUN_NAME,
+        "mode_run": CONFIG.MLFLOW_MODE_RUN,
+        "dataset_type": CONFIG.MLFLOW_DATASET_TYPE
+    }
+
 
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
 
     if CONFIG.FLAG_DEBUG_MODE:
         # debug mode con max_steps
         logger.info("RUN TRAINING WITH DEBUG MODE")
-        training_args = TrainingArguments(  output_dir=CONFIG.OUTPUT_DIR ,
+        training_args = TrainingArguments(
+                                             # output_dir=CONFIG.OUTPUT_DIR ,
+                                             output_dir=model_weights_dir,
                                              learning_rate=CONFIG.LEARNING_RATE,
                                              per_device_train_batch_size=CONFIG.BATCH_SIZE,
                                              per_device_eval_batch_size=CONFIG.BATCH_SIZE,
@@ -379,7 +417,9 @@ def train_baseline( model_ ,
 
     else:
         logger.info("RUN TRAININ WITH PROD MODE")
-        training_args = TrainingArguments(  output_dir=CONFIG.OUTPUT_DIR ,
+        training_args = TrainingArguments(
+                                    # output_dir=CONFIG.OUTPUT_DIR ,
+                                    output_dir=model_weights_dir,
                                     learning_rate=CONFIG.LEARNING_RATE,
                                     per_device_train_batch_size=CONFIG.BATCH_SIZE,
                                     per_device_eval_batch_size=CONFIG.BATCH_SIZE,
@@ -407,13 +447,19 @@ def train_baseline( model_ ,
                    data_collator=data_collator,
                    compute_metrics=compute_metrics )
 
-    with mlflow.start_run(run_name=str_run_name):
-        mlflow.set_tag("mode", str_mode_run)
-        mlflow.set_tag("dataset_type", str_dataset_type)
-
-        mlflow.set_tag("project", "twitter_sentiment")
-        mlflow.set_tag("framework", "huggingface")
-        mlflow.set_tag("model_family", "roberta")
+    with mlflow.start_run(run_name=run_metadata["run_name"]):
+        # mlflow.set_tag("mode", str_mode_run)
+        # mlflow.set_tag("dataset_type", str_dataset_type)
+        # mlflow.set_tag("project", "twitter_sentiment")
+        # mlflow.set_tag("framework", "huggingface")
+        # mlflow.set_tag("model_family", "roberta")
+        mlflow.set_tags({
+            "mode": run_metadata["mode_run"],
+            "dataset_type": run_metadata["dataset_type"],
+            "project": "twitter_sentiment",
+            "framework": "huggingface",
+            "model_family": "roberta"
+        })
 
         # log parametri custom
         mlflow.log_param("model_name", MODEL_NAME)
@@ -421,7 +467,6 @@ def train_baseline( model_ ,
         mlflow.log_param("max_length", CONFIG.MAX_LENGTH)
 
         trainer.train()
-
         # valutazione sul validation
         train_metrics = trainer.evaluate()
 
@@ -439,34 +484,68 @@ def train_baseline( model_ ,
             mlflow.log_metrics(train_metrics)
 
         # salva modello HuggingFace
+        # Non usare artifact_path=OUTPUT_DIR è un percorso fisico sul tuo computer
+        # Invece, artifact_path è solo il nome della cartella virtuale
+        # che MLflow creerà dentro la directory ./mlruns)
+        # per catalogare i pesi del modello.
         mlflow.transformers.log_model(
                                         transformers_model={ "model": trainer.model,
                                                              "tokenizer": tokenizer
                                                         },
-                                        artifact_path="sentiment_model-base-2"
+                                        artifact_path=CONFIG.MLFLOW_ARTIFACT_PATH
                                     )
-    # Dopo trainer.train() e il logging su mlflow
-    # liberioimmediatamente i GB occupati dai checkpoint temporanei.
-    shutil.rmtree(CONFIG.OUTPUT_DIR)
 
     # grafici sui dati di test
-    plot_confusion_matrix(trainer)
-    plot_roc_curve(trainer)
+    plot_confusion_matrix(trainer,tokenized_dataset_)
+    plot_roc_curve(trainer,tokenized_dataset_)
 
-    test_metrics = test_baseline(trainer,tokenized_dataset)
+    test_metrics = test_baseline(trainer,tokenized_dataset_)
 
-    # start export to sqllite
-    create_table_baseline()
+    create_table_baseline(path_connect=db_path)
+
     insert_table_baseline(train_metrics,
-                          mlflow.get_experiment_by_name(experiment_name))
+                          mlflow.get_experiment_by_name(experiment_name),
+                          path_connect=db_path)
+
     insert_table_baseline(test_metrics,
-                          mlflow.get_experiment_by_name(experiment_name))
+                          mlflow.get_experiment_by_name(experiment_name),
+                          path_connect=db_path)
     # end export to sqllite
 
-# Program entrypoint
-# python train.train_baseline.py DEBUG
-# PYTHONPATH=. pylint train/train.py
+    # Dopo trainer.train() e il logging su mlflow
+    # liberioimmediatamente i GB occupati dai checkpoint temporanei.
+    # shutil.rmtree(CONFIG.OUTPUT_DIR)
+    if os.path.exists(model_weights_dir):
+        shutil.rmtree(model_weights_dir)
+
 if __name__ == '__main__':
+
+    # Inizializza il parser
+    parser = argparse.ArgumentParser(description="Pipeline di Training per Sentiment Analysis")
+
+    # Definisci l'argomento (es. --mode, accettando solo DEBUG o PROD)
+    parser.add_argument( '--mode',
+                        type=str,
+                        choices=['DEBUG', 'PROD'],
+                        default='DEBUG',
+                        help="Modalità di esecuzione dell'addestramento (default: DEBUG)"
+                    )
+
+    # Effettua il parse degli argomenti lanciati da terminale
+    args = parser.parse_args()
+
+    # Assegna la configurazione globale corretta in base all'input
+    if args.mode == 'PROD':
+        CONFIG = ConfigProdConstants()
+        print("Training avviato in modalità: PRODUCTION")
+    else:
+        CONFIG = ConfigDebugConstants()
+        print("Training avviato in modalità: DEBUG")
+
+    # definizione/creazione dir e file di di output
+    os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
+    # db_path = os.path.join(CONFIG.OUTPUT_DIR, CONFIG.METRICS_DB_PATH)
+    # model_weights_dir = os.path.join(CONFIG.OUTPUT_DIR, "model_weights")
 
     obj_login = Login("MachineInnovation")
     obj_login.login_hf()
@@ -481,26 +560,23 @@ if __name__ == '__main__':
     test_debug_division(logger,10, 0)   # Genera DEBUG e ERROR
     logger.setLevel(logging.INFO)
 
-    # 1. load dataset
+    # load dataset
     dataset = load_dataset("tweet_eval", "sentiment")
 
     print_counter(dataset["train"]["label"],label_mapping,"TRAIN")
     print_counter(dataset["validation"]["label"],label_mapping,"VAL")
     print_counter(dataset["test"]["label"],label_mapping,"TEST")
 
-    logger.info(f"{dataset['train']}")
-    logger.info(f"{dataset['test']}")
-    logger.info(f"{dataset['validation']}")
-    # print(dataset['test'])
-    # print(dataset['validation'])
-
-    logger.info(f"{dataset['train']['text'][6]}")
-    logger.info(f"{dataset['train']['label'][6]}")
+    # logger.info(f"{dataset['train']}")
+    # logger.info(f"{dataset['test']}")
+    # logger.info(f"{dataset['validation']}")
+    logger.info("%s:",dataset['train'])
+    logger.info("%s:",dataset['test'])
+    logger.info("%s:",dataset['validation'])
+    # logger.info(f"{dataset['train']['text'][6]}")
+    # logger.info(f"{dataset['train']['label'][6]}")
 
     # model and tokenizer
-    # Use a pipeline as a high-level helper
-    pipe = pipeline("text-classification", model=MODEL_NAME)
-
     # Load model directly
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
     dataset = load_dataset("tweet_eval", "sentiment")
@@ -525,11 +601,13 @@ if __name__ == '__main__':
 
         train_baseline(model,
                        small_train_dataset,
-                       small_val_dataset )
+                       small_val_dataset,
+                       tokenized_dataset )
         logger.info("END RUN TRAIN WITH DEBUG MODE")
     else:
         logger.info("RUN TRAIN WITH PROD MODE")
         train_baseline(model,
-                   tokenized_dataset["train"],
-                   tokenized_dataset["validation"] )
+                       tokenized_dataset["train"],
+                       tokenized_dataset["validation"],
+                       tokenized_dataset )
         logger.info("END TRAIN WITH PROD MODE")
