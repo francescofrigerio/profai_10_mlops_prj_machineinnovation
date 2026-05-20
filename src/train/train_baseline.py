@@ -162,7 +162,8 @@ def test_baseline(trainer_,
     return test_metrics
 
 def plot_confusion_matrix(trainer_,
-                          tokenized_dataset_):
+                          tokenized_dataset_,
+                          config):
     """
         plot confusion matrix on test data
     """
@@ -177,17 +178,16 @@ def plot_confusion_matrix(trainer_,
     sns.heatmap(cm, annot=True, fmt="d")
     plt.title("Confusion Matrix")
 
-    # plt.savefig("confusion_matrix.png")
-    # mlflow.log_artifact("confusion_matrix.png")
-    # FIX: Salvataggio dentro la cartella unificata di output
-    save_path = os.path.join(CONFIG.OUTPUT_DIR, "confusion_matrix.png")
+    # Salvataggio dentro la cartella unificata di output
+    save_path = os.path.join(config.OUTPUT_DIR, "confusion_matrix.png")
     plt.savefig(save_path)
     plt.close()
     mlflow.log_artifact(save_path)
 
 
 def plot_roc_curve(trainer_,
-                   tokenized_dataset_):
+                   tokenized_dataset_,
+                   config):
     """
         Ripassare la logica e le definizioni
         ROC richiede score/probabilità continue
@@ -195,7 +195,7 @@ def plot_roc_curve(trainer_,
     """
 
     # define class names for sentyment analysy
-    class_names = [label_mapping[i] for i in range(CONFIG.NUM_CLASSES)]
+    class_names = [label_mapping[i] for i in range(config.NUM_CLASSES)]
 
     predictions = trainer_.predict(tokenized_dataset_["test"])
     # labels reali
@@ -209,7 +209,7 @@ def plot_roc_curve(trainer_,
     y_scores = softmax(logits, axis=1)
 
     # Binarizza labels/target (es: la classe 2 diventa [0, 0, 1, 0...])
-    n_classes = CONFIG.NUM_CLASSES
+    n_classes = config.NUM_CLASSES
     y_true_bin = label_binarize(y_true, classes=range(n_classes))
 
     # Inizializza dizionari per memorizzare FPR, TPR e AUC per ogni classe
@@ -257,14 +257,14 @@ def plot_roc_curve(trainer_,
         plt.grid(True)
 
         # FIX: Salvataggio strutturato
-        save_path = os.path.join(CONFIG.OUTPUT_DIR, "roc_curve.png")
+        save_path = os.path.join(config.OUTPUT_DIR, "roc_curve.png")
         plt.savefig(save_path)
         plt.close()
         mlflow.log_artifact(save_path)
-
         # plt.show()
 
-def create_table_baseline(path_connect="metrics.db"):
+def create_table_baseline(path_connect="metrics.db",
+                          config=None):
     """
         Creazione tabella SQLite
         path_connect="metrics.db"
@@ -277,10 +277,10 @@ def create_table_baseline(path_connect="metrics.db"):
     # Start Creazione una tabella model_metrics_baseline
     cursor = conn.cursor()
 
-    if CONFIG.FLAG_DROP_EXPORT_TABLE:
+    if config.FLAG_DROP_EXPORT_TABLE:
         cursor.execute("DROP TABLE IF EXISTS model_metrics_baseline")
 
-    if CONFIG.FLAG_CREATE_EXPORT_TABLE:
+    if config.FLAG_CREATE_EXPORT_TABLE:
         cursor.execute("""CREATE TABLE IF NOT EXISTS model_metrics_baseline (
                   id INTEGER PRIMARY KEY AUTOINCREMENT,
                   timestamp TEXT,
@@ -299,7 +299,8 @@ def create_table_baseline(path_connect="metrics.db"):
 
 def insert_table_baseline(metrics,
                           exp_obj,
-                          path_connect="metrics.db"):
+                          path_connect="metrics.db",
+                          config=None):
     """
         Inserisci i dati in tabella a partire
         dalle metriche ritornate dal training/test
@@ -313,7 +314,7 @@ def insert_table_baseline(metrics,
     rec = metrics.get("eval_recall", 0)
     f1 = metrics.get("eval_f1", 0)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    dom_name = CONFIG.MLFLOW_RUN_NAME
+    dom_name = config.MLFLOW_RUN_NAME
     # Recupera l'ID di MLflow
     # exp_obj = mlflow.get_experiment_by_name(experiment_name)
     if exp_obj is not None:
@@ -337,19 +338,20 @@ def insert_table_baseline(metrics,
 def train_baseline( model_ ,
                     train_dataset_,
                     val_dataset_,
-                    tokenized_dataset_ ):
+                    tokenized_dataset_,
+                    config_ ):
     """
         esegue train e test del modello , grafici ed export data 
     """
 
-    db_path = os.path.join(CONFIG.OUTPUT_DIR, CONFIG.METRICS_DB_PATH)
-    model_weights_dir = os.path.join(CONFIG.OUTPUT_DIR, "model_weights")
+    db_path = os.path.join(config_.OUTPUT_DIR, config_.METRICS_DB_PATH)
+    model_weights_dir = os.path.join(config_.OUTPUT_DIR, "model_weights")
 
     # CONFIGURAZIONE DI MlFlow
     # 1. IMPOSTA PRIMA IL TRACKING URI
     mlflow.set_tracking_uri("file:./mlruns")
     # 2. DEFINISCI IL NOME DELL'ESPERIMENTO
-    experiment_name = "twitter_sentiment_roberta_base_2"
+    experiment_name = "twitter_sentiment_analisys"
 
     # 3. RECUPERA O CREA L'ESPERIMENTO IN MODO SICURO
     experiment = mlflow.get_experiment_by_name(experiment_name)
@@ -369,39 +371,38 @@ def train_baseline( model_ ,
     # str_dataset_type=CONFIG.MLFLOW_DATASET_TYPE
     # Raggruppiamo i metadati in un unico dizionario (1 sola variabile invece di 3)
     run_metadata = {
-        "run_name": CONFIG.MLFLOW_RUN_NAME,
-        "mode_run": CONFIG.MLFLOW_MODE_RUN,
-        "dataset_type": CONFIG.MLFLOW_DATASET_TYPE
+        "run_name": config_.MLFLOW_RUN_NAME,
+        "mode_run": config_.MLFLOW_MODE_RUN,
+        "dataset_type": config_.MLFLOW_DATASET_TYPE
     }
 
 
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
 
-    if CONFIG.FLAG_DEBUG_MODE:
+    if config_.FLAG_DEBUG_MODE:
         # debug mode con max_steps
         logger.info("RUN TRAINING WITH DEBUG MODE")
         training_args = TrainingArguments(
                                              # output_dir=CONFIG.OUTPUT_DIR ,
                                              output_dir=model_weights_dir,
-                                             learning_rate=CONFIG.LEARNING_RATE,
-                                             per_device_train_batch_size=CONFIG.BATCH_SIZE,
-                                             per_device_eval_batch_size=CONFIG.BATCH_SIZE,
-                                             num_train_epochs=CONFIG.NUM_EPOCHS ,
-                                             weight_decay=CONFIG.WEIGHT_DECAY,
+                                             learning_rate=config_.LEARNING_RATE,
+                                             per_device_train_batch_size=config_.BATCH_SIZE,
+                                             per_device_eval_batch_size=config_.BATCH_SIZE,
+                                             num_train_epochs=config_.NUM_EPOCHS ,
+                                             weight_decay=config_.WEIGHT_DECAY,
                                              eval_strategy="epoch",
                                              # save_strategy="epoch",
-                                             save_strategy=CONFIG.SAVE_STRATEGY_MODE,
+                                             save_strategy=config_.SAVE_STRATEGY_MODE,
                                              metric_for_best_model="f1",
                                              load_best_model_at_end=True,
-                                             save_total_limit=CONFIG.SAVE_TOTAL_LIMIT,
-                                             seed=CONFIG.SEED,
-                                             data_seed=CONFIG.SEED,
+                                             save_total_limit=config_.SAVE_TOTAL_LIMIT,
+                                             seed=config_.SEED,
+                                             data_seed=config_.SEED,
                                              # MLflow
-                                             report_to=CONFIG.REPORT_TO_MODE,
-                                             logging_steps=CONFIG.LOGGING_STEPS,
-                                             # no_cuda=CONFIG.FLAG_NO_CUDA,
-                                             use_cpu=CONFIG.FLAG_USE_CPU,
-                                             max_steps=CONFIG.MAX_STEPS
+                                             report_to=config_.REPORT_TO_MODE,
+                                             logging_steps=config_.LOGGING_STEPS,
+                                             use_cpu=config_.FLAG_USE_CPU,
+                                             max_steps=config_.MAX_STEPS
                                           )
 
         trainer = Trainer( model=model_,
@@ -418,25 +419,24 @@ def train_baseline( model_ ,
     else:
         logger.info("RUN TRAININ WITH PROD MODE")
         training_args = TrainingArguments(
-                                    # output_dir=CONFIG.OUTPUT_DIR ,
+                                    # output_dir=config_.OUTPUT_DIR ,
                                     output_dir=model_weights_dir,
-                                    learning_rate=CONFIG.LEARNING_RATE,
-                                    per_device_train_batch_size=CONFIG.BATCH_SIZE,
-                                    per_device_eval_batch_size=CONFIG.BATCH_SIZE,
-                                    num_train_epochs=CONFIG.NUM_EPOCHS ,
-                                    weight_decay=CONFIG.WEIGHT_DECAY,
+                                    learning_rate=config_.LEARNING_RATE,
+                                    per_device_train_batch_size=config_.BATCH_SIZE,
+                                    per_device_eval_batch_size=config_.BATCH_SIZE,
+                                    num_train_epochs=config_.NUM_EPOCHS ,
+                                    weight_decay=config_.WEIGHT_DECAY,
                                     eval_strategy="epoch",
-                                    save_strategy=CONFIG.SAVE_STRATEGY_MODE,
+                                    save_strategy=config_.SAVE_STRATEGY_MODE,
                                     metric_for_best_model="f1",
                                     load_best_model_at_end=True,
-                                    save_total_limit=CONFIG.SAVE_TOTAL_LIMIT,
-                                    seed=CONFIG.SEED,
-                                    data_seed=CONFIG.SEED,
+                                    save_total_limit=config_.SAVE_TOTAL_LIMIT,
+                                    seed=config_.SEED,
+                                    data_seed=config_.SEED,
                                     # MLflow
-                                    report_to=CONFIG.REPORT_TO_MODE,
-                                    logging_steps=CONFIG.LOGGING_STEPS,
-                                    # no_cuda=CONFIG.FLAG_NO_CUDA
-                                    use_cpu=CONFIG.FLAG_USE_CPU
+                                    report_to=config_.REPORT_TO_MODE,
+                                    logging_steps=config_.LOGGING_STEPS,
+                                    use_cpu=config_.FLAG_USE_CPU
                                     )
         trainer = Trainer( model=model_,
                    args=training_args,
@@ -448,11 +448,6 @@ def train_baseline( model_ ,
                    compute_metrics=compute_metrics )
 
     with mlflow.start_run(run_name=run_metadata["run_name"]):
-        # mlflow.set_tag("mode", str_mode_run)
-        # mlflow.set_tag("dataset_type", str_dataset_type)
-        # mlflow.set_tag("project", "twitter_sentiment")
-        # mlflow.set_tag("framework", "huggingface")
-        # mlflow.set_tag("model_family", "roberta")
         mlflow.set_tags({
             "mode": run_metadata["mode_run"],
             "dataset_type": run_metadata["dataset_type"],
@@ -464,7 +459,7 @@ def train_baseline( model_ ,
         # log parametri custom
         mlflow.log_param("model_name", MODEL_NAME)
         mlflow.log_param("dataset", "tweet_eval")
-        mlflow.log_param("max_length", CONFIG.MAX_LENGTH)
+        mlflow.log_param("max_length", config_.MAX_LENGTH)
 
         trainer.train()
         # valutazione sul validation
@@ -478,7 +473,7 @@ def train_baseline( model_ ,
                                "eval_loss": train_metrics.get("eval_loss")
                               }
         # log metriche finali
-        if CONFIG.FLAG_MONITOR_METRICS:
+        if config_.FLAG_MONITOR_METRICS:
             mlflow.log_metrics(monitoring_metrics)
         else:
             mlflow.log_metrics(train_metrics)
@@ -492,24 +487,28 @@ def train_baseline( model_ ,
                                         transformers_model={ "model": trainer.model,
                                                              "tokenizer": tokenizer
                                                         },
-                                        artifact_path=CONFIG.MLFLOW_ARTIFACT_PATH
+                                        artifact_path=config_.MLFLOW_ARTIFACT_PATH
                                     )
 
     # grafici sui dati di test
-    plot_confusion_matrix(trainer,tokenized_dataset_)
-    plot_roc_curve(trainer,tokenized_dataset_)
+    plot_confusion_matrix(trainer,tokenized_dataset_,config_)
+    plot_roc_curve(trainer,tokenized_dataset_,config_)
 
-    test_metrics = test_baseline(trainer,tokenized_dataset_)
+    test_metrics = test_baseline(trainer,
+                                 tokenized_dataset_)
 
-    create_table_baseline(path_connect=db_path)
+    create_table_baseline(path_connect=db_path,
+                          config=config_)
 
     insert_table_baseline(train_metrics,
                           mlflow.get_experiment_by_name(experiment_name),
-                          path_connect=db_path)
+                          path_connect=db_path,
+                          config=config_)
 
     insert_table_baseline(test_metrics,
                           mlflow.get_experiment_by_name(experiment_name),
-                          path_connect=db_path)
+                          path_connect=db_path,
+                          config=config_)
     # end export to sqllite
 
     # Dopo trainer.train() e il logging su mlflow
@@ -602,12 +601,14 @@ if __name__ == '__main__':
         train_baseline(model,
                        small_train_dataset,
                        small_val_dataset,
-                       tokenized_dataset )
+                       tokenized_dataset,
+                        CONFIG )
         logger.info("END RUN TRAIN WITH DEBUG MODE")
     else:
         logger.info("RUN TRAIN WITH PROD MODE")
         train_baseline(model,
                        tokenized_dataset["train"],
                        tokenized_dataset["validation"],
-                       tokenized_dataset )
+                       tokenized_dataset,
+                       CONFIG )
         logger.info("END TRAIN WITH PROD MODE")
