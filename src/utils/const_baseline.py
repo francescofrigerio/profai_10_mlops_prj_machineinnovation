@@ -22,26 +22,26 @@ class ConfigDebugConstants:
 
     # Training
     OUTPUT_DIR: str = "./outputs-baseline-debug"
-    LEARNING_RATE: float =2e-5
-    BATCH_SIZE: int =4
+    LEARNING_RATE: float = 2e-5
+    BATCH_SIZE: int = 4
     NUM_EPOCHS: int = 1
-    WEIGHT_DECAY: float =0.01
-    SAVE_TOTAL_LIMIT: int =1
-    LOGGING_STEPS: int =5
-    SAVE_STRATEGY_MODE: str ="no"
-    REPORT_TO_MODE: str ="mlflow"
-    MLFLOW_RUN_NAME: str ="twitter-sentiment-roberta-debug"
-    MLFLOW_MODE_RUN: str ="DEBUG"
-    MLFLOW_DATASET_TYPE: str ="SMALL"
+    WEIGHT_DECAY: float = 0.01
+    SAVE_TOTAL_LIMIT: int = 1
+    LOGGING_STEPS: int = 5
+    SAVE_STRATEGY_MODE: str = "no"
+    REPORT_TO_MODE: str = "mlflow"
+    MLFLOW_RUN_NAME: str = "twitter-sentiment-roberta-debug"
+    MLFLOW_MODE_RUN: str = "DEBUG"
+    MLFLOW_DATASET_TYPE: str = "SMALL"
     MLFLOW_ARTIFACT_PATH: str = "out-model-baseline-debug"
-    FLAG_USE_CPU: bool =True
+    FLAG_USE_CPU: bool = True
     MAX_STEPS: int = 20
-    FLAG_DEBUG_MODE: bool =True
-    FLAG_MONITOR_METRICS: bool =True
+    FLAG_DEBUG_MODE: bool = True
+    FLAG_MONITOR_METRICS: bool = True
 
     # Export table
-    FLAG_DROP_EXPORT_TABLE: bool =True
-    FLAG_CREATE_EXPORT_TABLE: bool =True
+    FLAG_DROP_EXPORT_TABLE: bool = True
+    FLAG_CREATE_EXPORT_TABLE: bool = True
     # In ConfigDebugConstants
     METRICS_DB_PATH: str = "metrics_debug.db"
 
@@ -60,17 +60,17 @@ class ConfigProdConstants:
 
     # Training
     OUTPUT_DIR: str = "./outputs-baseline-prod"
-    LEARNING_RATE:float =2e-5
-    BATCH_SIZE: int=16
+    LEARNING_RATE:float = 2e-5
+    BATCH_SIZE: int= 16
     NUM_EPOCHS: int = 3
     WEIGHT_DECAY: float = 0.01
     SAVE_TOTAL_LIMIT: int = 2
     LOGGING_STEPS: int = 50
-    SAVE_STRATEGY_MODE: str ="epoch"
-    REPORT_TO_MODE: str ="mlflow"
-    MLFLOW_RUN_NAME: str ="twitter-sentiment-roberta-prod"
-    MLFLOW_MODE_RUN: str ="PROD"
-    MLFLOW_DATASET_TYPE: str ="ALL"
+    SAVE_STRATEGY_MODE: str = "epoch"
+    REPORT_TO_MODE: str = "mlflow"
+    MLFLOW_RUN_NAME: str = "twitter-sentiment-roberta-prod"
+    MLFLOW_MODE_RUN: str = "PROD"
+    MLFLOW_DATASET_TYPE: str = "ALL"
     MLFLOW_ARTIFACT_PATH: str = "out-model-baseline-prod"
 
     FLAG_USE_CPU: bool = False
@@ -78,8 +78,8 @@ class ConfigProdConstants:
     FLAG_MONITOR_METRICS: bool =True
 
     # Export table
-    FLAG_DROP_EXPORT_TABLE: bool =True
-    FLAG_CREATE_EXPORT_TABLE: bool =True
+    FLAG_DROP_EXPORT_TABLE: bool = True
+    FLAG_CREATE_EXPORT_TABLE: bool = True
     # In ConfigProdConstants (magari in produzione punta a una cartella di rete o un volume persistente)
     METRICS_DB_PATH: str = "metrics_prod.db"
 

@@ -122,7 +122,7 @@ sympy==1.13.1
 threadpoolctl==3.6.0
 tokenizers==0.22.2
 tomlkit==0.15.0
-torch==2.5.1+cu121
+torch>=2.6.0
 tqdm==4.67.3
 transformers==5.8.1
 triton==3.1.0

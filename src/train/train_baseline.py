@@ -75,10 +75,6 @@ from utils.login_mlops_hf import Login
 from utils.const_baseline import ConfigDebugConstants,ConfigProdConstants
 from utils.utils import print_counter,init_debug_logger,test_debug_division
 
-# Init global config
-# CONFIG_ = ConfigProdConstants()
-#CONFIG = ConfigDebugConstants()
-
 # Init global logger
 logger = init_debug_logger()
 
@@ -549,6 +545,8 @@ if __name__ == '__main__':
     obj_login = Login("MachineInnovation")
     obj_login.login_hf()
     print(obj_login.get_token())
+
+    raise ValueError("Mi fermo per debug auth hf")
 
     set_all_seeds(CONFIG.SEED)
 

@@ -16,9 +16,9 @@ run_help() {
     echo "6 -> deactivate per disattivare l'ambiente virtuale"
     echo "7 -> ruff check file.py controllo superficiale di un file python"
     echo "8 -> cd src + PYTHONPATH=. pylint train/file.py per controllo profondo di un file python"
-    echo "9 -> cd src + PYTHONPATH=. python train_baseline.py --mode PROD Per avviare in produzione"
-    echo "10-> cd src + PYTHONPATH=. python train_baseline.py --mode DEBUG Per avviare in debug(default)"
-    echo "11-> cd src + PYTHONPATH=. python train_baseline.py --help per vedere l'help in linea"
+    echo "9 -> cd src + PYTHONPATH=. python train/train_baseline.py --mode PROD Per avviare in produzione"
+    echo "10-> cd src + PYTHONPATH=. python train/train_baseline.py --mode DEBUG Per avviare in debug(default)"
+    echo "11-> cd src + PYTHONPATH=. python train/train_baseline.py --help per vedere l'help in linea"
 
     echo "----------------------------------------------------"
 }
