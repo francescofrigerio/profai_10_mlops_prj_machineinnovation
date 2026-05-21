@@ -230,11 +230,15 @@ def plot_roc_curve(trainer_,
 
     # Plot delle curve per alcune classi specifiche (o tutte, ma 37 sono tante!)
     colors = ['aqua', 'darkorange', 'cornflowerblue']
-    for i, color in zip(range(3), colors):
+    # for i, color in zip(range(3), colors):
+    #    plt.plot(fpr[i], tpr[i], color=color, lw=2,
+    #                  label=f'ROC curve class {class_names[i]} (area = {roc_auc[i]:0.2f})')
+    
+    # utilizzo il numero reale di classi calcolate, accoppiandolo dinamicamente con i colori:
+    for i, color in zip(range(len(fpr)), colors):
         plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                      # label=f'ROC curve class {class_map[str(i+1)]} (area = {roc_auc[i]:0.2f})')
-                      label=f'ROC curve class {class_names[i]} (area = {roc_auc[i]:0.2f})')
-
+            label=f'ROC curve class {class_names[i]} (area = {roc_auc[i]:0.2f})')
+    
     plt.plot([0, 1], [0, 1], 'k--', lw=2)
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
@@ -315,7 +319,7 @@ def insert_table_baseline(metrics,
 
     # Inserimento manuale
     cursor.execute("""INSERT INTO model_metrics_baseline
-                      (timestamp, dom_name,accuracy, precision, recall, f1_score)
+                      (timestamp, dom_name,exp_id,accuracy, precision, recall, f1_score)
                       VALUES (?,?,?,?,?,?,?)
                    """,
                    (timestamp,dom_name,exp_id, acc, prec, rec, f1))
