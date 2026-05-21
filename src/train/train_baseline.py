@@ -27,12 +27,8 @@ from datetime import datetime
 import numpy as np
 # import pandas as pd
 
-from metrics import compute_metrics
 # Load dataset
 from datasets import load_dataset
-
-
-
 
 # tokenizer definitions
 # model and pipeline definitions
@@ -67,6 +63,7 @@ from sklearn.metrics import roc_curve, auc
 from utils.login_mlops_hf import Login
 from utils.const_baseline import ConfigDebugConstants,ConfigProdConstants
 from utils.utils import print_counter,init_debug_logger,test_debug_division
+from train.metrics import compute_metrics
 
 # Init global logger
 logger = init_debug_logger()

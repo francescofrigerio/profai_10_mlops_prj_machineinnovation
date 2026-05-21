@@ -6,3 +6,4 @@ model/
 src/mlruns/
 src/outputs-baseline-debug/
 src/outputs-baseline-prod/
+src/train_debug.log
