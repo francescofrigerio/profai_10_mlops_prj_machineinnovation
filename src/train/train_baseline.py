@@ -36,13 +36,6 @@ from datasets import load_dataset
 
 # tokenizer definitions
 # model and pipeline definitions
-# from transformers import pipeline
-# from transformers import AutoTokenizer, AutoModelForSequenceClassification
-# from transformers import set_seed
-# training
-# from transformers import DataCollatorWithPadding
-# from transformers import Trainer, TrainingArguments
-
 from transformers import (  AutoModelForSequenceClassification,
                             AutoTokenizer,
                             DataCollatorWithPadding,
@@ -223,41 +216,40 @@ def plot_roc_curve(trainer_,
         fpr[i], tpr[i], _ = roc_curve(y_true_bin[:, i], y_scores[:, i])
         roc_auc[i] = auc(fpr[i], tpr[i])
 
-        # 3. Calcola la Micro-Average ROC curve (opzionale, aggrega tutto)
-        fpr["micro"], tpr["micro"], _ = roc_curve(y_true_bin.ravel(), y_scores.ravel())
-        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+    # 3. Calcola la Micro-Average ROC curve (opzionale, aggrega tutto)
+    fpr["micro"], tpr["micro"], _ = roc_curve(y_true_bin.ravel(), y_scores.ravel())
+    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
 
-        # 4. Plotting
-        plt.figure(figsize=(10, 8))
+    # 4. Plotting
+    plt.figure(figsize=(10, 8))
 
-        # Plot della curva Micro-Average
-        plt.plot(fpr["micro"], tpr["micro"],
+    # Plot della curva Micro-Average
+    plt.plot(fpr["micro"], tpr["micro"],
                   label=f'micro-average ROC curve (area = {roc_auc["micro"]:0.2f})',
                   color='deeppink', linestyle=':', linewidth=4)
 
-        # Plot delle curve per alcune classi specifiche (o tutte, ma 37 sono tante!)
-        # Esempio: mostriamo solo le prime 3 classi per non intasare il grafico
-        colors = ['aqua', 'darkorange', 'cornflowerblue']
-        for i, color in zip(range(3), colors):
-            plt.plot(fpr[i], tpr[i], color=color, lw=2,
+    # Plot delle curve per alcune classi specifiche (o tutte, ma 37 sono tante!)
+    colors = ['aqua', 'darkorange', 'cornflowerblue']
+    for i, color in zip(range(3), colors):
+        plt.plot(fpr[i], tpr[i], color=color, lw=2,
                       # label=f'ROC curve class {class_map[str(i+1)]} (area = {roc_auc[i]:0.2f})')
-                      label=f'ROC curve class {class_names[str(i)]} (area = {roc_auc[i]:0.2f})')
+                      label=f'ROC curve class {class_names[i]} (area = {roc_auc[i]:0.2f})')
 
-        plt.plot([0, 1], [0, 1], 'k--', lw=2)
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic (ROC) Multiclass')
-        plt.legend(loc="lower right")
-        plt.grid(True)
+    plt.plot([0, 1], [0, 1], 'k--', lw=2)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Multiclass')
+    plt.legend(loc="lower right")
+    plt.grid(True)
 
-        # FIX: Salvataggio strutturato
-        save_path = os.path.join(config.OUTPUT_DIR, "roc_curve.png")
-        plt.savefig(save_path)
-        plt.close()
-        mlflow.log_artifact(save_path)
-        # plt.show()
+    # FIX: Salvataggio strutturato
+    save_path = os.path.join(config.OUTPUT_DIR, "roc_curve.png")
+    plt.savefig(save_path)
+    plt.close()
+    mlflow.log_artifact(save_path)
+    # plt.show()
 
 def create_table_baseline(path_connect="metrics.db",
                           config=None):
@@ -386,11 +378,11 @@ def train_baseline( model_ ,
                                              per_device_eval_batch_size=config_.BATCH_SIZE,
                                              num_train_epochs=config_.NUM_EPOCHS ,
                                              weight_decay=config_.WEIGHT_DECAY,
-                                             eval_strategy="epoch",
+                                             eval_strategy=config_.EVAL_STRATEGY_MODE,
                                              # save_strategy="epoch",
                                              save_strategy=config_.SAVE_STRATEGY_MODE,
                                              metric_for_best_model="f1",
-                                             load_best_model_at_end=True,
+                                             load_best_model_at_end=config_.FLAG_LOAD_BEST_MODEL,
                                              save_total_limit=config_.SAVE_TOTAL_LIMIT,
                                              seed=config_.SEED,
                                              data_seed=config_.SEED,
@@ -422,10 +414,10 @@ def train_baseline( model_ ,
                                     per_device_eval_batch_size=config_.BATCH_SIZE,
                                     num_train_epochs=config_.NUM_EPOCHS ,
                                     weight_decay=config_.WEIGHT_DECAY,
-                                    eval_strategy="epoch",
+                                    eval_strategy=config_.EVAL_STRATEGY_MODE,
                                     save_strategy=config_.SAVE_STRATEGY_MODE,
                                     metric_for_best_model="f1",
-                                    load_best_model_at_end=True,
+                                    load_best_model_at_end=config_.FLAG_LOAD_BEST_MODEL,
                                     save_total_limit=config_.SAVE_TOTAL_LIMIT,
                                     seed=config_.SEED,
                                     data_seed=config_.SEED,
@@ -435,13 +427,13 @@ def train_baseline( model_ ,
                                     use_cpu=config_.FLAG_USE_CPU
                                     )
         trainer = Trainer( model=model_,
-                   args=training_args,
-                   train_dataset=train_dataset_,
-                   eval_dataset=val_dataset_,
-                   # processing_class=tokenizer,
-                   # tokenizer=tokenizer,
-                   data_collator=data_collator,
-                   compute_metrics=compute_metrics )
+                            args=training_args,
+                            train_dataset=train_dataset_,
+                            eval_dataset=val_dataset_,
+                            # processing_class=tokenizer,
+                            # tokenizer=tokenizer,
+                            data_collator=data_collator,
+                            compute_metrics=compute_metrics )
 
     with mlflow.start_run(run_name=run_metadata["run_name"]):
         mlflow.set_tags({
@@ -544,10 +536,8 @@ if __name__ == '__main__':
 
     obj_login = Login("MachineInnovation")
     obj_login.login_hf()
-    print(obj_login.get_token())
-
-    raise ValueError("Mi fermo per debug auth hf")
-
+    print(f"lunghezza auth token {len(obj_login.get_token())}")
+    # raise ValueError("Mi fermo per debug auth hf")
     set_all_seeds(CONFIG.SEED)
 
     # Test trace levels

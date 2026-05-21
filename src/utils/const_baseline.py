@@ -28,16 +28,21 @@ class ConfigDebugConstants:
     WEIGHT_DECAY: float = 0.01
     SAVE_TOTAL_LIMIT: int = 1
     LOGGING_STEPS: int = 5
-    SAVE_STRATEGY_MODE: str = "no"
+    # le due strategie devono essere uguali
+    # in caso di FLAG_LOAD_BEST_MODEL = True
+    EVAL_STRATEGY_MODE: str = "steps"
+    SAVE_STRATEGY_MODE: str = "steps"
     REPORT_TO_MODE: str = "mlflow"
     MLFLOW_RUN_NAME: str = "twitter-sentiment-roberta-debug"
     MLFLOW_MODE_RUN: str = "DEBUG"
     MLFLOW_DATASET_TYPE: str = "SMALL"
     MLFLOW_ARTIFACT_PATH: str = "out-model-baseline-debug"
+
+    FLAG_LOAD_BEST_MODEL: bool = True
     FLAG_USE_CPU: bool = True
     MAX_STEPS: int = 20
     FLAG_DEBUG_MODE: bool = True
-    FLAG_MONITOR_METRICS: bool = True
+    FLAG_MONITOR_METRICS: bool = False
 
     # Export table
     FLAG_DROP_EXPORT_TABLE: bool = True
@@ -66,6 +71,9 @@ class ConfigProdConstants:
     WEIGHT_DECAY: float = 0.01
     SAVE_TOTAL_LIMIT: int = 2
     LOGGING_STEPS: int = 50
+    # le due strategie devono essere uguali
+    # in caso di FLAG_LOAD_BEST_MODEL = True
+    EVAL_STRATEGY_MODE: str = "epoch"
     SAVE_STRATEGY_MODE: str = "epoch"
     REPORT_TO_MODE: str = "mlflow"
     MLFLOW_RUN_NAME: str = "twitter-sentiment-roberta-prod"
@@ -73,6 +81,7 @@ class ConfigProdConstants:
     MLFLOW_DATASET_TYPE: str = "ALL"
     MLFLOW_ARTIFACT_PATH: str = "out-model-baseline-prod"
 
+    FLAG_LOAD_BEST_MODEL: bool = True
     FLAG_USE_CPU: bool = False
     FLAG_DEBUG_MODE: bool= False
     FLAG_MONITOR_METRICS: bool =True

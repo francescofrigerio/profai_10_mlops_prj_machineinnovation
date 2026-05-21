@@ -18,10 +18,13 @@ def compute_metrics(eval_pred):
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)
 
-    acc = accuracy.compute(predictions=predictions,references=labels)
+    # estrarre i valori numerici scalari 
+    # prima di restituire il dizionario finale
+    # altrimenti in addestramento abbiamo un paragone impossibile tra un dizionario e un numero
+    acc = accuracy.compute(predictions=predictions,references=labels)["accuracy"]
 
     f1 = f1_metric.compute( predictions=predictions,
-                            references=labels,average="weighted")
+                            references=labels,average="weighted")["f1"]
 
     precision = precision_metric.compute(predictions=predictions,
                                          references=labels,

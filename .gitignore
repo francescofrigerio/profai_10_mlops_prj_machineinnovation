@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 model/
 .ipynb_checkpoints/
+src/mlruns/
+src/outputs-baseline-debug/
+src/outputs-baseline-prod/
