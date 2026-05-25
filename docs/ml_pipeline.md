@@ -78,5 +78,95 @@ Le metriche della funzione di test sono le seguenti:
 15:08:47 - INFO - [test_baseline] - eval_steps_per_second: 4.385
 15:08:47 - INFO - [test_baseline] - epoch: 0.16
 
+OTTIMIZZAZIONE DEGLI HIPERPARAMETRI IN PRODUZIONE
+num_epoch da 1 in debug a 2 in produzione
+max_length da 128 a 64 e dopo l'analisis statistica a 48
+
+max_length nella sentiment analysis non è “obbligatorio”, ma è uno dei pochi parametri che su modelli tipo RoBERTa ha un impatto molto grande su velocità, memoria e anche qualità.
+
+Ti spiego il perché in modo concreto.
+
+1. Il problema vero: il costo cresce in modo quadratico
+
+I transformer (RoBERTa inclusa) hanno self-attention, che costa:
+
+O(n
+2
+)
+
+dove n = max_length (numero di token).
+
+Quindi:
+
+raddoppi max_length → il tempo non raddoppia → quadruplica circa
+da 128 → 256 token = ~4× più lento
+da 256 → 512 token = ~16× più pesante
+
+Su CPU (come la tua) questo è enorme.
+
+2. Effetto su CPU (il tuo caso)
+
+Con 4 core CPU:
+
+max_length alto = CPU sempre al 100% + training lento
+batch size alto + max_length alto = RAM saturata + swap (catastrofico)
+
+Quindi su CPU, max_length è spesso il vero collo di bottiglia #1, più del batch size.
+
+3. Effetto sulla qualità (importante ma spesso sopravvalutato)
+
+Nella sentiment analysis:
+
+la maggior parte delle frasi utili sta nei primi 128 token
+spesso il modello “ignora” la fine se il testo è lungo
+
+Esempio:
+
+recensione Amazon lunga 400 parole
+il sentiment è quasi sempre espresso nei primi 1–2 paragrafi
+
+👉 quindi aumentare max_length spesso non migliora molto l’accuratezza
+
+4. Quando max_length è davvero importante
+
+Serve aumentarlo solo se:
+
+testi molto lunghi (reviews lunghe, legal, documenti)
+il sentiment è distribuito nel testo (non solo all’inizio)
+task tipo:
+analisi documenti
+news sentiment
+social post lunghi concatenati
+5. Regola pratica (molto utile)
+Tipo testo	max_length consigliato
+tweet / short text	64
+recensioni brevi	128
+recensioni Amazon / Yelp	128–256
+documenti lunghi	256–512
+6. Perché hai notato miglioramenti dopo l’ottimizzazione
+
+Perché hai ridotto:
+
+tempo per forward pass
+uso RAM
+pressione CPU cache
+tempo per batch
+
+👉 quindi hai reso il training “linearmente più efficiente”
+
+7. Conclusione netta per il tuo caso
+
+Con CPU 4 core + 16GB RAM:
+
+👉 max_length = 128 è quasi sempre il sweet spot
+👉 scendere a 64 se vuoi velocità massima
+👉 salire a 256 solo se hai prove che perdi informazione
+
+Se vuoi, posso aiutarti a fare una cosa ancora più utile:
+👉 
+analizzare la distribuzione reale dei tuoi token e dirti il max_length ottimale statistico
+
+
+
 
 

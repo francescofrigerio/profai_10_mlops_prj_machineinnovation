@@ -32,6 +32,12 @@ run_checks() {
         echo "----------------------------------------------------"
         echo "Verifica GPU/CPU via PyTorch:"
         .venv/bin/python -c "import torch; print('GPU Disponibile:', torch.cuda.is_available()); print('Nome GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Nessuna GPU. Uso CPU')"
+        
+        echo "Verifica compatibilita' tra torch e torchvision:"
+        echo "torchvision non e' utilizzato in NLP ma viene richiesto che sia installato da torch"
+        .venv/bin/python -c "import torchvision; print(torchvision.__version__)"
+        .venv/bin/python -c "import torch; print(torch.__version__)"
+
     else
         echo "[ERRORE] Ambiente virtuale .venv non trovato. Lancia lo script con il flag --init"
         exit 1
