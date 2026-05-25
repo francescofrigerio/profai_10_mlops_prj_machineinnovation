@@ -450,7 +450,8 @@ def train_baseline( model_ ,
         mlflow.log_param("dataset", "tweet_eval")
         mlflow.log_param("max_length", config_.MAX_LENGTH)
 
-        trainer.train()
+        # trainer.train()
+        trainer.train(resume_from_checkpoint=True)
         # valutazione sul validation
         train_metrics = trainer.evaluate()
 

@@ -16,7 +16,7 @@ class ConfigDebugConstants:
     NUM_CLASSES: int = 3
     SMALL_TRAIN_DATASET_SIZE: int = 500
     SMALL_VAL_DATASET_SIZE: int = 100
-    MAX_LENGTH: int = 64
+    MAX_LENGTH: int = 48
     # New field for seed so we can reproduce the results
     SEED: int = 42
 
@@ -59,15 +59,18 @@ class ConfigProdConstants:
     Global Config. Const of Environment
     """
     NUM_CLASSES: int = 3
-    MAX_LENGTH: int = 128
+    # MAX_LENGTH: int = 128
+    MAX_LENGTH: int = 48
     # New field for seed so we can reproduce the results
     SEED: int = 42
 
     # Training
     OUTPUT_DIR: str = "./outputs-baseline-prod"
     LEARNING_RATE:float = 2e-5
+    # Non ho abbastanza memoria x aumentare
     BATCH_SIZE: int= 16
-    NUM_EPOCHS: int = 3
+    # NUM_EPOCHS: int = 3
+    NUM_EPOCHS: int = 2
     WEIGHT_DECAY: float = 0.01
     SAVE_TOTAL_LIMIT: int = 2
     LOGGING_STEPS: int = 50
