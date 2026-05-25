@@ -6,3 +6,7 @@ model/
 src/mlruns/
 src/train_debug.log
 src/train_prod.log
+src/outputs-baseline-prod/config.json
+src/outputs-baseline-prod/model.safetensors
+src/outputs-baseline-prod/tokenizer.json
+src/outputs-baseline-prod/tokenizer_config.json

@@ -17,7 +17,7 @@ import logging
 import shutil
 
 # Preprocess text (username and link placeholders)
-import re
+# import re
 
 # Export dati su db sqlite
 import sqlite3
@@ -25,7 +25,6 @@ from datetime import datetime
 
 # metrics definitions
 import numpy as np
-# import pandas as pd
 
 # Load dataset
 from datasets import load_dataset
@@ -62,7 +61,8 @@ from sklearn.metrics import roc_curve, auc
 
 from utils.login_mlops_hf import Login
 from utils.const_baseline import ConfigDebugConstants,ConfigProdConstants
-from utils.utils import print_counter,init_debug_logger,test_debug_division
+from utils.utils import preprocess_tweet , print_counter,init_debug_logger,test_debug_division
+
 from train.metrics import compute_metrics
 
 # Init global logger
@@ -98,20 +98,7 @@ def set_all_seeds(seed=42):
     # HuggingFace
     set_seed(seed)
 
-def preprocess_tweet(text):
-    """
-        implementa il preprocessing completo del testo 
-    """
 
-    # utenti
-    text = re.sub(r'@\w+', '@user', text)
-    # link
-    text = re.sub(r'http\S+|www\S+', 'http', text)
-    # lowercase
-    text = text.lower()
-    # spazi multipli
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
 
 def preprocess_function(examples):
     """
@@ -227,15 +214,12 @@ def plot_roc_curve(trainer_,
 
     # Plot delle curve per alcune classi specifiche (o tutte, ma 37 sono tante!)
     colors = ['aqua', 'darkorange', 'cornflowerblue']
-    # for i, color in zip(range(3), colors):
-    #    plt.plot(fpr[i], tpr[i], color=color, lw=2,
-    #                  label=f'ROC curve class {class_names[i]} (area = {roc_auc[i]:0.2f})')
-    
+
     # utilizzo il numero reale di classi calcolate, accoppiandolo dinamicamente con i colori:
     for i, color in zip(range(len(fpr)), colors):
         plt.plot(fpr[i], tpr[i], color=color, lw=2,
             label=f'ROC curve class {class_names[i]} (area = {roc_auc[i]:0.2f})')
-    
+
     plt.plot([0, 1], [0, 1], 'k--', lw=2)
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
@@ -500,6 +484,8 @@ def train_baseline( model_ ,
                           path_connect=db_path,
                           config=config_)
     # end export to sqllite
+    trainer.save_model(config_.OUTPUT_DIR)
+    tokenizer.save_pretrained(config_.OUTPUT_DIR)
 
     # Dopo trainer.train() e il logging su mlflow
     # liberioimmediatamente i GB occupati dai checkpoint temporanei.

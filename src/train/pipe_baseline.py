@@ -11,19 +11,12 @@
     python train.pipeline.py PROD
 """
 import argparse
-import re
+# import re
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from utils.const_baseline import ConfigProdConstants,ConfigDebugConstants
+from utils.utils import preprocess_tweet
 
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-
-def preprocess_tweet(text):
-    """ Stesso preprocessing del training per consistenza dei dati """
-    text = re.sub(r'@\w+', '@user', text)
-    text = re.sub(r'http\S+|www\S+', 'http', text)
-    text = text.lower()
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
 
 class SentimentPipeline:
     """
@@ -103,16 +96,26 @@ if __name__ == "__main__":
         CONFIG = ConfigDebugConstants()
         print("Inferenza avviato in modalità: DEBUG")
 
+        # Codice per Recuperare il modello da MLflow
+        # mlflow.set_tracking_uri("file:./mlruns")
+        # experiment_name = "twitter_sentiment_analisys"
+        # experiment = mlflow.get_experiment_by_name(experiment_name)
+        # if experiment is None:
+        #    raise ValueError(f"Attenzione!! nessun id trovato per name {experiment_name}")
+        # else:
+        #    experiment_id = experiment.experiment_id
+        # RUN_ID = experiment_id
+        # model_uri = f"runs:/{RUN_ID}/{CONFIG.MLFLOW_ARTIFACT_PATH}"
+        # Carica la pipeline nativa memorizzata da MLflow
+        # nlp_pipeline = mlflow.transformers.load_model(model_uri)
+
     MODEL_PATH = CONFIG.OUTPUT_DIR
-    # Esempio di utilizzo
-    # classifier = SentimentPipeline(MODEL_NAME)
     if args.mode == 'PROD':
         classifier = SentimentPipeline(MODEL_PATH)
     else:
-        # classifier = SentimentPipeline(MODEL_NAME)
-        classifier = SentimentPipeline(MODEL_PATH)
+        classifier = SentimentPipeline(MODEL_NAME)
 
-    TEST_TWEET = "I love this new MLOps course! @HuggingFace http://example.com"
+    TEST_TWEET = "I love this ProfAi MLOps course! @HuggingFace http://example.com"
     prediction = classifier.predict(TEST_TWEET)
     print(f"Tweet: {TEST_TWEET}")
     print(f"Risultato: {prediction}")

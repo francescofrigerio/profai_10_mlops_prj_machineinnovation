@@ -1,8 +1,24 @@
 """
-   funzioni di utilita' (Debug e altro)
+   funzioni di utilita' (preprocess , Debug e altro)
 """
+import re
 import logging
 from collections import Counter
+
+def preprocess_tweet(text):
+    """
+        implementa il preprocessing completo del testo 
+    """
+
+    # utenti
+    text = re.sub(r'@\w+', '@user', text)
+    # link
+    text = re.sub(r'http\S+|www\S+', 'http', text)
+    # lowercase
+    text = text.lower()
+    # multiple spaces
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
 
 def print_counter(my_dataset_label,label_map,title):
     """

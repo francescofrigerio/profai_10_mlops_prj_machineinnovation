@@ -6,8 +6,7 @@ set -e
 # Funzione per i controlli ordinari (GPU, Python, ecc.)
 run_help() {
     echo "----------------------------------------------------"
-    echo "HELP IN LINEA"
-
+    echo "HELP IN LINEA :  cd src + PYTHONPATH=. python --help"
     echo "1 -> setup.sh --init  (inizializza progetto , install. librerie/venv) "
     echo "2 -> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) "
     echo "3 -> setup.sh --install  (installazione librerie tramite requirements.txt) "
@@ -15,10 +14,12 @@ run_help() {
     echo "5 -> source .venv/bin/activate per attivare l'ambiente virtuale"
     echo "6 -> deactivate per disattivare l'ambiente virtuale"
     echo "7 -> ruff check file.py controllo superficiale di un file python"
-    echo "8 -> cd src + PYTHONPATH=. pylint train/file.py per controllo profondo di un file python"
-    echo "9 -> cd src + PYTHONPATH=. python train/train_baseline.py --mode PROD Per avviare in produzione"
-    echo "10-> cd src + PYTHONPATH=. python train/train_baseline.py --mode DEBUG Per avviare in debug(default)"
-    echo "11-> cd src + PYTHONPATH=. python train/train_baseline.py --help per vedere l'help in linea"
+    echo "8 -> cd src + PYTHONPATH=. pylint train/train_baseline.py per controllo profondo di un file python"
+    echo "9 -> ./train_prod.sh Training in produzione"
+    echo "10-> ./train_debug.sh Training in debug(default)"
+    echo "11 -> ./pipe_prod.sh Pipeline Inference in produzione"
+    echo "Tweet: I love this ProfAi MLOps course! @HuggingFace http://example.com "
+    echo "Risultato: [{'label': 'positive', 'score': 0.9962100982666016, 'sentiment': 'positive'}] "
 
     echo "----------------------------------------------------"
 }
