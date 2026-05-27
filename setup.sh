@@ -93,13 +93,8 @@ if [ "$1" == "--init" ]; then
     mkdir -p airflow monitoring architecture notebooks diagrams
 
     # cartella per github actions
-    mkdir .github
-    cd .github 
-    mkdir workflows
-    cd workflows 
-    touch update-graphs.yml
-    cd ..
-    cd ..
+    mkdir -p .github/workflows
+    touch .github/workflows/update-graphs.yml
 
     # Cartella docs/ e relativi file markdown
     mkdir -p docs
@@ -117,10 +112,18 @@ if [ "$1" == "--init" ]; then
 
     echo "Struttura del progetto creata con successo."
 
+    # 1. Elimina l'ambiente virtuale attuale (quello con Python 3.14)
+    rm -rf .venv
+
     echo "3. Creazione Ambiente Virtuale"
     # Crea l'ambiente virtuale se non esiste già
     if [ ! -d ".venv" ]; then
-        python3 -m venv .venv
+       
+        # 2. Crea il nuovo ambiente usando esplicitamente Python 3.12 (o 3.11)
+        # la 2.14 è troppo recente
+        # python3 -m venv .venv
+        python3.12 -m venv .venv
+        
         echo "Ambiente virtuale creato con successo."
     else
         echo "L'ambiente virtuale esiste già."
@@ -133,11 +136,16 @@ if [ "$1" == "--init" ]; then
     # Installa le librerie richieste nel virtualenv
     # .venv/bin/pip install numpy pandas matplotlib mlflow transformers datasets accelerate evaluate scikit-learn torch
     # Installa PyTorch ottimizzato per CUDA 12.1 e poi le altre librerie
-    .venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu121
-    .venv/bin/pip install transformers datasets accelerate evaluate scikit-learn mlflow 
+    # .venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu121
+    # .venv/bin/pip install transformers datasets accelerate evaluate scikit-learn mlflow 
     .venv/bin/pip install numpy pandas matplotlib seaborn
-    .venv/bin/pip install fastapi uvicorn requests pydantic
-
+    .venv/bin/pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+    .venv/bin/pip install --no-cache-dir transformers datasets accelerate evaluate scikit-learn mlflow
+    # .venv/bin/pip uninstall fastapi uvicorn requests pydantic
+    # sudo du -h -x --max-depth=2 /workspaces 2>/dev/null | sort -hr | head -n 20
+    # git gc --prune=now --aggressive
+    # sudo find /workspaces -type f -size +50M -exec ls -lh {} + 2>/dev/null | sort -k5 -hr
+    
     .venv/bin/pip install pylint ruff
     # !pylint test_code.py
     # !ruff check test_code.py
@@ -146,7 +154,6 @@ if [ "$1" == "--init" ]; then
     .venv/bin/pip freeze > requirements.txt
     cat requirements.txt
     
-
     echo "Elenco pacchetti installati"
     .venv/bin/pip list
 
