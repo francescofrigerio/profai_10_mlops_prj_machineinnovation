@@ -6,7 +6,10 @@ services:
     ports:
       - '3000:3000'
     volumes:
+      # Save Grafana data (dashboard, utsers) so we don't loses with reboot
       - grafana-storage:/var/lib/grafana
+      # mount custom dir host inside Grafana container (ro=read only)
+      - /opt/machineinnovation/db:/opt/machineinnovation/db:ro
 # Use Docker volumes when you want the Docker Engine to manage the storage volume.
 # Define Docker volumes for persistent storage
 volumes:

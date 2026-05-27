@@ -1,42 +1,5 @@
-# 1. check main branch is up to date with 'origin/main'
-git checkout main
-# 2. Create a new branch to run monitoring
-git checkout -b monitoring
-# 3. At the end of develop the monitoring system Merge Request (o Pull Request) into the main.
 
-Monitoring Reference Guide on https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/
 
-# check docker compose installation
-docker compose version
-# first go into the directory where you have created this docker-compose.yaml file
-cd monitoring
-
-# create the docker-compose.yaml file
-touch docker-compose.yaml
-
-# edit yaml file 
-services:
-  grafana:
-    image: grafana/grafana-enterprise
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-      - '3000:3000'
-    volumes:
-      - grafana-storage:/var/lib/grafana
-# Use Docker volumes when you want the Docker Engine to manage the storage volume.
-# To use Docker volumes for persistent storage,
-volumes:
-  grafana-storage: {}
-
-# start/stop the grafana container
-# d = detached mode
-# up = to bring the container up and running
-# To determine that Grafana is running, 
-# open a browser window and type IP_ADDRESS:3000. The sign in screen should appear.
-docker compose up -d
-# down = to bring the container down and stopping
-docker compose down
 
 ./install_db.sh src/outputs-baseline-prod/metrics_prod.db 
 Visualizza il seguente output che attesta la copia del db sulla dir di destinazione
@@ -58,3 +21,44 @@ Proprietario locale:  codespace
 Nel pannello di controllo di Grafana, aggiungi un Data Source 'SQLite' e inserisci:
 Path: /opt/machineinnovation/db/metrics.db
 
+
+TEMPLATE FILE README
+
+## 5. `monitoring.md`
+L'ultimo file mappa l'osservabilità del sistema. Spiega cosa viene tracciato su Grafana e come accedere alle dashboard.
+
+```markdown
+# Monitoraggio e Osservabilità
+
+Il sistema monitora costantemente le performance dell'API (latenza, numero di richieste) e le performance del modello (data drift, distribuzione delle predizioni).
+
+## Stack Tecnologico
+* **Rilevamento metriche:** FastAPI Prometheus Instrumentator
+* **Data Source:** Prometheus
+* **Visualizzazione:** Grafana
+
+## Dashboard di Grafana
+Abbiamo configurato una dashboard principale per il controllo della produzione.
+
+* ?? **Link alla Dashboard Live:** [Grafana Cloud Instance](https://tuomonitoring.grafana.net)
+* ?? **Backup JSON della Dashboard:** [grafana_dashboard.json](../assets/grafana_dashboard.json)
+
+### Screenshot della Dashboard Attuale
+Ecco come appare il monitoraggio del traffico e della latenza di inferenza:
+
+![Grafana Dashboard Overview](../assets/grafana_screenshot.png)
+
+## Alerting
+Gli alert sono impostati per attivarsi su Slack se:
+* La latenza media supera i **500ms** per più di 5 minuti.
+* L'endpoint `/health` restituisce un codice di errore `5xx`.
+
+# tempo link url
+http://localhost:3000/goto/bfnbddmmmw1z4d?orgId=1
+
+https://grafana.com/grafana/plugins/grafana-image-renderer/?tab=installation
+The Grafana Image Renderer plugin has been deprecated and is no longer maintained by Grafana. Instead, use Grafana Image Renderer remote rendering service.
+
+Use the grafana-cli tool to install Grafana Image Renderer from the commandline:
+
+grafana-cli plugins install grafana-image-renderer
