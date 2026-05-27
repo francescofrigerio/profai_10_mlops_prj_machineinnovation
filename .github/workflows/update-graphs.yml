@@ -1,0 +1,53 @@
+name: Update graphs on README.md
+on:
+  push:
+    paths:
+      # check if the SQLite file was update
+      - 'src/outputs-baseline-prod/*.db' 
+
+jobs:
+  render-charts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. Scarica il codice e tutti i files del tuo repository sul server di GitHub
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Configura i permessi ed esegui il tuo script install_db.sh
+    # Qui creiamo la cartella /opt sul server di GitHub e vi copiamo il file
+    - name: Esegui install_db.sh
+      run: |
+        chmod +x ./install_db.sh
+        # create dir under /opt if not exist and copy file
+        sudo ./install_db.sh
+
+    # 3. Start Docker Compose (Grafana read new opt file from the server GitHub)
+    - name: Avvia Grafana
+      run: docker compose up -d grafana
+
+    # 4. Wait Grafana started (10 sec.)
+    - name: Wait start
+      run: sleep 10
+
+    # 5. Catch the screenshot from the dashboard using Grafana Image Renderer via curl
+    # Sostituire l'URL con i parametri corretti della dashboard
+    - name: Catch Screenshot Dashboard
+      run: |
+        curl -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
+        "http://localhost:3000/render/d-solo/tuo-id-dashboard/nome-dashboard?panelId=1&width=1000&height=500" \
+        -o ./images/dashboard.png
+
+    # 6. Stop the container Docker 
+    - name: Stop Docker
+      run: docker compose down
+
+    # 7. push of the update image in my repository
+    - name: Commit + Push of the update graph 
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add ./images/dashboard.png
+        git commit -m "Auto: Aggiornato grafico di training [skip ci]" || exit 0
+        git push
+

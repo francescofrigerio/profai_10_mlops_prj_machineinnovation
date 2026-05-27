@@ -92,6 +92,15 @@ if [ "$1" == "--init" ]; then
     # Altre cartelle principali
     mkdir -p airflow monitoring architecture notebooks diagrams
 
+    # cartella per github actions
+    mkdir .github
+    cd .github 
+    mkdir workflows
+    cd workflows 
+    touch update-graphs.yml
+    cd ..
+    cd ..
+
     # Cartella docs/ e relativi file markdown
     mkdir -p docs
     touch docs/architecture.md
