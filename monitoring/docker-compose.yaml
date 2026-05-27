@@ -21,6 +21,7 @@ services:
 
   renderer:
     image: grafana/grafana-image-renderer:latest
+    container_name: grafana-renderer
     restart: unless-stopped
     # optional used only for trouble shooting
     ports:
