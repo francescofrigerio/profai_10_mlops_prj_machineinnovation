@@ -21,6 +21,11 @@ run_help() {
     echo "Tweet: I love this ProfAi MLOps course! @HuggingFace http://example.com "
     echo "Risultato: [{'label': 'positive', 'score': 0.9962100982666016, 'sentiment': 'positive'}] "
 
+    echo "Comandi docker:"
+    echo "docker compose up -d"
+    echo "docker compose down"
+    echo "docker system prune -a --volumes -f"
+
     echo "----------------------------------------------------"
 }
 

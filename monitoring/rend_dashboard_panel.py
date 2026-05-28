@@ -4,8 +4,9 @@
 """
 from playwright.sync_api import sync_playwright
 
+#USERNAME = "francesco.frigerio71@gmail.com"
 USERNAME = "admin"
-PASSWORD = "pwd@1234567890FF"
+PASSWORD = "admin"
 
 
 # https://turbo-space-fishstick-q47wggx66w63rg5-3000.app.github.dev/d/adgxjdf/a0bc2dc?orgId=1&from=now-30d&to=now&timezone=browser
@@ -37,19 +38,27 @@ def render_dashboard_machineinnovation(dashboard_url,file_name_png):
 
         page = browser.new_page(viewport={ "width": 1600,
                                            "height": 900 })
-
-        # login
+        # 1. Vai alla pagina di login
         page.goto(f"{GRAFANA_URL}/login")
 
         page.fill('input[name="user"]', USERNAME)
         page.fill('input[name="password"]', PASSWORD)
 
+        # 2. Clicca semplicemente sul pulsante di login
         page.click('button[type="submit"]')
 
-        # dashboard
+        # 3. Invece di expect_navigation, aspetta che l'URL cambi
+        # o che sparisca il form di login (segno che siamo dentro)
+        page.wait_for_url(f"{GRAFANA_URL}/**")
+        page.wait_for_timeout(2000) # Un piccolo secondo di respiro per i cookie
+
+        # 4. Ora che la sessione è stabilita, vai al pannello
         page.goto(dashboard_url)
 
-        page.wait_for_timeout(5000)
+        # Aspetta che il grafico sia renderizzato
+        page.wait_for_load_state("networkidle")
+        page.wait_for_timeout(3000)
+
 
         page.screenshot(path=file_name_png)
 
