@@ -92,6 +92,10 @@ if [ "$1" == "--init" ]; then
     # Altre cartelle principali
     mkdir -p airflow monitoring architecture notebooks diagrams
 
+    # cartella per github actions
+    mkdir -p .github/workflows
+    touch .github/workflows/update-graphs.yml
+
     # Cartella docs/ e relativi file markdown
     mkdir -p docs
     touch docs/architecture.md
@@ -124,11 +128,16 @@ if [ "$1" == "--init" ]; then
     # Installa le librerie richieste nel virtualenv
     # .venv/bin/pip install numpy pandas matplotlib mlflow transformers datasets accelerate evaluate scikit-learn torch
     # Installa PyTorch ottimizzato per CUDA 12.1 e poi le altre librerie
-    .venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu121
-    .venv/bin/pip install transformers datasets accelerate evaluate scikit-learn mlflow 
+    # .venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu121
+    # .venv/bin/pip install transformers datasets accelerate evaluate scikit-learn mlflow 
     .venv/bin/pip install numpy pandas matplotlib seaborn
-    .venv/bin/pip install fastapi uvicorn requests pydantic
-
+    .venv/bin/pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+    .venv/bin/pip install --no-cache-dir transformers datasets accelerate evaluate scikit-learn mlflow
+    # .venv/bin/pip uninstall fastapi uvicorn requests pydantic
+    # sudo du -h -x --max-depth=2 /workspaces 2>/dev/null | sort -hr | head -n 20
+    # git gc --prune=now --aggressive
+    # sudo find /workspaces -type f -size +50M -exec ls -lh {} + 2>/dev/null | sort -k5 -hr
+    
     .venv/bin/pip install pylint ruff
     # !pylint test_code.py
     # !ruff check test_code.py
@@ -137,7 +146,6 @@ if [ "$1" == "--init" ]; then
     .venv/bin/pip freeze > requirements.txt
     cat requirements.txt
     
-
     echo "Elenco pacchetti installati"
     .venv/bin/pip list
 

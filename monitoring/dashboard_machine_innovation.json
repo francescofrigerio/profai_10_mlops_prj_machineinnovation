@@ -1,0 +1,404 @@
+{
+  "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "adgxjdf",
+    "namespace": "default",
+    "uid": "2d0a5f4c-22d4-41fe-8f51-ecd05555e4cd",
+    "resourceVersion": "1779886939126007",
+    "generation": 9,
+    "creationTimestamp": "2026-05-27T09:30:35Z",
+    "labels": {
+      "grafana.app/deprecatedInternalID": "1422904762290176"
+    },
+    "annotations": {
+      "grafana.app/createdBy": "user:dfnba1f2z8a2oe",
+      "grafana.app/folder": "",
+      "grafana.app/message": "Add Series Graph",
+      "grafana.app/saved-from-ui": "Grafana v13.0.1+security-01 (9bbe672d1)",
+      "grafana.app/updatedBy": "user:dfnba1f2z8a2oe",
+      "grafana.app/updatedTimestamp": "2026-05-27T13:02:19Z"
+    }
+  },
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "grafana",
+            "version": "v0",
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "spec": {}
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "builtIn": true
+        }
+      }
+    ],
+    "cursorSync": "Off",
+    "description": "Monitoring Sentiment Analysis Metrics ",
+    "editable": true,
+    "elements": {
+      "panel-1": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1,
+          "title": "Sentiment Analisys Table",
+          "description": " Training Metrics ( Accuracy , precision , recall , f1) ",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "frser-sqlite-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "dfnbahax1f2m8c"
+                      },
+                      "spec": {
+                        "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= 1764250679982 / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < 1779885479982 / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "queryType": "table",
+                        "rawQueryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "timeColumns": [
+                          "time",
+                          "ts"
+                        ]
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "frser-sqlite-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "dfnbahax1f2m8c"
+                      },
+                      "spec": {
+                        "queryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= 1764250679982 / 1000 and time < 1779885479982 / 1000",
+                        "queryType": "table",
+                        "rawQueryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= $__from / 1000 and time < $__to / 1000",
+                        "timeColumns": [
+                          "time",
+                          "ts"
+                        ]
+                      }
+                    },
+                    "refId": "B",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "table",
+            "version": "13.0.1+security-01",
+            "spec": {
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "F1-Score"
+                  }
+                ]
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "id": 2,
+          "title": "Sentiment Analysis Time Series",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "frser-sqlite-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "dfnbahax1f2m8c"
+                      },
+                      "spec": {
+                        "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato\n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi,\n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= 1774746039349 / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < 1784422839349 / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "queryType": "table",
+                        "rawQueryText": "SELECT\n  -- 1. Converte il timestamp nel formato\n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi,\n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "timeColumns": [
+                          "time",
+                          "ts"
+                        ]
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [
+                {
+                  "kind": "Transformation",
+                  "group": "organize",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "Accuracy": false,
+                        "Precision": true,
+                        "Recall": true
+                      },
+                      "includeByName": {},
+                      "indexByName": {},
+                      "orderBy": [
+                        {
+                          "desc": false,
+                          "type": "name"
+                        }
+                      ],
+                      "orderByMode": "auto",
+                      "renameByName": {}
+                    }
+                  }
+                }
+              ],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.0.1+security-01",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "min": 0,
+                  "max": 1,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": [
+                  {
+                    "__systemRef": "hideSeriesFrom",
+                    "matcher": {
+                      "id": "byNames",
+                      "options": {
+                        "mode": "exclude",
+                        "names": [
+                          "Accuracy"
+                        ],
+                        "prefix": "All except:",
+                        "readOnly": true
+                      }
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.hideFrom",
+                        "value": {
+                          "legend": false,
+                          "tooltip": true,
+                          "viz": true
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "layout": {
+      "kind": "GridLayout",
+      "spec": {
+        "items": [
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 0,
+              "width": 23,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-1"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-2"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preload": false,
+    "tags": [],
+    "timeSettings": {
+      "timezone": "browser",
+      "from": "2026-05-27T00:16:02.784Z",
+      "to": "2026-05-27T06:16:02.784Z",
+      "autoRefresh": "",
+      "autoRefreshIntervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "hideTimepicker": false,
+      "fiscalYearStartMonth": 0
+    },
+    "title": "Machine Innovation Dashboard - Monitoring Sentiment Analysis",
+    "variables": [],
+    "preferences": {
+      "layout": {
+        "kind": "GridLayout",
+        "spec": {
+          "items": []
+        }
+      }
+    }
+  }
+}
