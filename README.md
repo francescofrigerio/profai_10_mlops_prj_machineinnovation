@@ -30,8 +30,8 @@ L'implementazione di FastText per l'analisi del sentiment consente a MLOps Innov
 Modalità di consegna:
 Link pubblico a notebook di Google Colab
 
-![Grafico Table Training](./monitoring/dashboard_timeseries.png).
-![Grafico Time Series Training](./monitoring/dashboard_table.png).
+![Grafico Table Training](./images/dashboard_timeseries.png).
+![Grafico Time Series Training](./images/dashboard_table.png).
 
 
 

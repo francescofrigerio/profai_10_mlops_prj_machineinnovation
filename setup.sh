@@ -95,7 +95,7 @@ if [ "$1" == "--init" ]; then
     # touch model/model.pkl
 
     # Altre cartelle principali
-    mkdir -p airflow monitoring architecture notebooks diagrams
+    mkdir -p airflow monitoring architecture notebooks images
 
     # cartella per github actions
     mkdir -p .github/workflows
