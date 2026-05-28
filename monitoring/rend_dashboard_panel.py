@@ -1,4 +1,5 @@
 """
+    rend_dashboard_panel.py
     Export Generate image from 
     Machine Innovation Dashboard for sentiment analysis.
 """
