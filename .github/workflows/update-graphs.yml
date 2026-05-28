@@ -5,7 +5,9 @@ on:
       # check if the SQLite file was update
       - 'src/outputs-baseline-prod/**/*.db'
       - 'src/outputs-baseline-prod/*.db'
-
+  
+  workflow_dispatch: # <-- Aggiungi questa riga vuota
+  
 # Permessi espliciti per permettere all'Action di scrivere nel repository
 permissions:
   contents: write
