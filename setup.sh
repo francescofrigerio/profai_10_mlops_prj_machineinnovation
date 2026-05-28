@@ -50,7 +50,7 @@ run_checks() {
 }
 
 echo "----------------------------------------------------"
-echo "1. Verifica Python "
+echo "1. Verifica Python (max versione 3.12)"
 python3 --version
 
 # Controllo del parametro in ingresso
@@ -139,6 +139,9 @@ if [ "$1" == "--init" ]; then
     # sudo find /workspaces -type f -size +50M -exec ls -lh {} + 2>/dev/null | sort -k5 -hr
     
     .venv/bin/pip install pylint ruff
+    .venv/bin/pip install playwright
+    .venv/bin/pip install --with-deps chromium
+
     # !pylint test_code.py
     # !ruff check test_code.py
 
@@ -170,6 +173,10 @@ elif [ "$1" == "--change" ]; then
     echo "MODIFICA STRUTTURA PROGETTO "
     echo "----------------------------------------------------"
 elif [ "$1" == "--install" ]; then
+    echo "In caso servisse ripartire da zero eseguire"
+    echo "python3 -m venv .venv"
+    echo "source .venv/bin/activate"
+    echo ".venv/bin/pip install --upgrade pip"
     echo "----------------------------------------------------"
     echo "INSTALLAZIONE LIBRERIE PROGETTO "
     # Per installare le lib dal file requirements nell'ambiente virtuale

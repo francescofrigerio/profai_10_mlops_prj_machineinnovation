@@ -1,0 +1,6 @@
+in setup.sh max 3.12 e creazione venv e install pip su --install
+
+comandi docker
+docker compose up -d
+docker compose down
+docker system prune -a --volumes -f

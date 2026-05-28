@@ -32,6 +32,7 @@ if [ ! -f "$DEFAULT_SOURCE_DB" ]; then
         echo -e "${RED}[X] Errore: File database sorgente non trovato!${NC}"
         echo -e "Assicurati di lanciare lo script dalla cartella principale del progetto o specifica il file come argomento:"
         echo -e "Uso: ./install_db.sh [percorso_file_database.db]"
+        echo -e "Uso: ./install_db.sh src/outputs-baseline-prod/metrics_prod.db"
         exit 1
     fi
 fi
@@ -72,9 +73,8 @@ sudo chown -R "${REAL_USER}:${REAL_USER}" /opt/machineinnovation/
 
 
 # Garantiamo l'accesso in lettura ed esecuzione alle cartelle superiori (cruciale per l'utente 'grafana')
-# sudo chmod -R 777 /opt
-# sudo chmod 777 /opt/machineinnovation
-# sudo chmod 777 /opt/machineinnovation/db
+sudo chmod 777 /opt
+sudo chmod -R 777 /opt/machineinnovation
 sudo chmod -R 777 /opt/machineinnovation/db
 
 # Garantiamo i permessi di lettura/scrittura sul file SQLite (664)

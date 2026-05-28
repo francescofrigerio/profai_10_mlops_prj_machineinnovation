@@ -1,0 +1,41 @@
+services:
+  
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    # restart: unless-stopped
+    restart: "no"
+    ports:
+      - '3000:3000'
+
+    environment:
+      GF_RENDERING_SERVER_URL: http://grafana-renderer:8081/render
+      # http://container_name:3000/
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      # GF_RENDERING_CALLBACK_URL: http://localhost:3000/
+      GF_RENDERING_RENDERER_TOKEN: "TokenSecretMachineInnovation1234!"
+      GF_SECURITY_COOKIE_SECURE: "false"
+      # per risolvere failed on export image
+      GF_RENDERING_SERVER_REQUEST_TIMEOUT: "30s"
+    volumes:
+        # Save Grafana data (dashboard, utsers) so we don't loses with reboot
+        - grafana-storage:/var/lib/grafana
+        # mount custom dir host inside Grafana container (ro=read only)
+        - /opt/machineinnovation/db:/opt/machineinnovation/db:ro
+    # to be sure Grafana doesn't start before the renderer is readhy
+    depends_on:
+        - renderer
+
+  renderer:
+      image: grafana/grafana-image-renderer:latest
+      container_name: grafana-renderer
+      # restart: unless-stopped
+      restart: "no"
+      # optional used only for trouble shooting
+      ports:
+        - "8081:8081"
+
+# Use Docker volumes when you want the Docker Engine to manage the storage volume.
+# Define Docker volumes for persistent storage
+volumes:
+    grafana-storage: {}
