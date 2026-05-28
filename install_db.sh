@@ -72,14 +72,15 @@ sudo chown -R "${REAL_USER}:${REAL_USER}" /opt/machineinnovation/
 
 
 # Garantiamo l'accesso in lettura ed esecuzione alle cartelle superiori (cruciale per l'utente 'grafana')
-sudo chmod 666 /opt
-sudo chmod 666 /opt/machineinnovation
-sudo chmod 666 /opt/machineinnovation/db
+# sudo chmod -R 777 /opt
+# sudo chmod 777 /opt/machineinnovation
+# sudo chmod 777 /opt/machineinnovation/db
+sudo chmod -R 777 /opt/machineinnovation/db
 
 # Garantiamo i permessi di lettura/scrittura sul file SQLite (664)
 # NOTA: SQLite richiede i permessi di scrittura anche sulla CARTELLA contenitrice (755)
 # per poter generare i file temporanei di journal/lock (.db-wal, .db-shm) durante le query.
-sudo chmod 664 "$TARGET_DB"
+sudo chmod 777 "$TARGET_DB"
 
 echo -e "${GREEN}[V] Permessi configurati correttamente per l'ambiente Linux e Grafana.${NC}"
 
