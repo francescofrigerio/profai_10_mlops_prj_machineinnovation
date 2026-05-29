@@ -87,8 +87,8 @@ jobs:
         ls -lrt
         echo "=== Contenuto di ./images/ ==="
         ls -lrt ./images/ || true
-    #     echo "=== Contenuto di ./monitoring/ ==="
-    #     ls -lrt ./monitoring/ || true
+        echo "=== Contenuto di ./monitoring/ ==="
+        ls -lrt ./monitoring/ || true
         
     # 6. Stop the container Docker 
     - name: Stop Docker
