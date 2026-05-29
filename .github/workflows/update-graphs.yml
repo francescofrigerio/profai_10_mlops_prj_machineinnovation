@@ -39,7 +39,7 @@ jobs:
       # run: sleep 10
     - name: Attendere che Grafana sia pronto
       run: |
-      timeout 60s bash -c 'until curl -s http://localhost:3000/api/health | grep -q "healthy"; do sleep 2; done'
+        timeout 60s bash -c 'until curl -s http://localhost:3000/api/health | grep -q "healthy"; do sleep 2; done'
 
 
     # .venv non è installato su github
