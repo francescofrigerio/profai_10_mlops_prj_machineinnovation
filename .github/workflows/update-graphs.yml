@@ -31,6 +31,7 @@ jobs:
 
     # 3. Start Docker Compose (Grafana read new opt file from the server GitHub)
     - name: Avvia Grafana
+      working-directory: ./monitoring
       run: docker compose up -d grafana
 
     # 4. Wait Grafana started (10 sec.)
@@ -48,6 +49,7 @@ jobs:
         
     # 6. Stop the container Docker 
     - name: Stop Docker
+      working-directory: ./monitoring
       run: docker compose down
 
     # 7. push of the update image in my repository
