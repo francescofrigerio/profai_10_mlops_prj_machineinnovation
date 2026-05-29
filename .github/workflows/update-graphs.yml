@@ -55,12 +55,31 @@ jobs:
         playwright install chromium --with-deps
 
     # 5. Catch the screenshot from the dashboard using Grafana Image Renderer via curl
+
+    # [DEBUG] Verifica se il file DB è al suo posto prima dello script
+    - name: Debug DB check
+      run: |
+        echo "=== Controllo file DB ==="
+        ls -lrt src/outputs-baseline-prod/
+        ls -lrt /opt/ || true
+        ls -lrt /opt/machineinnovation/db/ || true
+
     - name: Catch Screenshot Dashboard
       run: |
         # curl -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
         # "http://localhost:3000/render/d-solo/tuo-id-dashboard/nome-dashboard?panelId=1&width=1000&height=500" \
         # -o ./images/dashboard.png
         python ./monitoring/rend_dashboard_panel.py
+        
+    # [DEBUG] Verifica dove sono finite le immagini dopo lo script
+    - name: Debug Images check
+      run: |
+        echo "=== Contenuto della Root ==="
+        ls -lrt
+        echo "=== Contenuto di ./images/ ==="
+        ls -lrt ./images/ || true
+        echo "=== Contenuto di ./monitoring/ ==="
+        ls -lrt ./monitoring/ || true
         
     # 6. Stop the container Docker 
     - name: Stop Docker
