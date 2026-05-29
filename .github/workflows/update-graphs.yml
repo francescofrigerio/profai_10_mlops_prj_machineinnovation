@@ -27,7 +27,7 @@ jobs:
       run: |
         chmod +x ./install_db.sh
         # create dir under /opt if not exist and copy file
-        sudo ./install_db.sh
+        sudo ./install_db.sh src/outputs-baseline-prod/metrics_prod.db
 
     # 3. Start Docker Compose (Grafana read new opt file from the server GitHub)
     - name: Avvia Grafana
