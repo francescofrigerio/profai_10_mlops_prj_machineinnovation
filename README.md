@@ -27,8 +27,16 @@ Motivazione del Progetto
 
 L'implementazione di FastText per l'analisi del sentiment consente a MLOps Innovators Inc. di migliorare significativamente la gestione della reputazione sui social media. Automatizzando l'analisi del sentiment, l'azienda potrà rispondere più rapidamente alle esigenze degli utenti, migliorando la soddisfazione e rafforzando l'immagine dell'azienda sul mercato. Con questo progetto, MLOps Innovators Inc. promuove l'innovazione nel campo delle tecnologie AI, offrendo soluzioni avanzate e scalabili per le sfide moderne di gestione della reputazione aziendale.
 
-Modalità di consegna:
-Link pubblico a notebook di Google Colab
+## ?? Guida alla Documentazione
+
+Per comprendere a fondo il progetto, si consiglia di leggere la documentazione nella cartella `docs/` seguendo l'ordine logico:
+
+1. ?? [01 - Architettura del Sistema](docs/01-architecture.md): Visione d'insieme e flusso dati.
+2. ?? [02 - ML Pipeline](docs/02-ml_pipeline.md): Prototipo su colab.Sperimentazione su Codespace e orchestrazione con Airflow.
+3. ?? [03 - API Reference](docs/03-api_reference.md): Endpoint FastAPI e specifiche dei payload.
+4. ?? [04 - Deployment & CI/CD](docs/04-deployment.md): Workflow di GitHub Actions e Docker.
+5. ?? [05 - Monitoraggio](docs/05-monitoring.md): Dashboard Grafana e logica di alerting.
+
 
 ![Grafico Table Training](./images/dashboard_timeseries.png).
 ![Grafico Time Series Training](./images/dashboard_table.png).
