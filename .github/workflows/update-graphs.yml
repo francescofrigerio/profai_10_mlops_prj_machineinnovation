@@ -1,14 +1,12 @@
 name: Update graphs on README.md
+
 on:
   push:
     paths:
-      # check if the SQLite file was update
       - 'src/outputs-baseline-prod/**/*.db'
       - 'src/outputs-baseline-prod/*.db'
-  
-  workflow_dispatch: # <-- Aggiungi questa riga vuota
-  
-# Permessi espliciti per permettere all'Action di scrivere nel repository
+  workflow_dispatch:
+
 permissions:
   contents: write
 
@@ -17,92 +15,67 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    # 1. Scarica il codice e tutti i files del tuo repository sul server di GitHub
+    # 1. Scarica il codice del repository
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 2. Configura i permessi ed esegui il tuo script install_db.sh
-    # Qui creiamo la cartella /opt sul server di GitHub e vi copiamo il file
+    # 2. Configura i permessi ed esegui lo script del DB
     - name: Esegui install_db.sh
       run: |
         chmod +x ./install_db.sh
-        # create dir under /opt if not exist and copy file
         sudo ./install_db.sh src/outputs-baseline-prod/metrics_prod.db
         sudo chmod -R 777 /opt/machineinnovation/
 
-    # 3. Start Docker Compose (Grafana read new opt file from the server GitHub)
+    # 3. Avvia Grafana
     - name: Avvia Grafana
       working-directory: ./monitoring
       run: docker compose up -d grafana
 
-    # 4. Wait Grafana started (10 sec.)
+    # 4. Attendi che Grafana sia pronto stabilmente
     - name: Wait start
-      # run: sleep 10
       run: sleep 60
-    # - name: Attendere che Grafana sia pronto
-    #   run: |
-    #     timeout 60s bash -c 'until curl -s http://localhost:3000/api/health | grep -q "healthy"; do sleep 2; done'
 
-
-    # .venv non è installato su github
+    # 5. Configura l'ambiente Python
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12' 
-        cache: 'pip' # ottimizza i tempi di build
+        cache: 'pip'
 
+    # 6. Installa Playwright e Chromium
     - name: Installa dipendenze e Playwright
       run: |
-        # python -m pip install --upgrade pip
-        # Non dovrebbero servire altre librerie
         pip install playwright 
-
-        # Comando di playwright per Installare il browser Chromium reale con le dipendenze di sistema (Ubuntu)
         playwright install chromium --with-deps
 
-    # 5. Catch the screenshot from the dashboard using Grafana Image Renderer via curl
-
-    # [DEBUG] Verifica se il file DB è al suo posto prima dello script
-    # - name: Debug DB check
-    #   run: |
-    #     echo "=== Controllo file DB ==="
-    #     ls -lrt src/outputs-baseline-prod/
-    #     ls -lrt /opt/ || true
-    #     ls -lrt /opt/machineinnovation/db/ || true
-
+    # 7. Rimuove le vecchie immagini e cattura i nuovi Screenshot
     - name: Catch Screenshot Dashboard
       run: |
-        # curl -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
-        # "http://localhost:3000/render/d-solo/tuo-id-dashboard/nome-dashboard?panelId=1&width=1000&height=500" \
-        # -o ./images/dashboard.png
         rm -f ./images/dashboard_table.png
         rm -f ./images/dashboard_timeseries.png
-
         python ./monitoring/rend_dashboard_panel.py
         
-    # [DEBUG] Verifica dove sono finite le immagini dopo lo script
+    # 8. [DEBUG] Verifica i percorsi di output
     - name: Debug Images check
       run: |
-        echo "=== Contenuto della Root ==="
+        echo "=== Contenuto della Root ==?"
         ls -lrt
         echo "=== Contenuto di ./images/ ==="
         ls -lrt ./images/ || true
         echo "=== Contenuto di ./monitoring/ ==="
         ls -lrt ./monitoring/ || true
         
-    # 6. Stop the container Docker 
+    # 9. Spegni i container Docker 
     - name: Stop Docker
       working-directory: ./monitoring
       run: docker compose down
 
-    # 7. push of the update image in my repository
+    # 10. Commit e Push sul repository
     - name: Commit + Push of the update graph 
       run: |
         git config --local user.name "francescofrigerio"
         git config --local user.email "francesco.frigerio@greencore.it"
-        
         git add ./images/dashboard_table.png
         git add ./images/dashboard_timeseries.png
         git commit -m "Auto: Aggiornato grafico di training [skip ci]" || exit 0
         git push
-
