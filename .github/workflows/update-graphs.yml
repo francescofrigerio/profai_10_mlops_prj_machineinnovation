@@ -75,6 +75,9 @@ jobs:
         # curl -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
         # "http://localhost:3000/render/d-solo/tuo-id-dashboard/nome-dashboard?panelId=1&width=1000&height=500" \
         # -o ./images/dashboard.png
+        rm ./images/dashboard_table.png
+        rm ./images/dashboard_timeseries.png
+
         python ./monitoring/rend_dashboard_panel.py
         
     # [DEBUG] Verifica dove sono finite le immagini dopo lo script
