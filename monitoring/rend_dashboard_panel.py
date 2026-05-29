@@ -65,6 +65,6 @@ def render_dashboard_machineinnovation(dashboard_url,file_name_png):
 
         browser.close()
 
-render_dashboard_machineinnovation(DASHBOARD_URL_PANEL_1_TABLE,"./images/panel_table.png")
+render_dashboard_machineinnovation(DASHBOARD_URL_PANEL_1_TABLE,"./images/dashboard_table.png")
 
-render_dashboard_machineinnovation(DASHBOARD_URL_PANEL_2_TIMESERIES,"./images/panel_time_series.png")
+render_dashboard_machineinnovation(DASHBOARD_URL_PANEL_2_TIMESERIES,"./images/dashboard_timeseries.png")
