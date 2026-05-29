@@ -38,8 +38,20 @@ jobs:
     - name: Wait start
       run: sleep 10
 
+    # .venv non è installato su github
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10' # o la tua versione di python
+        cache: 'pip' # ottimizza i tempi di build
+
+    - name: Installa dipendenze e Playwright
+      run: |
+        python -m pip install --upgrade pip
+        # pip install -r requirements.txt # o le librerie che ti servono
+        playwright install chromium --with-deps
+
     # 5. Catch the screenshot from the dashboard using Grafana Image Renderer via curl
-    # Sostituire l'URL con i parametri corretti della dashboard
     - name: Catch Screenshot Dashboard
       run: |
         # curl -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
