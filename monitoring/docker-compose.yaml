@@ -14,6 +14,8 @@ services:
     volumes:
       # Save Grafana data (dashboard, utsers) so we don't loses with reboot
       - grafana-storage:/var/lib/grafana
+      # docker compose parte gia' da monitoring come work dir
+      - ./grafana-provisioning:/etc/grafana/provisioning
       # mount custom dir host inside Grafana container (ro=read only)
       - /opt/machineinnovation/db:/opt/machineinnovation/db:ro
     logging:

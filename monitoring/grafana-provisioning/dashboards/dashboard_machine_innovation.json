@@ -4,20 +4,20 @@
   "metadata": {
     "name": "adgxjdf",
     "namespace": "default",
-    "uid": "2d0a5f4c-22d4-41fe-8f51-ecd05555e4cd",
-    "resourceVersion": "1779886939126007",
-    "generation": 9,
-    "creationTimestamp": "2026-05-27T09:30:35Z",
+    "uid": "bd393e83-41d5-41c2-8a89-3833f5ab7795",
+    "resourceVersion": "1779962602973981",
+    "generation": 3,
+    "creationTimestamp": "2026-05-28T09:46:06Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "1422904762290176"
+      "grafana.app/deprecatedInternalID": "1789200797904896"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:dfnba1f2z8a2oe",
+      "grafana.app/createdBy": "user:bfnevwtfook5cd",
       "grafana.app/folder": "",
-      "grafana.app/message": "Add Series Graph",
+      "grafana.app/message": "Modifica default time range",
       "grafana.app/saved-from-ui": "Grafana v13.0.1+security-01 (9bbe672d1)",
-      "grafana.app/updatedBy": "user:dfnba1f2z8a2oe",
-      "grafana.app/updatedTimestamp": "2026-05-27T13:02:19Z"
+      "grafana.app/updatedBy": "user:bfnevwtfook5cd",
+      "grafana.app/updatedTimestamp": "2026-05-28T10:03:22Z"
     }
   },
   "spec": {
@@ -65,7 +65,7 @@
                       "group": "frser-sqlite-datasource",
                       "version": "v0",
                       "datasource": {
-                        "name": "dfnbahax1f2m8c"
+                        "name": "efneymi371atca"
                       },
                       "spec": {
                         "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= 1764250679982 / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < 1779885479982 / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
@@ -89,7 +89,7 @@
                       "group": "frser-sqlite-datasource",
                       "version": "v0",
                       "datasource": {
-                        "name": "dfnbahax1f2m8c"
+                        "name": "efneymi371atca"
                       },
                       "spec": {
                         "queryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= 1764250679982 / 1000 and time < 1779885479982 / 1000",
@@ -179,7 +179,7 @@
                       "group": "frser-sqlite-datasource",
                       "version": "v0",
                       "datasource": {
-                        "name": "dfnbahax1f2m8c"
+                        "name": "efneymi371atca"
                       },
                       "spec": {
                         "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato\n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi,\n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= 1774746039349 / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < 1784422839349 / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
@@ -372,8 +372,8 @@
     "tags": [],
     "timeSettings": {
       "timezone": "browser",
-      "from": "2026-05-27T00:16:02.784Z",
-      "to": "2026-05-27T06:16:02.784Z",
+      "from": "now-30d",
+      "to": "now",
       "autoRefresh": "",
       "autoRefreshIntervals": [
         "5s",
