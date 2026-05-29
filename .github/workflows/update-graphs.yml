@@ -48,9 +48,11 @@ jobs:
     - name: Installa dipendenze e Playwright
       run: |
         # python -m pip install --upgrade pip
-        # pip install -r requirements.txt # o le librerie che ti servono
+        # Non dovrebbero servire altre librerie
         pip install playwright 
-        pip install chromium --with-deps
+
+        # Comando di playwright per Installare il browser Chromium reale con le dipendenze di sistema (Ubuntu)
+        playwright install chromium --with-deps
 
     # 5. Catch the screenshot from the dashboard using Grafana Image Renderer via curl
     - name: Catch Screenshot Dashboard
