@@ -83,8 +83,8 @@ jobs:
     # [DEBUG] Verifica dove sono finite le immagini dopo lo script
     - name: Debug Images check
       run: |
-    #     echo "=== Contenuto della Root ==="
-    #     ls -lrt
+        echo "=== Contenuto della Root ==="
+        ls -lrt
         echo "=== Contenuto di ./images/ ==="
         ls -lrt ./images/ || true
     #     echo "=== Contenuto di ./monitoring/ ==="
