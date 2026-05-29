@@ -35,11 +35,12 @@ jobs:
       run: docker compose up -d grafana
 
     # 4. Wait Grafana started (10 sec.)
-    # - name: Wait start
+    - name: Wait start
       # run: sleep 10
-    - name: Attendere che Grafana sia pronto
-      run: |
-        timeout 60s bash -c 'until curl -s http://localhost:3000/api/health | grep -q "healthy"; do sleep 2; done'
+      run: sleep 60
+    # - name: Attendere che Grafana sia pronto
+    #   run: |
+    #     timeout 60s bash -c 'until curl -s http://localhost:3000/api/health | grep -q "healthy"; do sleep 2; done'
 
 
     # .venv non è installato su github
