@@ -144,10 +144,10 @@ jobs:
         # di poco ad ogni esecuzione
         # per evitare salvataggi inutili e sistematici
         # esegue il seguente controllo
-        # if git diff --cached --quiet; then
-        #   echo "Nessuna modifica alle immagini"
-        #   exit 0
-        # fi
+        if git diff --cached --quiet; then
+           echo "Nessuna modifica alle immagini"
+           exit 0
+        fi
 
         git commit -m "Auto: Aggiornato grafico di training [skip ci]" || exit 0
         git push
