@@ -60,8 +60,15 @@ def render_dashboard_machineinnovation(dashboard_url,file_name_png):
 
         # Aspetta che il grafico sia renderizzato
         page.wait_for_load_state("networkidle")
-        page.wait_for_timeout(3000)
+        # page.wait_for_timeout(3000)
+        page.wait_for_timeout(10000)
 
+        if page.locator("text=Datasource not found").count() > 0:
+            raise Exception("Datasource missing")
+        if page.locator("text=Plugin unavailable").count() > 0:
+            raise Exception("Grafana plugin missing")
+        if page.locator("text=Query error").count() > 0:
+            raise Exception("Grafana query error")
 
         page.screenshot(path=file_name_png)
 

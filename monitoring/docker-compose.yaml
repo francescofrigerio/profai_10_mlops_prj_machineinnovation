@@ -11,6 +11,7 @@ services:
     environment:
       GF_RENDERING_CALLBACK_URL: http://grafana:3000/
       GF_SECURITY_COOKIE_SECURE: "false"
+      GF_INSTALL_PLUGINS: frser-sqlite-datasource
     volumes:
       # Save Grafana data (dashboard, utsers) so we don't loses with reboot
       - grafana-storage:/var/lib/grafana
