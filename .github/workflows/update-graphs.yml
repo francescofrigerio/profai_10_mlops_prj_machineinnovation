@@ -31,6 +31,12 @@ jobs:
       working-directory: ./monitoring
       run: docker compose up -d grafana
 
+    - name: Docker ps
+      run: docker ps -a
+
+    - name: Docker logs
+   run: docker logs grafana || true
+
     # 4. Attendi che Grafana sia pronto stabilmente
     # - name: Wait start
     #   run: sleep 60
