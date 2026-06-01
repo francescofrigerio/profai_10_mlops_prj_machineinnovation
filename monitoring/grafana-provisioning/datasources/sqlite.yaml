@@ -1,0 +1,11 @@
+apiVersion: 1
+
+datasources:
+  - name: SQLite
+    uid: P2D2EEF3E092AF52B
+    type: frser-sqlite-datasource
+    access: proxy
+    isDefault: true
+
+    jsonData:
+      path: /opt/machineinnovation/db/metrics.db
