@@ -35,7 +35,7 @@ jobs:
       run: docker ps -a
 
     - name: Docker logs
-   run: docker logs grafana || true
+      run: docker logs grafana || true
 
     # 4. Attendi che Grafana sia pronto stabilmente
     # - name: Wait start
