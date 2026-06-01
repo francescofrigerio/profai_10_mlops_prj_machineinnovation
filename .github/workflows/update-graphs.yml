@@ -38,7 +38,7 @@ jobs:
       run: docker logs grafana || true
 
     - name: Grafana curl
-      run: curl -s http://localhost:3000/api/health | grep -q "\"database\""
+      run: curl -s http://localhost:3000/api/health | grep -q "database"
 
     # 4. Attendi che Grafana sia pronto stabilmente
     # - name: Wait start
