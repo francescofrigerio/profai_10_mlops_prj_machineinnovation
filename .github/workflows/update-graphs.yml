@@ -51,12 +51,11 @@ jobs:
       run: curl -v http://localhost:3000/api/health || true
 
     - name: Wait Grafana Loop
-    
       run: |
         MAX_RETRY=30
         RETRY=0
 
-        until curl -s http://localhost:3000/api/health | grep -q "\"database\":\"ok\""
+        until curl -s http://localhost:3000/api/health | grep -q '"database": "ok"'
         do
           RETRY=$((RETRY+1))
 
