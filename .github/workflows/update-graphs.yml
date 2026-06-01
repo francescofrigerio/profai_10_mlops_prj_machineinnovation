@@ -44,7 +44,7 @@ jobs:
     - name: Wait start
       run: sleep 60
     
-    - name: Docker logs after
+    # - name: Docker logs after
     #   run: docker logs grafana || true
 
     # - name: Grafana curl after
