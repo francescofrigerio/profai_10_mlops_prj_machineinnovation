@@ -121,6 +121,12 @@ jobs:
         echo "=== Contenuto di ./monitoring/ ==="
         ls -lrt ./monitoring/ || true
         
+    - name: Test query on db
+      run: |
+        sqlite3 /opt/machineinnovation/db/metrics.db "
+        SELECT COUNT(*)
+        FROM model_metrics_baseline; "
+
     # 11. Spegni i container Docker 
     - name: Stop Docker
       working-directory: ./monitoring

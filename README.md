@@ -1,5 +1,4 @@
-# profai_10_mlops_prj_machineinnovation
-Progetto: Monitoraggio della reputazione online di un’azienda 
+# Progetto: Monitoraggio della reputazione online di un’azienda 
 
 ## Guida alla Documentazione
 
@@ -11,11 +10,11 @@ Per comprendere a fondo il progetto, si consiglia di leggere la documentazione n
 4. [04 - Deployment & CI/CD](docs/04-deployment.md): Workflow di GitHub Actions e Docker.
 5. [05 - Monitoraggio](docs/05-monitoring.md): Dashboard Grafana e logica di alerting.
 
+[![Avvia Aggiornamento Grafici](https://img.shields.io/badge/GitHub%20Actions-Avvia%20Aggiornamento-blue?style=for-the-badge&logo=github)](https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/update-graphs.yml)
+
 
 ![Grafico Table Training](./images/dashboard_timeseries.png).
 ![Grafico Time Series Training](./images/dashboard_table.png).
-
-[![Avvia Aggiornamento Grafici](https://img.shields.io/badge/GitHub%20Actions-Avvia%20Aggiornamento-blue?style=for-the-badge&logo=github)](https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/update-graphs.yml)
 
 
 
