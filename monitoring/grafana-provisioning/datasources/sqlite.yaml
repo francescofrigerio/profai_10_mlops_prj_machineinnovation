@@ -2,7 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: SQLite
-    uid: P2D2EEF3E092AF52B
+    uid: efneymi371atca
     type: frser-sqlite-datasource
     access: proxy
     isDefault: true

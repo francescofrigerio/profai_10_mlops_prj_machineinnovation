@@ -124,7 +124,7 @@ jobs:
     - name: Test query on db
       run: |
         sqlite3 /opt/machineinnovation/db/metrics.db "
-        SELECT COUNT(*)
+        SELECT *
         FROM model_metrics_baseline; "
 
     # 11. Spegni i container Docker 
