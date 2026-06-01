@@ -31,24 +31,24 @@ jobs:
       working-directory: ./monitoring
       run: docker compose up -d grafana
 
-    - name: Docker ps
-      run: docker ps -a
+    # - name: Docker ps
+    #   run: docker ps -a
 
-    - name: Docker logs before
-      run: docker logs grafana || true
+    # - name: Docker logs before
+    #   run: docker logs grafana || true
 
-    - name: Grafana curl before
-      run: curl -v http://localhost:3000/api/health || true
+    # - name: Grafana curl before
+    #   run: curl -v http://localhost:3000/api/health || true
 
     # 4. Attendi che Grafana sia pronto stabilmente
     - name: Wait start
       run: sleep 60
     
     - name: Docker logs after
-      run: docker logs grafana || true
+    #   run: docker logs grafana || true
 
-    - name: Grafana curl after
-      run: curl -v http://localhost:3000/api/health || true
+    # - name: Grafana curl after
+    #   run: curl -v http://localhost:3000/api/health || true
 
     - name: Wait Grafana Loop
       run: |
@@ -72,9 +72,9 @@ jobs:
         echo "Grafana pronta"
 
     # 5. controlla install plugin
-    - name: Check plugin directory
-      run: |
-        docker exec grafana ls -la /var/lib/grafana/plugins || true
+    # - name: Check plugin directory
+    #   run: |
+    #     docker exec grafana ls -la /var/lib/grafana/plugins || true
 
     # 6. Configura l'ambiente Python
     - name: Set up Python
@@ -90,19 +90,19 @@ jobs:
         playwright install chromium --with-deps
 
     # 8 debug prima del python
-    - name: Debug Grafana
-      run: |
-        curl http://localhost:3000/api/health
+    # - name: Debug Grafana
+    #   run: |
+    #     curl http://localhost:3000/api/health
     
-    - name: List dashboards
-      run: |
-        curl -u admin:admin \
-        http://localhost:3000/api/search
+    # - name: List dashboards
+    #   run: |
+    #     curl -u admin:admin \
+    #     http://localhost:3000/api/search
     
-    - name: List datasources
-      run: |
-        curl -u admin:admin \
-        http://localhost:3000/api/datasources
+    # - name: List datasources
+    #   run: |
+    #     curl -u admin:admin \
+    #     http://localhost:3000/api/datasources
 
     # 9. Rimuove le vecchie immagini e cattura i nuovi Screenshot
     - name: Catch Screenshot Dashboard
@@ -144,10 +144,10 @@ jobs:
         # di poco ad ogni esecuzione
         # per evitare salvataggi inutili e sistematici
         # esegue il seguente controllo
-        if git diff --cached --quiet; then
-          echo "Nessuna modifica alle immagini"
-          exit 0
-        fi
+        # if git diff --cached --quiet; then
+        #   echo "Nessuna modifica alle immagini"
+        #   exit 0
+        # fi
 
         git commit -m "Auto: Aggiornato grafico di training [skip ci]" || exit 0
         git push
