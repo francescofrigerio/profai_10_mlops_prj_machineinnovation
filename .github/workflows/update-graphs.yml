@@ -34,16 +34,23 @@ jobs:
     - name: Docker ps
       run: docker ps -a
 
-    - name: Docker logs
+    - name: Docker logs before
       run: docker logs grafana || true
 
-    - name: Grafana curl
+    - name: Grafana curl before
       run: curl -v http://localhost:3000/api/health || true
 
     # 4. Attendi che Grafana sia pronto stabilmente
-    # - name: Wait start
-    #   run: sleep 60
-    - name: Wait Grafana
+    - name: Wait start
+      run: sleep 60
+    
+    - name: Docker logs after
+      run: docker logs grafana || true
+
+    - name: Grafana curl after
+      run: curl -v http://localhost:3000/api/health || true
+
+    - name: Wait Grafana Loop
     
       run: |
         MAX_RETRY=30
