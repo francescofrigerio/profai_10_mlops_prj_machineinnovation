@@ -13,8 +13,8 @@ Per comprendere a fondo il progetto, si consiglia di leggere la documentazione n
 [![Press Run Workflows on the right](https://img.shields.io/badge/GitHub%20Actions-Avvia%20Aggiornamento-blue?style=for-the-badge&logo=github)](https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/update-graphs.yml)
 
 
-![Grafico Table Training](./images/dashboard_timeseries.png).
-![Grafico Time Series Training](./images/dashboard_table.png).
+![Table Training](./images/dashboard_timeseries.png).
+![Time Series Training](./images/dashboard_table.png).
 
 
 
