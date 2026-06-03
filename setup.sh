@@ -93,9 +93,10 @@ if [ "$1" == "--init" ]; then
     touch model_serving/main.py
     # touch model_serving/train/.gitkeep
     # touch model_serving/utils/.gitkeep
+    cd model_serving
     ln -s ../src/utils utils
     ln -s ../src/train train
-
+    cd ..
 
   
     # Cartella tests/ e sottocartelle
