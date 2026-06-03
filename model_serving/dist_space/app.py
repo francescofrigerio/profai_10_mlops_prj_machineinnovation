@@ -2,11 +2,11 @@
    app.py 
    Service Model Serving Application
 """
-import os
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from transformers import pipeline
 import uvicorn
+import os
 
 from utils.const_baseline import ConfigProdConstants
 from train.pipe_baseline import SentimentPipeline
@@ -24,13 +24,14 @@ CONFIG = ConfigProdConstants()
 print({"status": f"Caricamento del modello {MODEL_NAME} in corso..."})
 try:
     # Usiamo la pipeline di Hugging Face per gestire tokenizzazione e inferenza in un colpo solo
-    CLASSIFIER = SentimentPipeline(CONFIG.MODEL_DIR)
+    # sentiment_pipeline = pipeline("sentiment-analysis", model=MODEL_NAME)
+    # classifier = SentimentPipeline(MODEL_NAME)
+    classifier = SentimentPipeline(CONFIG.MODEL_DIR)
 
     print({"status": "Modello caricato con successo!"})
-# except Exception as e:
-excpet OSError as e:
+except Exception as e:
     print(f"Errore nel caricamento del modello: {e}")
-    CLASSIFIER = None
+    classifier = None
 
 # 3. Definizione della struttura dei dati in ingresso (Pydantic)
 class TextRequest(BaseModel):
@@ -62,43 +63,12 @@ def home():
         "docs_url": "/docs"
     }
 
-@app.get("/predict")
-def predict_sentiment_from_web(text: str):
-    """
-       Endpoint per l'analisi del sentiment da query string
-       es http://localhost:7860/predict?text=I%20love%20this%20game!%20it's%20amazing
-    """
-    if not CLASSIFIER:
-        raise HTTPException(status_code=500, detail="KO:modello non caricato sul server")
-
-    if not request.text.strip():
-        raise HTTPException(status_code=400, detail="Il testo fornito non può essere vuoto.")
-
-    try:
-        # Eseguiamo l'inferenza
-        # result = sentiment_pipeline(request.text)[0]
-        _,result = CLASSIFIER.predict(request.text)
-
-        # Convertiamo l'etichetta del modello in qualcosa di leggibile (se presente nella mappa)
-        raw_label = result["label"]
-        friendly_label = LABEL_MAPPING.get(raw_label, raw_label)
-
-        return {
-            "text": request.text,
-            "sentiment": friendly_label,
-            "confidence_score": round(result["score"], 4),
-            "raw_label": raw_label
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Err.predict from app: {str(e)}") from e
-
 @app.post("/predict")
-def predict_sentiment_from_app(request: TextRequest):
+def predict_sentiment(request: TextRequest):
     """
-       Endpoint per l'analisi del sentiment 
-       da richiesta POST con JSON {text: "il testo da analizzare"}
+       Endpoint per l'analisi del sentiment
     """
-    if not CLASSIFIER:
+    if not classifier:
         raise HTTPException(status_code=500, detail="KO:modello non caricato sul server")
 
     if not request.text.strip():
@@ -107,7 +77,12 @@ def predict_sentiment_from_app(request: TextRequest):
     try:
         # Eseguiamo l'inferenza
         # result = sentiment_pipeline(request.text)[0]
-        _,result = CLASSIFIER.predict(request.text)
+        prediction,result = classifier.predict(request.text)
+
+        # Formatta il risultato finale
+        # for result in prediction:
+        #     raw_label = result['label']
+        #    result['sentiment'] = LABEL_MAPPING.get(raw_label, raw_label)
 
         # Convertiamo l'etichetta del modello in qualcosa di leggibile (se presente nella mappa)
         raw_label = result["label"]
@@ -120,7 +95,7 @@ def predict_sentiment_from_app(request: TextRequest):
             "raw_label": raw_label
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Err.predict from app: {str(e)}") from e
+        raise HTTPException(status_code=500, detail=f"Errore durante l'elaborazione: {str(e)}")
 
 # 5. Avvio del server (obbligatorio su porta 7860 per Hugging Face)
 if __name__ == "__main__":

@@ -45,5 +45,14 @@ in cui sono installati i pacchetti, quei file rimarranno memorizzati per sempre 
 Vedere anche la pagina dedicata alla build della cache
 https://docs.docker.com/build/cache/
 
+5. Per fare il deploy su Hugging face
+eseguire deploy_space.sh
+
+6. Aggiornare github e allineare il local space
+
+7. Copiare localmente sul pc la cartella ./model_serving/dist_pace
+dalla dir locale collegata a github alla dir locale collegata allo space.
+
+
 
 
