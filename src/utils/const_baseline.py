@@ -50,6 +50,9 @@ class ConfigDebugConstants:
     # In ConfigDebugConstants
     METRICS_DB_PATH: str = "metrics_debug.db"
 
+    # Model Serving
+    MODEL_DIR: str = "./model-debug"
+
 
 # SETUP CONFIGURAZIONE
 # pylint: disable=invalid-name,too-many-instance-attributes
@@ -94,4 +97,7 @@ class ConfigProdConstants:
     FLAG_CREATE_EXPORT_TABLE: bool = True
     # In ConfigProdConstants (magari in produzione punta a una cartella di rete o un volume persistente)
     METRICS_DB_PATH: str = "metrics_prod.db"
+
+    # Model Serving
+    MODEL_DIR: str = "./model-prod"
 

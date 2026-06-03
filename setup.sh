@@ -26,6 +26,16 @@ run_help() {
     echo "docker compose down"
     echo "docker system prune -a --volumes -f"
 
+    echo "Attenzione!! comandi per pulire ambiente e ricrearlo (da eseguire solo se necessario)"
+    echo "pip cache purge"
+    echo "deactivate"
+    echo "rm -rf .venv"
+    echo "python3 -m venv .venv"
+    echo "source .venv/bin/activate"
+    echo "pip install --upgrade pip"
+    echo "pip install torch --index-url https://download.pytorch.org/whl/cpu --no-cache-dir"
+    echo "pip install -r requirements.txt --no-cache-dir"
+
     echo "----------------------------------------------------"
 }
 

@@ -52,7 +52,7 @@ class SentimentPipeline:
             raw_label = result['label']
             result['sentiment'] = self.label_mapping.get(raw_label, raw_label)
 
-        return outputs
+        return outputs,result
 
     def predict_batch(self, tweets: list[str]):
         """ 
@@ -70,7 +70,7 @@ class SentimentPipeline:
             else:
                 result['sentiment'] = self.label_mapping.get(result['label'], result['label'])
 
-        return outputs
+        return outputs,result
 
 if __name__ == "__main__":
 
@@ -116,6 +116,7 @@ if __name__ == "__main__":
         classifier = SentimentPipeline(MODEL_NAME)
 
     TEST_TWEET = "I love this ProfAi MLOps course! @HuggingFace http://example.com"
-    prediction = classifier.predict(TEST_TWEET)
+    prediction , info = classifier.predict(TEST_TWEET)
     print(f"Tweet: {TEST_TWEET}")
-    print(f"Risultato: {prediction}")
+    print(f"Result Prediction: {prediction}")
+    print(f"Info Prediction: {info}") 
