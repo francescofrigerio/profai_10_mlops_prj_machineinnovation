@@ -16,10 +16,12 @@ echo "Cartella di destinazione: $DIST_DIR"
 rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR/utils"
 mkdir -p "$DIST_DIR/train"
+mkdir -p "$DIST_DIR/model-prod" 
 
 # 5. Copia i file di serving principali (che si trovano in serving/)
 cp "$SCRIPT_DIR/app.py" "$DIST_DIR/"
 cp "$SCRIPT_DIR/requirements.txt" "$DIST_DIR/"
+cp "$SCRIPT_DIR/Dockerfile" "$DIST_DIR/"
 
 # 6. Copia i file sorgenti reali dalla cartella src/ del progetto
 cp "$ROOT_DIR/src/utils/const_baseline.py" "$DIST_DIR/utils/"
