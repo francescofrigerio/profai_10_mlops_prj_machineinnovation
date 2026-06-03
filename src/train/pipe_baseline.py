@@ -46,7 +46,8 @@ class SentimentPipeline:
         """ Pulisce il testo e predice il sentiment """
         cleaned_tweet = preprocess_tweet(tweet)
         outputs = self.nlp_pipeline(cleaned_tweet)
-
+        # Info Prediction: {'label': 'positive', 'score': 0.9885118007659912, 'sentiment': 'positive'}
+        
         # Formatta il risultato finale
         for result in outputs:
             raw_label = result['label']
