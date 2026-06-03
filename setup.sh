@@ -90,9 +90,8 @@ if [ "$1" == "--init" ]; then
     # Cartella app/ e relative sottocartelle/file
     # mkdir -p app/routes app/services app/utils
     mkdir -p model_serving/train model_serving/utils
-    touch model_serving/main.py
-    # touch model_serving/train/.gitkeep
-    # touch model_serving/utils/.gitkeep
+    touch model_serving/app.py
+    
     cd model_serving
     ln -s ../src/utils utils
     ln -s ../src/train train

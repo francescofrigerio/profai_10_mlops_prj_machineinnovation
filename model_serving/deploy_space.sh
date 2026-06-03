@@ -17,6 +17,7 @@ rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR/utils"
 mkdir -p "$DIST_DIR/train"
 mkdir -p "$DIST_DIR/model-prod" 
+touch "$DIST_DIR/model-prod/.gitkeep" # placeholder per la cartella del modello
 
 # 5. Copia i file di serving principali (che si trovano in serving/)
 cp "$SCRIPT_DIR/app.py" "$DIST_DIR/"
