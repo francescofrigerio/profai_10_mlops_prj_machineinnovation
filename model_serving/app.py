@@ -23,7 +23,8 @@ CONFIG = ConfigProdConstants()
 print({"status": f"Caricamento del modello {MODEL_NAME} in corso..."})
 try:
     # Usiamo la pipeline di Hugging Face per gestire tokenizzazione e inferenza
-    CLASSIFIER = SentimentPipeline(CONFIG.MODEL_DIR)
+    # CLASSIFIER = SentimentPipeline(CONFIG.MODEL_DIR)
+    CLASSIFIER = None
 
     print({"status": "Modello caricato con successo!"})
 # pylint: disable=broad-exception-caught
@@ -47,8 +48,19 @@ LABEL_MAPPING = {
     "LABEL_2": "Positive"
 }
 
-# 4. Definizione degli Endpoint
+@app.on_event("startup")
+def load_model():
+    """
+        this function is called when the FastAPI application starts.
+        So we load the model at startup to ensure it's ready for inference
+        when the first request arrives.This is a best praticse to avoid
+        loading the model on demand for each request.
+    """
 
+    global CLASSIFIER
+    CLASSIFIER = SentimentPipeline(CONFIG.MODEL_DIR)
+
+# 4. Definizione degli Endpoint
 @app.get("/")
 def home():
     """

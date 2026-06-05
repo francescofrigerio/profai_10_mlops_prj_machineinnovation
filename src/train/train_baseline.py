@@ -109,8 +109,10 @@ def preprocess_function(examples):
     return tokenizer( texts,
                       truncation=True,
                       # padding in fase di ttrainig per velocizzare
+                      # l'analisi statistica ha evidenziato
+                      # che il 99% dei tweet è sotto i 128 token
                       # padding="max_length",
-                      max_length=128
+                      max_length=CONFIG.MAX_LENGTH
                     )
 
 def test_baseline(trainer_,
@@ -338,11 +340,8 @@ def train_baseline( model_ ,
 
     # MFlow Logging
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
-    # str_run_name="twitter-sentiment-roberta-debug"
-    # str_run_name=CONFIG.MLFLOW_RUN_NAME
-    # str_mode_run=CONFIG.MLFLOW_MODE_RUN
-    # str_dataset_type=CONFIG.MLFLOW_DATASET_TYPE
-    # Raggruppiamo i metadati in un unico dizionario (1 sola variabile invece di 3)
+    
+    # Raggruppo i metadati in un unico dizionario (1 sola variabile invece di 3)
     run_metadata = {
         "run_name": config_.MLFLOW_RUN_NAME,
         "mode_run": config_.MLFLOW_MODE_RUN,
@@ -379,13 +378,13 @@ def train_baseline( model_ ,
                                           )
 
         trainer = Trainer( model=model_,
-                                    args=training_args,
-                                    train_dataset=train_dataset_,
-                                    eval_dataset=val_dataset_,
-                                    # processing_class=tokenizer,
-                                    # tokenizer=tokenizer,
-                                    data_collator=data_collator,
-                                    compute_metrics=compute_metrics )
+                            args=training_args,
+                            train_dataset=train_dataset_,
+                            eval_dataset=val_dataset_,
+                            # processing_class=tokenizer,
+                            # tokenizer=tokenizer,
+                            data_collator=data_collator,
+                            compute_metrics=compute_metrics )
 
 
 
@@ -432,10 +431,15 @@ def train_baseline( model_ ,
         # log parametri custom
         mlflow.log_param("model_name", MODEL_NAME)
         mlflow.log_param("dataset", "tweet_eval")
+        # l'analisi statistica ha evidenziato
+        # che il 99% dei tweet è sotto i 128 token
         mlflow.log_param("max_length", config_.MAX_LENGTH)
 
-        # trainer.train()
-        trainer.train(resume_from_checkpoint=True)
+        # Aggiunta per CI_CD
+        if os.path.exists(model_weights_dir):
+            trainer.train(resume_from_checkpoint=True)
+        else:
+            trainer.train()     
         # valutazione sul validation
         train_metrics = trainer.evaluate()
 
@@ -453,7 +457,7 @@ def train_baseline( model_ ,
             mlflow.log_metrics(train_metrics)
 
         # salva modello HuggingFace
-        # Non usare artifact_path=OUTPUT_DIR è un percorso fisico sul tuo computer
+        # artifact_path=OUTPUT_DIR è un percorso fisico sul tuo computer
         # Invece, artifact_path è solo il nome della cartella virtuale
         # che MLflow creerà dentro la directory ./mlruns)
         # per catalogare i pesi del modello.
@@ -488,7 +492,7 @@ def train_baseline( model_ ,
     tokenizer.save_pretrained(config_.OUTPUT_DIR)
 
     # Dopo trainer.train() e il logging su mlflow
-    # liberioimmediatamente i GB occupati dai checkpoint temporanei.
+    # libero i GB occupati dai checkpoint temporanei.
     # shutil.rmtree(CONFIG.OUTPUT_DIR)
     if os.path.exists(model_weights_dir):
         shutil.rmtree(model_weights_dir)
@@ -505,6 +509,12 @@ if __name__ == '__main__':
                         default='DEBUG',
                         help="Modalità di esecuzione dell'addestramento (default: DEBUG)"
                     )
+
+    parser.add_argument("--model-source",
+                        type=str,
+                        choices=["base", "local", "hf"],
+                        default="base"
+                        )
 
     # Effettua il parse degli argomenti lanciati da terminale
     args = parser.parse_args()
@@ -553,7 +563,16 @@ if __name__ == '__main__':
 
     # model and tokenizer
     # Load model directly
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+    # Aggiunta per CI_CD
+    if args.model_source == "base": # default
+        model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+
+    elif args.model_source == "local":
+        model = AutoModelForSequenceClassification.from_pretrained(CONFIG.OUTPUT_DIR)
+
+    elif args.model_source == "hf":
+        model = AutoModelForSequenceClassification.from_pretrained("MachineInnovation/twitter-sentiment-model")
+
     dataset = load_dataset("tweet_eval", "sentiment")
 
     tokenized_dataset = dataset.map(preprocess_function,
