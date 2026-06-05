@@ -78,6 +78,23 @@ label_mapping = { 0: "Negative",
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
+def create_project_dirs(config):
+
+    config.OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    config.MLFLOW_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    config.LOG_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+)
+
 def set_all_seeds(seed=42):
     """
         Riproducibilità dei risultati
@@ -324,7 +341,8 @@ def train_baseline( model_ ,
 
     # CONFIGURAZIONE DI MlFlow
     # 1. IMPOSTA PRIMA IL TRACKING URI
-    mlflow.set_tracking_uri("file:./mlruns")
+    # mlflow.set_tracking_uri("file:./mlruns")
+    mlflow.set_tracking_uri(f"file:{config_.MLFLOW_DIR}")
     # 2. DEFINISCI IL NOME DELL'ESPERIMENTO
     experiment_name = "twitter_sentiment_analisys"
 
@@ -528,7 +546,8 @@ if __name__ == '__main__':
         print("Training avviato in modalità: DEBUG")
 
     # definizione/creazione dir e file di di output
-    os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
+    # os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
+    create_project_dirs(CONFIG)
     # db_path = os.path.join(CONFIG.OUTPUT_DIR, CONFIG.METRICS_DB_PATH)
     # model_weights_dir = os.path.join(CONFIG.OUTPUT_DIR, "model_weights")
 
@@ -542,6 +561,10 @@ if __name__ == '__main__':
     print("--- Inizio Test Logging ---")
     
     logger.setLevel(logging.INFO)
+    if args.mode == 'PROD':
+        logging.FileHandler(CONFIG.LOG_DIR / "train-prod.log")
+    else:
+        logging.FileHandler(CONFIG.LOG_DIR / "train-debug.log")
 
     # load dataset
     dataset = load_dataset("tweet_eval", "sentiment")
