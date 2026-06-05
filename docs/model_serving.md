@@ -53,6 +53,21 @@ eseguire deploy_space.sh
 7. Copiare localmente sul pc la cartella ./model_serving/dist_pace
 dalla dir locale collegata a github alla dir locale collegata allo space.
 
+8. Test in locale(pc, codespace) con i seguenti script curl
+model_serving/test_predict_from_app.sh esegue una post  
+model_serving/test_predict_from_web.sh esegue una post
+
+E' possibile anche testare la get direttamente sul browser
+con il seguente url:
+https://francescofrigerio-spacemachineinnovatorsmlops.hf.space/predict?text=Oggi è una orribile giornata
+
+https://francescofrigerio-spacemachineinnovatorsmlops.hf.space/predict?text=Oggi è una meravigliosa giornata
+
+https://francescofrigerio-spacemachineinnovatorsmlops.hf.space/predict?text=Oggi è una giornata strana
+
+
+
+
 
 
 
