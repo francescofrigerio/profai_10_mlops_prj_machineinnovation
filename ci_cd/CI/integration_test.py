@@ -1,3 +1,5 @@
+from src.utils.const_baseline import ConfigProdConstants
+
 class IntegrationTest:
     """
         Class to test the integration of different components of the application
@@ -39,17 +41,11 @@ class IntegrationTest:
                             return_tensors="pt"
                           )
 
-    outputs = model(**inputs)
+        outputs = model(**inputs)
 
-    pred = outputs.logits.argmax(dim=1)
-
-    assert pred.item() in [0,1,2]
-
-        
-        
         pred = outputs.logits.argmax(dim=1)
-        assert pred.item() in [0,1,2]
 
+        assert pred.item() in [0,1,2]
 
     def test_4_pipeline_hf(self):
         """
@@ -75,8 +71,9 @@ class IntegrationTest:
         """
             Test that the model files are saved correctly
         """
+        CONFIG = ConfigProdConstants()
         # verify this path runtime
-        OUTPUT_DIR = "./outputs-baseline-prod"
+    
         required_files = [ "config.json",
                             "model.safetensors",
                             "tokenizer.json",
@@ -84,7 +81,7 @@ class IntegrationTest:
                         ]
 
         for f in required_files:
-            assert os.path.exists(os.path.join(OUTPUT_DIR,f))
+            assert os.path.exists(os.path.join(CONFIG.OUTPUT_DIR,f))
 
     
     from app import app

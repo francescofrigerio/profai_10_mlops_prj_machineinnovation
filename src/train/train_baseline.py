@@ -282,8 +282,8 @@ def insert_table_baseline(metrics,
         e dall'experimenti id determinato
         a partire dal nome dell'esperimento di MLflow
     """
-    # Estrai i dati dal dizionario metrics del trainer
-    # Assicurati che le chiavi corrispondano a quelle calcolate in compute_metrics
+    # Estrae i dati dal dizionario metrics del trainer
+    # le chiavi devono corrispondere a quelle calcolate in compute_metrics
     acc = metrics.get("eval_accuracy", 0)
     prec = metrics.get("eval_precision", 0)
     rec = metrics.get("eval_recall", 0)
@@ -540,9 +540,7 @@ if __name__ == '__main__':
 
     # Test trace levels
     print("--- Inizio Test Logging ---")
-    test_debug_division(logger,10, 2)   # Genera DEBUG e INFO
-    test_debug_division(logger,10, -2)  # Genera DEBUG, WARNING e INFO
-    test_debug_division(logger,10, 0)   # Genera DEBUG e ERROR
+    
     logger.setLevel(logging.INFO)
 
     # load dataset
@@ -552,15 +550,10 @@ if __name__ == '__main__':
     print_counter(dataset["validation"]["label"],label_mapping,"VAL")
     print_counter(dataset["test"]["label"],label_mapping,"TEST")
 
-    # logger.info(f"{dataset['train']}")
-    # logger.info(f"{dataset['test']}")
-    # logger.info(f"{dataset['validation']}")
     logger.info("%s:",dataset['train'])
     logger.info("%s:",dataset['test'])
     logger.info("%s:",dataset['validation'])
-    # logger.info(f"{dataset['train']['text'][6]}")
-    # logger.info(f"{dataset['train']['label'][6]}")
-
+    
     # model and tokenizer
     # Load model directly
     # Aggiunta per CI_CD

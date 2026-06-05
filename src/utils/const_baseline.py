@@ -4,8 +4,9 @@
 """
 from dataclasses import dataclass
 
-# pylint: disable=invalid-name,too-many-instance-attributes
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
+# pylint: disable=invalid-name,too-many-instance-attributes
 @dataclass(frozen=True)
 class ConfigDebugConstants:
     """
@@ -21,7 +22,7 @@ class ConfigDebugConstants:
     SEED: int = 42
 
     # Training
-    OUTPUT_DIR: str = "./outputs-baseline-debug"
+    OUTPUT_DIR = PROJECT_ROOT / "outputs-baseline-debug"
     LEARNING_RATE: float = 2e-5
     BATCH_SIZE: int = 4
     NUM_EPOCHS: int = 1
@@ -51,7 +52,7 @@ class ConfigDebugConstants:
     METRICS_DB_PATH: str = "metrics_debug.db"
 
     # Model Serving
-    MODEL_DIR: str = "./model-debug"
+    MODEL_DIR: str = PROJECT_ROOT / "model-debug"
 
 
 # SETUP CONFIGURAZIONE
@@ -68,7 +69,8 @@ class ConfigProdConstants:
     SEED: int = 42
 
     # Training
-    OUTPUT_DIR: str = "./outputs-baseline-prod"
+    OUTPUT_DIR = PROJECT_ROOT / "outputs-baseline-prod"
+    
     LEARNING_RATE:float = 2e-5
     # Non ho abbastanza memoria x aumentare
     BATCH_SIZE: int= 16
@@ -99,5 +101,5 @@ class ConfigProdConstants:
     METRICS_DB_PATH: str = "metrics_prod.db"
 
     # Model Serving
-    MODEL_DIR: str = "./model-prod"
+    MODEL_DIR: str = PROJECT_ROOT / "model-prod"
 
