@@ -2,6 +2,8 @@
     const_baseline
     Definzioni delle costanti usate in training evaluate e pipeline
 """
+from pathlib import Path
+
 from dataclasses import dataclass
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

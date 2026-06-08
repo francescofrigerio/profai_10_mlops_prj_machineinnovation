@@ -1,11 +1,20 @@
+"""
+    unit_test.py
+    
+    to test path set
+    import sys
+    print(sys.path)
+"""
+import numpy as np
+
 from src.utils.utils import preprocess_tweet 
 from src.train.metrics import compute_metrics
 
-class UnitTest:
+class TestUnit:
     """
         Class to test single functions of the application
     """
-    def test_1_preprocess_tweet():
+    def test_1_preprocess_tweet(self):
         """
             test preprocess function
         """
@@ -14,7 +23,7 @@ class UnitTest:
         assert isinstance(result, str)
 
     
-    def test_2_compute_metrics_prediction_ok():
+    def test_2_compute_metrics_prediction_ok(self):
         """
             test compute metrics function
         """
@@ -33,7 +42,7 @@ class UnitTest:
         assert result["precision"] == 1.0
         assert result["recall"] == 1.0
     
-    def test_3_compute_metrics_prediction_ko():
+    def test_3_compute_metrics_prediction_ko(self):
         """
             test compute metrics function
         """
@@ -52,7 +61,7 @@ class UnitTest:
         assert result["precision"] == 0.0
         assert result["recall"] == 0.0
 
-    def test_compute_metrics_output_keys():
+    def test_compute_metrics_output_keys(self):
         """
             test compute metrics function
         """
@@ -70,10 +79,16 @@ class UnitTest:
 
         assert set(result.keys()) == expected
 
-    def test_label_mapping():
+    def test_label_mapping(self):
         """
             test label mapping data
         """
-        pass
+        label_mapping = { 0: "Negative",
+                          1: "Neutral",
+                          2: "Positive"
+                        }
+        assert label_mapping[0] == "Negative"
+        assert label_mapping[1] == "Neutral"
+        assert label_mapping[2] == "Positive"
 
   
