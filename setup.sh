@@ -169,9 +169,16 @@ if [ "$1" == "--init" ]; then
     # !pylint test_code.py
     # !ruff check test_code.py
 
-    echo "5. Generazione requirements.txt"
-    .venv/bin/pip freeze > requirements.txt
-    cat requirements.txt
+    # echo "5. Generazione requirements.txt"
+    # .venv/bin/pip freeze > requirements.txt
+    # cat requirements.txt
+    # Per la tua pipeline CI/CD, io non fisserei mai nel repository 
+    # tutti i 150 pacchetti usciti da pip freeze. 
+    # Mantieni solo le dipendenze dirette del progetto. 
+    # Le dipendenze transitive (aiohttp, greenlet, graphql-core, ecc.) 
+    # lasciale gestire a pip, altrimenti ogni ricostruzione dell'ambiente 
+    # diventa fragile e difficile da mantenere.
+
     
     echo "Elenco pacchetti installati"
     .venv/bin/pip list

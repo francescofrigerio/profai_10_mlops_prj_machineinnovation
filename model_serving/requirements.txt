@@ -1,8 +1,22 @@
+torch --index-url https://download.pytorch.org/whl/cpu
+accelerate
+datasets
+evaluate
+numpy
+pandas
+scikit-learn
+scipy
+transformers
+tokenizers
+sentencepiece
+safetensors
+torch
+torchvision
+mlflow
 fastapi
 uvicorn
 pydantic
-torch --index-url https://download.pytorch.org/whl/cpu
-transformers
-sentencepiece
-protobuf
 huggingface-hub
+python-dotenv
+protobuf
+httpx
