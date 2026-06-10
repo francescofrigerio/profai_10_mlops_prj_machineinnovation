@@ -25,9 +25,12 @@ class ConfigDebugConstants:
 
     # Training
     OUTPUT_DIR = PROJECT_ROOT / "outputs-baseline-debug"
+    LOG_DIR = OUTPUT_DIR / "logs"
     LEARNING_RATE: float = 2e-5
     BATCH_SIZE: int = 4
     NUM_EPOCHS: int = 1
+    MAX_STEPS: int = 20
+    # MAX_STEPS: int = -1  # <-- per testare un epoca effettiva
     WEIGHT_DECAY: float = 0.01
     SAVE_TOTAL_LIMIT: int = 1
     LOGGING_STEPS: int = 5
@@ -44,7 +47,6 @@ class ConfigDebugConstants:
 
     FLAG_LOAD_BEST_MODEL: bool = True
     FLAG_USE_CPU: bool = True
-    MAX_STEPS: int = 20
     FLAG_DEBUG_MODE: bool = True
     FLAG_MONITOR_METRICS: bool = False
 
@@ -73,7 +75,7 @@ class ConfigProdConstants:
 
     # Training
     OUTPUT_DIR = PROJECT_ROOT / "outputs-baseline-prod"
-    
+    LOG_DIR = OUTPUT_DIR / "logs"
     LEARNING_RATE:float = 2e-5
     # Non ho abbastanza memoria x aumentare
     BATCH_SIZE: int= 16

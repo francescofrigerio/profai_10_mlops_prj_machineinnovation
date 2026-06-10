@@ -47,7 +47,11 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu --no-cache-di
 pip install -r requirements.txt --no-cache-dir
 ----------------------------------------------------
 
+ispezionare il risultato del training in produzione
+mlflow ui --backend-store-uri sqlite:///outputs-baseline-prod/mlruns-prod/mlflow.db --default-artifact-root ./outputs-baseline-prod/mlruns-prod
 
+ispezionare il risultato del training in debug
+mlflow ui --backend-store-uri sqlite:///outputs-baseline-debug/mlruns-debug/mlflow.db --default-artifact-root ./outputs-baseline-debug/mlruns-debug
 
 
 

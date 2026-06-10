@@ -65,6 +65,9 @@ from utils.utils import preprocess_tweet , print_counter,init_debug_logger,test_
 
 from train.metrics import compute_metrics
 
+# abilita mflow alla scrittura su file disco
+os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
+
 # Init global logger
 logger = init_debug_logger()
 
@@ -340,9 +343,12 @@ def train_baseline( model_ ,
     model_weights_dir = os.path.join(config_.OUTPUT_DIR, "model_weights")
 
     # CONFIGURAZIONE DI MlFlow
-    # 1. IMPOSTA PRIMA IL TRACKING URI
     # mlflow.set_tracking_uri("file:./mlruns")
     mlflow.set_tracking_uri(f"file:{config_.MLFLOW_DIR}")
+    # Configurazione con backend SQLite locale
+    # db_mlflow_path = os.path.join(config_.MLFLOW_DIR, "mlflow.db")
+    # mlflow.set_tracking_uri(f"sqlite:///{db_mlflow_path}")
+
     # 2. DEFINISCI IL NOME DELL'ESPERIMENTO
     experiment_name = "twitter_sentiment_analisys"
 
@@ -454,7 +460,13 @@ def train_baseline( model_ ,
         mlflow.log_param("max_length", config_.MAX_LENGTH)
 
         # Aggiunta per CI_CD
+        fine_checkpoint_test = False
         if os.path.exists(model_weights_dir):
+            subdirs = [d for d in os.listdir(model_weights_dir) if d.startswith("checkpoint-")]
+            if len(subdirs) > 0:
+                fine_checkpoint_test = True
+
+        if fine_checkpoint_test:
             trainer.train(resume_from_checkpoint=True)
         else:
             trainer.train()     

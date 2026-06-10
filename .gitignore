@@ -10,3 +10,5 @@ src/outputs-baseline-prod/config.json
 src/outputs-baseline-prod/model.safetensors
 src/outputs-baseline-prod/tokenizer.json
 src/outputs-baseline-prod/tokenizer_config.json
+mlruns-debug/
+outputs-baseline-debug/
