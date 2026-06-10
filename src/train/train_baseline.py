@@ -66,7 +66,7 @@ from utils.utils import preprocess_tweet , print_counter,init_debug_logger,test_
 from train.metrics import compute_metrics
 
 # abilita mflow alla scrittura su file disco
-os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
+# os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
 
 # Init global logger
 logger = init_debug_logger()
@@ -344,13 +344,14 @@ def train_baseline( model_ ,
 
     # CONFIGURAZIONE DI MlFlow
     # mlflow.set_tracking_uri("file:./mlruns")
-    mlflow.set_tracking_uri(f"file:{config_.MLFLOW_DIR}")
+    # mlflow.set_tracking_uri(f"file:{config_.MLFLOW_DIR}")
+    
     # Configurazione con backend SQLite locale
-    # db_mlflow_path = os.path.join(config_.MLFLOW_DIR, "mlflow.db")
-    # mlflow.set_tracking_uri(f"sqlite:///{db_mlflow_path}")
+    db_mlflow_path = os.path.join(config_.MLFLOW_DIR, "mlflow.db")
+    mlflow.set_tracking_uri(f"sqlite:///{db_mlflow_path}")
 
     # 2. DEFINISCI IL NOME DELL'ESPERIMENTO
-    experiment_name = "twitter_sentiment_analisys"
+    experiment_name = "machine_innovation_sentiment_analisys"
 
     # 3. RECUPERA O CREA L'ESPERIMENTO IN MODO SICURO
     experiment = mlflow.get_experiment_by_name(experiment_name)
