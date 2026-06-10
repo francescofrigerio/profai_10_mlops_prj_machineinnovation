@@ -85,6 +85,7 @@ class TestIntegration:
     def test_4_saved_model_files(self):
         """
             Test that the model files are saved correctly
+            Test this after run train
         """
         CONFIG = ConfigProdConstants()
         # verify this path runtime
