@@ -15,8 +15,14 @@ import argparse
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from utils.const_baseline import ConfigProdConstants,ConfigDebugConstants
 from utils.utils import preprocess_tweet
+from utils.login_mlops_hf import Login
 
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
+
+def run_login_hf():
+    obj_login = Login("MachineInnovation")
+    obj_login.login_hf()
+    print(f"lunghezza auth token {len(obj_login.get_token())}")
 
 class SentimentPipeline:
     """
@@ -26,6 +32,7 @@ class SentimentPipeline:
         """
             Inizalizza la classe che implementa la pipeline
         """
+        run_login_hf()
         print(br"Caricamento del modello per l'inferenza...")
         self.tokenizer = AutoTokenizer.from_pretrained(model_path_or_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_path_or_name)

@@ -21,10 +21,18 @@ import torch
 
 
 from src.utils.const_baseline import ConfigProdConstants
+from src.utils.const_baseline import ConfigDebugConstants
+from src.utils.login_mlops_hf import Login
+
+def run_login_hf():
+    obj_login = Login("MachineInnovation")
+    obj_login.login_hf()
+    print(f"lunghezza auth token {len(obj_login.get_token())}")
 
 @pytest.fixture(scope="session")
 def model_and_tokenizer():
-
+    
+    run_login_hf()
     MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
@@ -40,6 +48,7 @@ class TestIntegration:
         """
             Test loadinf of the dataset
         """
+        run_login_hf()
         dataset = load_dataset("tweet_eval","sentiment")
 
         assert len(dataset["train"]) > 0
@@ -64,9 +73,7 @@ class TestIntegration:
         """
             Test prediction pipeline not based on HF
         """
-        # MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-        # tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        # model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+       
         model, tokenizer = model_and_tokenizer
 
         text = "It's fantastic!! Inter wins both Italian League and Italian Cup"
@@ -87,7 +94,8 @@ class TestIntegration:
             Test that the model files are saved correctly
             Test this after run train
         """
-        CONFIG = ConfigProdConstants()
+        CONFIG_PROD = ConfigProdConstants()
+        CONFIG_DEBUG = ConfigDebugConstants()
         # verify this path runtime
     
         required_files = [ "config.json",
@@ -95,6 +103,6 @@ class TestIntegration:
                             "tokenizer.json",
                             "tokenizer_config.json"
                         ]
-
+        # print(f" Cerco i file nella dir {CONFIG_DEBUG.OUTPUT_DIR}")
         for f in required_files:
-            assert os.path.exists(os.path.join(CONFIG.OUTPUT_DIR,f))
+            assert os.path.exists(os.path.join(CONFIG_DEBUG.OUTPUT_DIR,f))

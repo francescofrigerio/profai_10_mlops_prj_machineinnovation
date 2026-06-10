@@ -19,10 +19,17 @@ import torch
 
 
 from src.utils.const_baseline import ConfigProdConstants
+from src.utils.login_mlops_hf import Login
+
+def run_login_hf():
+    obj_login = Login("MachineInnovation")
+    obj_login.login_hf()
+    print(f"lunghezza auth token {len(obj_login.get_token())}")
 
 @pytest.fixture(scope="session")
 def model_and_tokenizer():
-
+    
+    run_login_hf()
     MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
