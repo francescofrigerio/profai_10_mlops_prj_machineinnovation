@@ -3,26 +3,23 @@
 """
 import os
 import pytest
+import datasets
+import huggingface_hub
 from datasets import load_dataset
 
 # tokenizer definitions
 # model and pipeline definitions
-# from transformers import (  AutoModelForSequenceClassification,
-#                             AutoTokenizer,
-#                            pipeline )
 from transformers import (  AutoModelForSequenceClassification,
                             AutoTokenizer )
 
 import torch
 
-# from fastapi import FastAPI, HTTPException
-# from pydantic import BaseModel
-# import uvicorn
-
-
 from src.utils.const_baseline import ConfigProdConstants
 from src.utils.const_baseline import ConfigDebugConstants
 from src.utils.login_mlops_hf import Login
+
+print("datasets", datasets.__version__)
+print("huggingface_hub", huggingface_hub.__version__)
 
 def run_login_hf():
     obj_login = Login("MachineInnovation")
@@ -49,15 +46,19 @@ class TestIntegration:
             Test loadinf of the dataset
         """
         run_login_hf()
-        # dataset = load_dataset("tweet_eval","sentiment")
-        run_login_hf()
-        # FORZA il caricamento senza usare il token di autenticazione 
-        # per evitare il bug dell'URI nella github actions
-        dataset = load_dataset("tweet_eval", "sentiment", token=False)
+        dataset = load_dataset("tweet_eval", "sentiment", token=os.environ["HF_TOKEN"])
 
         assert len(dataset["train"]) > 0
 
-    def test_2_model_and_tokenizer(self,model_and_tokenizer):
+    def test_2_dataset_loading(self,model_and_tokenizer):
+        """
+            Test loadinf of the dataset
+        """
+        run_login_hf()
+        dataset = load_dataset("tweet_eval", "sentiment",split="train[:10]", token=os.environ["HF_TOKEN"])
+        print(dataset)
+
+    def test_3_model_and_tokenizer(self,model_and_tokenizer):
         """
            Test compatibnility between model and tokenizer
         """
@@ -73,7 +74,7 @@ class TestIntegration:
         # print(outputs.logits.shape)
         assert outputs.logits.shape[-1] == 3
 
-    def test_3_pipeline_my(self,model_and_tokenizer):
+    def test_4_pipeline_my(self,model_and_tokenizer):
         """
             Test prediction pipeline not based on HF
         """
@@ -93,7 +94,7 @@ class TestIntegration:
         assert pred.item() in [0,1,2]
 
 
-    def test_4_saved_model_files(self):
+    def test_5_saved_model_files(self):
         """
             Test that the model files are saved correctly
             Test this after run train
