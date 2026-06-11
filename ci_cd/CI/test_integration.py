@@ -36,6 +36,7 @@ def model_and_tokenizer():
 
     return model, tokenizer
 
+from huggingface_hub import list_datasets
 class TestIntegration:
     """
         Class to test the integration of different components of the application
@@ -45,18 +46,19 @@ class TestIntegration:
         """
             Test loadinf of the dataset
         """
-        run_login_hf()
-        dataset = load_dataset("tweet_eval", "sentiment", token=os.environ["HF_TOKEN"])
-
+        # run_login_hf()
+        dataset = load_dataset("cardiffnlp/tweet_eval", "sentiment")
         assert len(dataset["train"]) > 0
-
+ 
     def test_2_dataset_loading(self,model_and_tokenizer):
         """
             Test loadinf of the dataset
         """
-        run_login_hf()
-        dataset = load_dataset("tweet_eval", "sentiment",split="train[:10]", token=os.environ["HF_TOKEN"])
+        dataset = load_dataset("cardiffnlp/tweet_eval", "sentiment",split="train[:10]")
         print(dataset)
+        # debug
+        # for ds in list_datasets(search="tweet_eval"):
+        #     print(ds.id)
 
     def test_3_model_and_tokenizer(self,model_and_tokenizer):
         """

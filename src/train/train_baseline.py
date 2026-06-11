@@ -378,7 +378,7 @@ def train_baseline( model_ ,
 
     if config_.FLAG_DEBUG_MODE:
         # debug mode con max_steps
-        logger.info("RUN TRAINING WITH DEBUG MODE")
+        logger.info(f"RUN TRAINING WITH DEBUG MODE {config_.OUTPUT_DIR}")
         training_args = TrainingArguments(
                                              # output_dir=CONFIG.OUTPUT_DIR ,
                                              output_dir=model_weights_dir,
@@ -414,7 +414,7 @@ def train_baseline( model_ ,
 
 
     else:
-        logger.info("RUN TRAININ WITH PROD MODE")
+        logger.info(f"RUN TRAINING WITH PROD MODE {config_.OUTPUT_DIR}")
         training_args = TrainingArguments(
                                     # output_dir=config_.OUTPUT_DIR ,
                                     output_dir=model_weights_dir,

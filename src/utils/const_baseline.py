@@ -29,7 +29,8 @@ class ConfigDebugConstants:
     LEARNING_RATE: float = 2e-5
     BATCH_SIZE: int = 4
     NUM_EPOCHS: int = 1
-    MAX_STEPS: int = 20
+    # MAX_STEPS: int = 20
+    MAX_STEPS: int = 2
     # MAX_STEPS: int = -1  # <-- per testare un epoca effettiva
     WEIGHT_DECAY: float = 0.01
     SAVE_TOTAL_LIMIT: int = 1

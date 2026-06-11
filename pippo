@@ -1,0 +1,41 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.1, pytest-9.0.3, pluggy-1.6.0
+rootdir: /workspaces/profai_10_mlops_prj_machineinnovation
+configfile: pytest.ini
+plugins: anyio-4.13.0
+datasets 5.0.0
+huggingface_hub 1.18.0
+collected 1 item
+
+ci_cd/CI/test_integration.py  input_argv MachineInnovation
+Ok puoi accedere
+Ok Accesso ad HuggingFace avvenuto con successo!
+Utente connesso: francescofrigerio
+lunghezza auth token 37
+START DEBUG DATASET
+Dataset({
+    features: ['text', 'label'],
+    num_rows: 10
+})
+END DEBUG DATASET
+.
+
+=============================== warnings summary ===============================
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+ci_cd/CI/test_integration.py::TestIntegration::test_1_dataset_loading
+  /workspaces/profai_10_mlops_prj_machineinnovation/.venv/lib/python3.12/site-packages/transformers/models/roberta/tokenization_roberta.py:144: DeprecationWarning: Deprecated in 0.9.0: BPE.__init__ will not create from files anymore, try `BPE.from_file` instead
+    BPE(
+
+ci_cd/CI/test_integration.py::TestIntegration::test_1_dataset_loading
+ci_cd/CI/test_integration.py::TestIntegration::test_1_dataset_loading
+ci_cd/CI/test_integration.py::TestIntegration::test_1_dataset_loading
+  /workspaces/profai_10_mlops_prj_machineinnovation/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py:1864: DeprecationWarning: hf_xet.download_files() is deprecated. Use XetSession().new_file_download_group().start_download_file() instead.
+    xet_get(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 passed, 6 warnings in 12.48s ========================
