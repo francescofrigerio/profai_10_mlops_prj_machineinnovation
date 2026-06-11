@@ -26,6 +26,9 @@ class ConfigDebugConstants:
     # Training
     OUTPUT_DIR = PROJECT_ROOT / "outputs-baseline-debug"
     LOG_DIR = OUTPUT_DIR / "logs"
+    MLFLOW_DIR = PROJECT_ROOT / "mlruns-debug"
+    MODEL_WEIGHTS_DIR = OUTPUT_DIR / "model_weights"
+    
     LEARNING_RATE: float = 2e-5
     BATCH_SIZE: int = 4
     NUM_EPOCHS: int = 1
@@ -40,7 +43,7 @@ class ConfigDebugConstants:
     EVAL_STRATEGY_MODE: str = "steps"
     SAVE_STRATEGY_MODE: str = "steps"
     REPORT_TO_MODE: str = "mlflow"
-    MLFLOW_DIR = PROJECT_ROOT / "mlruns-debug"
+    
     MLFLOW_RUN_NAME: str = "twitter-sentiment-roberta-debug"
     MLFLOW_MODE_RUN: str = "DEBUG"
     MLFLOW_DATASET_TYPE: str = "SMALL"
@@ -77,6 +80,9 @@ class ConfigProdConstants:
     # Training
     OUTPUT_DIR = PROJECT_ROOT / "outputs-baseline-prod"
     LOG_DIR = OUTPUT_DIR / "logs"
+    MLFLOW_DIR = PROJECT_ROOT / "mlruns-prod"
+    MODEL_WEIGHTS_DIR = OUTPUT_DIR / "model_weights"
+
     LEARNING_RATE:float = 2e-5
     # Non ho abbastanza memoria x aumentare
     BATCH_SIZE: int= 16
@@ -90,11 +96,12 @@ class ConfigProdConstants:
     EVAL_STRATEGY_MODE: str = "epoch"
     SAVE_STRATEGY_MODE: str = "epoch"
     REPORT_TO_MODE: str = "mlflow"
-    MLFLOW_DIR = PROJECT_ROOT / "mlruns-prod"
+    
     MLFLOW_RUN_NAME: str = "twitter-sentiment-roberta-prod"
     MLFLOW_MODE_RUN: str = "PROD"
     MLFLOW_DATASET_TYPE: str = "ALL"
     MLFLOW_ARTIFACT_PATH: str = "out-model-baseline-prod"
+    
 
     FLAG_LOAD_BEST_MODEL: bool = True
     FLAG_USE_CPU: bool = False

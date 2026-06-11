@@ -1,4 +1,12 @@
 # MODEL SERVING MACHINE INNOVATION
+https://huggingface.co/francescofrigerio/spaces
+
+https://huggingface.co/spaces/francescofrigerio/SpaceMachineInnovatorsMlOps
+https://huggingface.co/spaces/francescofrigerio/ModelMachineInnovatorsMlOps
+
+https://huggingface.co/francescofrigerio/machine-innovation-sentiment-model
+
+
 1. requirements.txt
 
 Segue il Contenuto del file requirements:
@@ -57,7 +65,7 @@ dalla dir locale collegata a github alla dir locale collegata allo space.
 model_serving/test_predict_from_app.sh esegue una post  
 model_serving/test_predict_from_web.sh esegue una post
 
-E' possibile anche testare la get direttamente sul browser
+9. E' possibile anche testare la get direttamente sul browser
 con il seguente url:
 https://francescofrigerio-spacemachineinnovatorsmlops.hf.space/predict?text=Oggi è una orribile giornata
 
