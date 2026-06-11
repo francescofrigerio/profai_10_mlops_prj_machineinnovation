@@ -503,18 +503,20 @@ def train_baseline( model_ ,
         else:
             mlflow.log_metrics(train_metrics)
 
-        
         # salva modello HuggingFace
         # artifact_path=OUTPUT_DIR è un percorso fisico sul tuo computer
         # Invece, artifact_path è solo il nome della cartella virtuale
         # che MLflow creerà dentro la directory ./mlruns)
         # per catalogare i pesi del modello.
-        mlflow.transformers.log_model(
-                                        transformers_model={ "model": trainer.model,
-                                                             "tokenizer": tokenizer
-                                                        },
-                                        artifact_path=config_.MLFLOW_ARTIFACT_PATH
+        try:
+            mlflow.transformers.log_model( transformers_model={ "model": trainer.model,
+                                                            "tokenizer": tokenizer },
+                                        # artifact_path=config_.MLFLOW_ARTIFACT_PATH
+                                        artifact_path = config_.MLFLOW_DIR
                                     )
+        except Exception as e:
+            logger.warning(f"Salvataggio su MLflow fallito : {e}")
+        
 
     logger.info(f"start graph and db custom db_path {db_path}")
     # grafici sui dati di test
@@ -554,11 +556,11 @@ def train_baseline( model_ ,
         # Questo scaricherà "confusion_matrix.png" e "roc_curve.png"
         client.download_artifacts(run_id, "confusion_matrix.png", config_.OUTPUT_DIR)
         client.download_artifacts(run_id, "roc_curve.png", config_.OUTPUT_DIR)
-        client.download_artifacts(run_id, config_.METRICS_DB_PATH, config_.OUTPUT_DIR)
+        # client.download_artifacts(run_id, config_.METRICS_DB_PATH, config_.OUTPUT_DIR)
         
         # 3. Scarica i pesi del modello formattati per HuggingFace nella sottocartella locale
         local_model_dir = os.path.join(config_.OUTPUT_DIR, "final_model")
-        client.download_artifacts(run_id, config_.MLFLOW_ARTIFACT_PATH, local_model_dir)
+        client.download_artifacts(run_id, config_.OUTPUT_DIR, local_model_dir)
         
         
 
