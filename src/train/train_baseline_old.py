@@ -66,7 +66,7 @@ from utils.utils import preprocess_tweet , print_counter,init_debug_logger,test_
 from train.metrics import compute_metrics
 
 # abilita mflow alla scrittura su file disco
-os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
+# os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
 
 # Init global logger
 logger = init_debug_logger()
@@ -83,14 +83,21 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
 def create_project_dirs(config):
 
-    # config.OUTPUT_DIR.mkdir(parents=True,exist_ok=True )
-    os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
+    config.OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True )
 
-    # config.MLFLOW_DIR.mkdir(parents=True,exist_ok=True )
-    # os.makedirs(CONFIG.MLFLOW_DIR, exist_ok=True)
+    config.MLFLOW_DIR.mkdir(
+        parents=True,
+        exist_ok=True )
 
-    # config.MODEL_WEIGHTS_DIR.mkdir(parents=True,exist_ok=True )
-    os.makedirs(CONFIG.MODEL_WEIGHTS_DIR, exist_ok=True)
+    config.LOG_DIR.mkdir(
+        parents=True,
+        exist_ok=True )
+
+    config.MODEL_WEIGHTS_DIR.mkdir(
+        parents=True,
+        exist_ok=True )
 
 def set_all_seeds(seed=42):
     """
@@ -123,8 +130,10 @@ def preprocess_function(examples):
     return tokenizer( texts,
                       truncation=True,
                       # padding in fase di ttrainig per velocizzare
+                      # l'analisi statistica ha evidenziato
+                      # che il 99% dei tweet è sotto i 128 token
                       # padding="max_length",
-                      max_length=128
+                      max_length=CONFIG.MAX_LENGTH
                     )
 
 def test_baseline(trainer_,
@@ -150,7 +159,8 @@ def test_baseline(trainer_,
 
 def plot_confusion_matrix(trainer_,
                           tokenized_dataset_,
-                          config):
+                          config,
+                          file_png="confusion_matrix.png"):
     """
         plot confusion matrix on test data
     """
@@ -166,7 +176,7 @@ def plot_confusion_matrix(trainer_,
     plt.title("Confusion Matrix")
 
     # Salvataggio dentro la cartella unificata di output
-    save_path = os.path.join(config.OUTPUT_DIR, "confusion_matrix.png")
+    save_path = os.path.join(config.OUTPUT_DIR, file_png)
     plt.savefig(save_path)
     plt.close()
     mlflow.log_artifact(save_path)
@@ -174,7 +184,8 @@ def plot_confusion_matrix(trainer_,
 
 def plot_roc_curve(trainer_,
                    tokenized_dataset_,
-                   config):
+                   config,
+                   file_png="roc_curve.png"):
     """
         Ripassare la logica e le definizioni
         ROC richiede score/probabilità continue
@@ -244,7 +255,7 @@ def plot_roc_curve(trainer_,
     plt.grid(True)
 
     # FIX: Salvataggio strutturato
-    save_path = os.path.join(config.OUTPUT_DIR, "roc_curve.png")
+    save_path = os.path.join(config.OUTPUT_DIR,file_png)
     plt.savefig(save_path)
     plt.close()
     mlflow.log_artifact(save_path)
@@ -294,8 +305,8 @@ def insert_table_baseline(metrics,
         e dall'experimenti id determinato
         a partire dal nome dell'esperimento di MLflow
     """
-    # Estrai i dati dal dizionario metrics del trainer
-    # Assicurati che le chiavi corrispondano a quelle calcolate in compute_metrics
+    # Estrae i dati dal dizionario metrics del trainer
+    # le chiavi devono corrispondere a quelle calcolate in compute_metrics
     acc = metrics.get("eval_accuracy", 0)
     prec = metrics.get("eval_precision", 0)
     rec = metrics.get("eval_recall", 0)
@@ -332,13 +343,18 @@ def train_baseline( model_ ,
     """
 
     db_path = os.path.join(config_.OUTPUT_DIR, config_.METRICS_DB_PATH)
-    model_weights_dir = os.path.join(config_.OUTPUT_DIR, "model_weights")
+    model_weights_dir = config_.MODEL_WEIGHTS_DIR
 
     # CONFIGURAZIONE DI MlFlow
-    # 1. IMPOSTA PRIMA IL TRACKING URI
-    mlflow.set_tracking_uri("file:./mlruns")
+    # mlflow.set_tracking_uri("file:./mlruns")
+    # mlflow.set_tracking_uri(f"file:{config_.MLFLOW_DIR}")
+    
+    # Configurazione con backend SQLite locale
+    db_mlflow_path = os.path.join(config_.MLFLOW_DIR, "mlflow.db")
+    mlflow.set_tracking_uri(f"sqlite:///{db_mlflow_path}")
+
     # 2. DEFINISCI IL NOME DELL'ESPERIMENTO
-    experiment_name = "twitter_sentiment_analisys"
+    experiment_name = "machine_innovation_sentiment_analisys"
 
     # 3. RECUPERA O CREA L'ESPERIMENTO IN MODO SICURO
     experiment = mlflow.get_experiment_by_name(experiment_name)
@@ -353,7 +369,7 @@ def train_baseline( model_ ,
     # MFlow Logging
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
     
-    # Raggruppiamo i metadati in un unico dizionario (1 sola variabile invece di 3)
+    # Raggruppo i metadati in un unico dizionario (1 sola variabile invece di 3)
     run_metadata = {
         "run_name": config_.MLFLOW_RUN_NAME,
         "mode_run": config_.MLFLOW_MODE_RUN,
@@ -362,6 +378,8 @@ def train_baseline( model_ ,
 
 
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
+
+    # raise ValueError(f"Eccezione!! Mi fermo per debug {config_.OUTPUT_DIR}")
 
     if config_.FLAG_DEBUG_MODE:
         # debug mode con max_steps
@@ -390,18 +408,18 @@ def train_baseline( model_ ,
                                           )
 
         trainer = Trainer( model=model_,
-                                    args=training_args,
-                                    train_dataset=train_dataset_,
-                                    eval_dataset=val_dataset_,
-                                    # processing_class=tokenizer,
-                                    # tokenizer=tokenizer,
-                                    data_collator=data_collator,
-                                    compute_metrics=compute_metrics )
+                            args=training_args,
+                            train_dataset=train_dataset_,
+                            eval_dataset=val_dataset_,
+                            # processing_class=tokenizer,
+                            # tokenizer=tokenizer,
+                            data_collator=data_collator,
+                            compute_metrics=compute_metrics )
 
 
 
     else:
-        logger.info("RUN TRAININ WITH PROD MODE")
+        logger.info("RUN TRAINING WITH PROD MODE")
         training_args = TrainingArguments(
                                     # output_dir=config_.OUTPUT_DIR ,
                                     output_dir=model_weights_dir,
@@ -431,6 +449,11 @@ def train_baseline( model_ ,
                             data_collator=data_collator,
                             compute_metrics=compute_metrics )
 
+    logger.info(f"start metrics OUTPUT_DIR {config_.OUTPUT_DIR}")
+    logger.info(f"start metrics MLFLOW_ARTIFACT_PATH {config_.MLFLOW_ARTIFACT_PATH}")
+    logger.info(f"start metrics MLFLOW_DIR {config_.MLFLOW_DIR}")
+    logger.info(f"start metrics MODEL_WEIGHTS_DIR {config_.MODEL_WEIGHTS_DIR}")
+    
     with mlflow.start_run(run_name=run_metadata["run_name"]):
         mlflow.set_tags({
             "mode": run_metadata["mode_run"],
@@ -443,6 +466,8 @@ def train_baseline( model_ ,
         # log parametri custom
         mlflow.log_param("model_name", MODEL_NAME)
         mlflow.log_param("dataset", "tweet_eval")
+        # l'analisi statistica ha evidenziato
+        # che il 99% dei tweet è sotto i 128 token
         mlflow.log_param("max_length", config_.MAX_LENGTH)
 
         # Aggiunta per CI_CD
@@ -455,10 +480,15 @@ def train_baseline( model_ ,
         if fine_checkpoint_test:
             trainer.train(resume_from_checkpoint=True)
         else:
-            trainer.train()
-
+            trainer.train()     
         # valutazione sul validation
         train_metrics = trainer.evaluate()
+
+
+
+
+
+
 
         # Seleziona solo le metriche che ti interessano per il monitoraggio:
         monitoring_metrics = { "eval_accuracy": train_metrics.get("eval_accuracy"),
@@ -474,20 +504,24 @@ def train_baseline( model_ ,
             mlflow.log_metrics(train_metrics)
 
         # salva modello HuggingFace
-        # Non usare artifact_path=OUTPUT_DIR è un percorso fisico sul tuo computer
+        # artifact_path=OUTPUT_DIR è un percorso fisico sul tuo computer
         # Invece, artifact_path è solo il nome della cartella virtuale
         # che MLflow creerà dentro la directory ./mlruns)
         # per catalogare i pesi del modello.
-        mlflow.transformers.log_model(
-                                        transformers_model={ "model": trainer.model,
-                                                             "tokenizer": tokenizer
-                                                        },
-                                        artifact_path=config_.MLFLOW_ARTIFACT_PATH
+        try:
+            mlflow.transformers.log_model( transformers_model={ "model": trainer.model,
+                                                            "tokenizer": tokenizer },
+                                        # artifact_path=config_.MLFLOW_ARTIFACT_PATH
+                                        artifact_path = config_.MLFLOW_DIR
                                     )
+        except Exception as e:
+            logger.warning(f"Salvataggio su MLflow fallito : {e}")
+        
 
+    logger.info(f"start graph and db custom db_path {db_path}")
     # grafici sui dati di test
-    plot_confusion_matrix(trainer,tokenized_dataset_,config_)
-    plot_roc_curve(trainer,tokenized_dataset_,config_)
+    plot_confusion_matrix(trainer,tokenized_dataset_,config_,"confusion_matrix.png")
+    plot_roc_curve(trainer,tokenized_dataset_,config_,"roc_curve.png")
 
     test_metrics = test_baseline(trainer,
                                  tokenized_dataset_)
@@ -508,11 +542,34 @@ def train_baseline( model_ ,
     trainer.save_model(config_.OUTPUT_DIR)
     tokenizer.save_pretrained(config_.OUTPUT_DIR)
 
+    # --- Estrazione locale degli artefatti a fine addestramento ---
+    logger.info(f"Esporto gli artefatti da MLflow alla cartella locale: {config_.OUTPUT_DIR}")
+    
+    # 1. Recupera l'ID dell'ultima run appena completata
+    current_run = mlflow.active_run() or mlflow.last_active_run()
+    if current_run:
+        run_id = current_run.info.run_id
+        from mlflow.tracking import MlflowClient
+        client = MlflowClient()
+
+        # 2. Scarica i grafici registrati su MLflow direttamente dentro OUTPUT_DIR
+        # Questo scaricherà "confusion_matrix.png" e "roc_curve.png"
+        client.download_artifacts(run_id, "confusion_matrix.png", config_.OUTPUT_DIR)
+        client.download_artifacts(run_id, "roc_curve.png", config_.OUTPUT_DIR)
+        # client.download_artifacts(run_id, config_.METRICS_DB_PATH, config_.OUTPUT_DIR)
+        
+        # 3. Scarica i pesi del modello formattati per HuggingFace nella sottocartella locale
+        local_model_dir = os.path.join(config_.OUTPUT_DIR, "final_model")
+        client.download_artifacts(run_id, config_.OUTPUT_DIR, local_model_dir)
+        
+        
+
+        logger.info(f"Esportazione completata con successo in {config_.OUTPUT_DIR}")
+
     # Dopo trainer.train() e il logging su mlflow
-    # liberioimmediatamente i GB occupati dai checkpoint temporanei.
-    # shutil.rmtree(CONFIG.OUTPUT_DIR)
-    # if os.path.exists(model_weights_dir):
-    #    shutil.rmtree(model_weights_dir)
+    # libero i GB occupati dai checkpoint temporanei.
+    if os.path.exists(model_weights_dir):
+        shutil.rmtree(model_weights_dir)
 
 if __name__ == '__main__':
 
@@ -527,6 +584,12 @@ if __name__ == '__main__':
                         help="Modalità di esecuzione dell'addestramento (default: DEBUG)"
                     )
 
+    parser.add_argument("--model-source",
+                        type=str,
+                        choices=["base", "local", "hf"],
+                        default="base"
+                        )
+
     # Effettua il parse degli argomenti lanciati da terminale
     args = parser.parse_args()
 
@@ -539,44 +602,49 @@ if __name__ == '__main__':
         print("Training avviato in modalità: DEBUG")
 
     # definizione/creazione dir e file di di output
-    os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
-    os.makedirs(CONFIG.MODEL_WEIGHTS_DIR, exist_ok=True)
+    # os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
+    create_project_dirs(CONFIG)
     # db_path = os.path.join(CONFIG.OUTPUT_DIR, CONFIG.METRICS_DB_PATH)
     # model_weights_dir = os.path.join(CONFIG.OUTPUT_DIR, "model_weights")
 
     obj_login = Login("MachineInnovation")
     obj_login.login_hf()
     print(f"lunghezza auth token {len(obj_login.get_token())}")
-    # raise ValueError("Mi fermo per debug auth hf")
+    
     set_all_seeds(CONFIG.SEED)
 
     # Test trace levels
     print("--- Inizio Test Logging ---")
-    test_debug_division(logger,10, 2)   # Genera DEBUG e INFO
-    test_debug_division(logger,10, -2)  # Genera DEBUG, WARNING e INFO
-    test_debug_division(logger,10, 0)   # Genera DEBUG e ERROR
+    
     logger.setLevel(logging.INFO)
+    if args.mode == 'PROD':
+        logging.FileHandler(CONFIG.LOG_DIR / "train-prod.log")
+    else:
+        logging.FileHandler(CONFIG.LOG_DIR / "train-debug.log")
+
+    # model and tokenizer
+    # Load model directly
+    # Aggiunta per CI_CD
+    if args.model_source == "base": # default
+        model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+
+    elif args.model_source == "local":
+        model = AutoModelForSequenceClassification.from_pretrained(CONFIG.OUTPUT_DIR)
+
+    elif args.model_source == "hf":
+        model = AutoModelForSequenceClassification.from_pretrained("MachineInnovation/twitter-sentiment-model")
 
     # load dataset
+    # dataset = load_dataset("tweet_eval", "sentiment")
     dataset = load_dataset("cardiffnlp/tweet_eval", "sentiment")
 
     print_counter(dataset["train"]["label"],label_mapping,"TRAIN")
     print_counter(dataset["validation"]["label"],label_mapping,"VAL")
     print_counter(dataset["test"]["label"],label_mapping,"TEST")
 
-    # logger.info(f"{dataset['train']}")
-    # logger.info(f"{dataset['test']}")
-    # logger.info(f"{dataset['validation']}")
     logger.info("%s:",dataset['train'])
     logger.info("%s:",dataset['test'])
     logger.info("%s:",dataset['validation'])
-    # logger.info(f"{dataset['train']['text'][6]}")
-    # logger.info(f"{dataset['train']['label'][6]}")
-
-    # model and tokenizer
-    # Load model directly
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
-    dataset = load_dataset("cardiffnlp/tweet_eval", "sentiment")
 
     tokenized_dataset = dataset.map(preprocess_function,
                                     batched=True)
