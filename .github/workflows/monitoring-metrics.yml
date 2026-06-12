@@ -2,9 +2,12 @@ name: Machine Innovation Monitoring
 
 on:
   push:
+    branches: 
+      - [ "dev-ci-cd" ]
     paths:
-      - 'src/outputs-baseline-prod/**/*.db'
       - 'src/outputs-baseline-prod/*.db'
+      - 'src/outputs-baseline-prod/*.db'
+      
   workflow_dispatch:
 
 permissions:
@@ -12,9 +15,9 @@ permissions:
 
 jobs:
   render-charts:
-    runs-on: ubuntu-latest
+      runs-on: ubuntu-latest
     
-    steps:
+  steps:
     # 1. Scarica il codice del repository
     - name: Checkout repository
       uses: actions/checkout@v4
