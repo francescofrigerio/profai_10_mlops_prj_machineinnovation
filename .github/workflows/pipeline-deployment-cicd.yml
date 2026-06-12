@@ -49,7 +49,10 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           chmod +x ./run_train_prod.sh
-          ./run_train_prod.sh
+          # esegue in modalita demo 
+          # perchè il progetto possa essere
+          # visionato in tempi rapidi
+          ./run_train_prod.sh --demo
 
       # se il train ha successo il modello viene
       # caricato su repository tipo model di Hugging Face
