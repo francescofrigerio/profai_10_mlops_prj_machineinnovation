@@ -17,10 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Scarica il codice dal repository
       - name: Checkout repository
         uses: actions/checkout@v4
-
       # 2. Configura i permessi ed esegui lo script del DB
       - name: Esegui install_db.sh
         run: |
