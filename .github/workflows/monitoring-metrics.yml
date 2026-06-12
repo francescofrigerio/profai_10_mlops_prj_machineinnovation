@@ -5,7 +5,11 @@ on:
     branches: 
       - "dev-ci-cd"
     paths:
+      # si attiba solo se sono i modificati i files
       - 'src/outputs-baseline-prod/*.db'
+      - 'src/outputs-baseline-prod/*.png'
+      - 'src/outputs-baseline-debug/*.db'
+      - 'src/outputs-baseline-debug*.png'
       
   workflow_dispatch:
 
