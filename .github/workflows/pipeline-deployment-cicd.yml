@@ -7,7 +7,7 @@ on:
     
   pull_request:
     branches: 
-      - [ "main" ]
+      - "main"
 
   # Avviaamento manuale (vedere file deployment.md)
   workflow_dispatch:
