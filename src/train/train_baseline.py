@@ -511,8 +511,8 @@ def train_baseline( model_ ,
     # Dopo trainer.train() e il logging su mlflow
     # liberioimmediatamente i GB occupati dai checkpoint temporanei.
     # shutil.rmtree(CONFIG.OUTPUT_DIR)
-    # if os.path.exists(model_weights_dir):
-    #    shutil.rmtree(model_weights_dir)
+    if os.path.exists(model_weights_dir):
+        shutil.rmtree(model_weights_dir)
 
 if __name__ == '__main__':
 
