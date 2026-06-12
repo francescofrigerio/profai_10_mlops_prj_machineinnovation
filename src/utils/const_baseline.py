@@ -26,6 +26,9 @@ class ConfigDebugConstants:
     LEARNING_RATE: float = 2e-5
     BATCH_SIZE: int = 4
     NUM_EPOCHS: int = 1
+    # solo in debug per non fare un intera epoca
+    # ed abbreviare il training
+    MAX_STEPS: int = 20
     WEIGHT_DECAY: float = 0.01
     SAVE_TOTAL_LIMIT: int = 1
     LOGGING_STEPS: int = 5
@@ -41,15 +44,15 @@ class ConfigDebugConstants:
 
     FLAG_LOAD_BEST_MODEL: bool = True
     FLAG_USE_CPU: bool = True
-    MAX_STEPS: int = 20
+    
     FLAG_DEBUG_MODE: bool = True
     FLAG_MONITOR_METRICS: bool = False
 
     # Export table
-    FLAG_DROP_EXPORT_TABLE: bool = True
-    FLAG_CREATE_EXPORT_TABLE: bool = True
+    FLAG_DROP_EXPORT_TABLE: bool = False
+    FLAG_CREATE_EXPORT_TABLE: bool = False
     # In ConfigDebugConstants
-    METRICS_DB_PATH: str = "metrics_debug.db"
+    METRICS_DB_PATH: str = "metrics.db"
 
     # Model Serving
     MODEL_DIR: str = "./model-debug"
@@ -95,10 +98,10 @@ class ConfigProdConstants:
     FLAG_MONITOR_METRICS: bool =True
 
     # Export table
-    FLAG_DROP_EXPORT_TABLE: bool = True
-    FLAG_CREATE_EXPORT_TABLE: bool = True
+    FLAG_DROP_EXPORT_TABLE: bool = False
+    FLAG_CREATE_EXPORT_TABLE: bool = False
     # In ConfigProdConstants (magari in produzione punta a una cartella di rete o un volume persistente)
-    METRICS_DB_PATH: str = "metrics_prod.db"
+    METRICS_DB_PATH: str = "metrics.db"
 
     # Model Serving
     MODEL_DIR: str = "./model-prod"

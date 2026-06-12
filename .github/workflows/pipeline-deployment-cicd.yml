@@ -79,7 +79,8 @@ jobs:
           rm -rf hf_space/*
           cp -r model_serving/* hf_space/
           
-          # Invia le modifiche. Hugging Face vedrà il nuovo Dockerfile e farà ripartire lo Space in automatico!
+          # Invio delle modifiche. 
+          # Hugging Face fa ripartire lo Space in automatico
           cd hf_space
           git add .
           git diff-index --quiet HEAD || git commit -m "Deploy automatico da GitHub Actions"

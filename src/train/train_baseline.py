@@ -254,8 +254,8 @@ def create_table_baseline(path_connect="metrics.db",
                           config=None):
     """
         Creazione tabella SQLite
-        path_connect="metrics.db"
-        path_connect="/content/drive/MyDrive/my_project/metrics.db"
+        path_connect="metrics.db" workdir su codespace
+        path_connect="/content/drive/MyDrive/my_project/metrics.db" su notebook
     """
 
     conn = sqlite3.connect(path_connect)
@@ -474,7 +474,7 @@ def train_baseline( model_ ,
             mlflow.log_metrics(train_metrics)
 
         # salva modello HuggingFace
-        # Non usare artifact_path=OUTPUT_DIR è un percorso fisico sul tuo computer
+        # artifact_path=OUTPUT_DIR non è un percorso fisico sul tuo computer
         # Invece, artifact_path è solo il nome della cartella virtuale
         # che MLflow creerà dentro la directory ./mlruns)
         # per catalogare i pesi del modello.
@@ -509,8 +509,7 @@ def train_baseline( model_ ,
     tokenizer.save_pretrained(config_.OUTPUT_DIR)
 
     # Dopo trainer.train() e il logging su mlflow
-    # liberioimmediatamente i GB occupati dai checkpoint temporanei.
-    # shutil.rmtree(CONFIG.OUTPUT_DIR)
+    # liberio immediatamente i GB occupati dai checkpoint temporanei.
     if os.path.exists(model_weights_dir):
         shutil.rmtree(model_weights_dir)
 
