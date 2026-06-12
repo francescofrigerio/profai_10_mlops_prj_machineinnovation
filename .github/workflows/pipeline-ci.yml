@@ -8,13 +8,11 @@ name: Machine Innovation CI Pipeline
 
 on:
   push:
-    # To Begin with set the trigger only on dev branch.
-    # So we can safe minutes of build
-    # branches: [ "main" ]
-    branches: [ "dev-ci-cd" ] # per Testare solo in dev all'inizio
+    branches: [ "main" ]
+    branches: [ "dev-ci-cd" ] 
   pull_request:
-    #branches: [ "main" ]
-    branches: [ "dev-ci-cd" ] # per Testare solo in dev 
+    branches: [ "main" ]
+    branches: [ "dev-ci-cd" ] 
 
 permissions:
   contents: read
@@ -36,6 +34,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Controlli prima del test
+        env:
+          TOKEN_DA_VERIFICARE: ${{ secrets.HF_TOKEN }}
+        run: |
+          echo "=== Verifica presenza Token ==="
+          if [ -z "$TOKEN_DA_VERIFICARE" ]; then
+            echo "Attenzione: HF_TOKEN non è configurato!"
+          else
+            echo "HF_TOKEN è presente e pronto all'uso."
+          fi
 
       - name: Lint with flake8
         working-directory: "ci_cd/CI"
