@@ -3,7 +3,7 @@ name: Machine Innovation Monitoring
 on:
   push:
     branches: 
-      - "main"
+      - "dev-ci-cd"
     paths:
       - 'src/outputs-baseline-prod/*.db'
       
