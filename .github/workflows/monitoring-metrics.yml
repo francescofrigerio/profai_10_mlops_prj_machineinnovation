@@ -14,8 +14,7 @@ permissions:
 
 jobs:
   render-charts:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-latest 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -134,22 +133,22 @@ jobs:
 
       # 12. Commit e Push sul repository
       - name: Commit + Push of the update graph 
-      run: |
-        git config --local user.name "francescofrigerio"
-        git config --local user.email "francesco.frigerio@greencore.it"
-        git add ./images/dashboard_table.png
-        git add ./images/dashboard_timeseries.png
+        run: |
+          git config --local user.name "francescofrigerio"
+          git config --local user.email "francesco.frigerio@greencore.it"
+          git add ./images/dashboard_table.png
+          git add ./images/dashboard_timeseries.png
 
-        # le immagini png possono essere modificate 
-        # di poco ad ogni esecuzione
-        # per evitare salvataggi inutili e sistematici
-        # esegue il seguente controllo
-        if git diff --cached --quiet; then
+          # le immagini png possono essere modificate 
+          # di poco ad ogni esecuzione
+          # per evitare salvataggi inutili e sistematici
+          # esegue il seguente controllo
+          if git diff --cached --quiet; then
              echo "Nessuna modifica alle immagini"
              exit 0
-        fi
+          fi
 
-        git commit -m "Auto: Aggiornato grafico di training [skip ci]" || exit 0
-        git push
-        # dopo ogni commit automatico fare un git pull
-        # ad ogni partenza del codespace 
+          git commit -m "Auto: Aggiornato grafico di training [skip ci]" || exit 0
+          git push
+          # dopo ogni commit automatico fare un git pull
+          # ad ogni partenza del codespace 
