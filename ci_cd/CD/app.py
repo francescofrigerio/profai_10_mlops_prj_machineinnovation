@@ -1,0 +1,1 @@
+print("Start della pipeline CI CD")

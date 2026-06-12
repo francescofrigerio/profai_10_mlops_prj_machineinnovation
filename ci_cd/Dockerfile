@@ -12,14 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Verifica la presenza dei file nella workdir
-# RUN ls -la
-# RUN ls -R 
-RUN ls ci_cd
-
-RUN ls ci_cd/CD
-
-RUN ls ci_cd/CD/app.py
+# mostra TUTTI i file dentro ci_cd nei log di GitHub se qualcosa non va
+RUN ls -R ci_cd
 
 # Esecuzione dello script python
 CMD ["python", "ci_cd/CD/app.py"]
