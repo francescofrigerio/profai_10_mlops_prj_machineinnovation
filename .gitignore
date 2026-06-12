@@ -4,8 +4,8 @@ __pycache__/
 model/
 .ipynb_checkpoints/
 src/mlruns/
-src/train_debug.log
-src/train_prod.log
+src/train_DEBUG.log
+src/train_PROD.log
 src/outputs-baseline-prod/config.json
 src/outputs-baseline-prod/model.safetensors
 src/outputs-baseline-prod/tokenizer.json
