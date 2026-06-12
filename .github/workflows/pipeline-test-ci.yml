@@ -9,7 +9,7 @@ name: Machine Innovation CI Pipeline
 on:
   push:
     branches: 
-      - [ "dev-ci-cd" ]
+      - "dev-ci-cd"
   
   workflow_dispatch:
 
