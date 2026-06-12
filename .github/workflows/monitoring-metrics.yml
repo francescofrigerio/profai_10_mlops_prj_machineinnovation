@@ -19,7 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       # 2. Configura i permessi ed esegui lo script del DB
-      - name: Esegui install_db.sh
+      - name: Esegui install_db.sh e aggiorna il db
         run: |
           chmod +x ./install_db.sh
           sudo ./install_db.sh src/outputs-baseline-prod/metrics_prod.db
