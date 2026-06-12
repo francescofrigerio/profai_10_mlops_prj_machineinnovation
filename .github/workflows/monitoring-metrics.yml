@@ -1,4 +1,4 @@
-name: Update graphs on README.md
+name: Machine Innovation Monitoring 
 
 on:
   push:
