@@ -8,5 +8,5 @@ upload_folder(  folder_path=model_folder,
                 # repo_id="MachineInnovation/twitter-sentiment-model",
                 repo_id="francescofrigerio/machine-innovation-sentiment-model",
                 repo_type="model",
-                token=os.environ["HF_TOKEN"]
+                token=os.environ["HF_TOKEN_WRITE"]
              )
