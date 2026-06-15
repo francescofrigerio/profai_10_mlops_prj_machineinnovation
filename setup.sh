@@ -112,7 +112,7 @@ if [ "$1" == "--init" ]; then
     
     touch monitoring/.gitkeep
     touch images/.gitkeep
-    touch airflow/.gitkeep
+    touch orchestration/.gitkeep
     touch architecture/.gitkeep
     touch notebooks/.gitkeep
 
@@ -127,6 +127,7 @@ if [ "$1" == "--init" ]; then
     touch docs/monitoring.md
     touch docs/deployment.md
     touch docs/api_reference.md
+    touch docs/orchestration.md
 
     # Cartella links/ e relativi file
     mkdir -p links
