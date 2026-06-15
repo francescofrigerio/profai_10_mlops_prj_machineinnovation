@@ -1,0 +1,10 @@
+https://huggingface.co/francescofrigerio/spaces
+
+Space Repository
+https://huggingface.co/spaces/francescofrigerio/SpaceMachineInnovatorsMlOps
+
+Model Repository
+https://huggingface.co/spaces/francescofrigerio/ModelMachineInnovatorsMlOps
+
+Account Hugging Face
+https://huggingface.co/francescofrigerio/machine-innovation-sentiment-model

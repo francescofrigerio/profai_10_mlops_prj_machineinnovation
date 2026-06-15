@@ -1,15 +1,5 @@
 # MODEL SERVING MACHINE INNOVATION
-https://huggingface.co/francescofrigerio/spaces
-
-https://huggingface.co/spaces/francescofrigerio/SpaceMachineInnovatorsMlOps
-https://huggingface.co/spaces/francescofrigerio/ModelMachineInnovatorsMlOps
-
-https://huggingface.co/francescofrigerio/machine-innovation-sentiment-model
-
-
-1. requirements.txt
-
-Segue il Contenuto del file requirements:
+1. Contenuto del file requirements:
 
 fastapi
 uvicorn
