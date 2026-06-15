@@ -76,9 +76,12 @@ jobs:
           chmod +x ./run_train_prod.sh
           # esegue in modalita demo 
           # perchè il progetto possa essere
-          # visionato in tempi rapidi
-          # vedere pipeline-deplyment-cicd.md
+          # visionato in tempi rapidi (35 minuti)
+          # Documentato dentro pipeline-deplyment-cicd.md
           ./run_train_prod.sh --demo
+          # Salva il percorso corretto nel file d'ambiente di GitHub Actions
+          echo "MODEL_OUT_DIR=src/outputs-baseline-debug" >> $GITHUB_ENV
+          
 
       # se il train ha successo il modello viene
       # caricato su repository tipo model di Hugging Face
