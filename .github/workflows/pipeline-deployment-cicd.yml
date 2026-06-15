@@ -71,7 +71,7 @@ jobs:
 
       - name: Run train
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_TOKEN_WRITE: ${{ secrets.HF_TOKEN_WRITE }}
         run: |
           chmod +x ./run_train_prod.sh
           # esegue in modalita demo 
@@ -87,14 +87,14 @@ jobs:
       # caricato su repository tipo model di Hugging Face
       - name: Upload Model to Hugging Face
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_TOKEN_WRITE: ${{ secrets.HF_TOKEN_WRITE }}
         run: |
           python ci_cd/CD/hf_deploy.py
 
       # === INVIA IL CODICE DI SERVING ALLO SPACE DI HUGGING FACE ===
       - name: Deploy to Hugging Face Spaces
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_TOKEN_WRITE: ${{ secrets.HF_TOKEN_WRITE }}
         run: |
           # Configura Git con un utente fittizio
           git config --global user.email "francesco.frigerio@greencore.it"
