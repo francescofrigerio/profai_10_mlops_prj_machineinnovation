@@ -1,12 +1,46 @@
-Per ricreare l'enviroment e reinstallare le lib
+
+1. CREAZIONE DELL'ENVIRONMENT DA ZERO
+./setup --init
+
+2. RICREARE L'ENVIRONMENT E REINSTALLARE LE LIBRERIE
+
 deactivate
 rm -rf .venv
 python -m venv .venv
 source .venv/bin/activate
+pip cache purge
 pip install --upgrade pip
-pip install torch torchvision \
-  --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements.txt
+
+    pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+    pip install -r requirements.txt
+oppure
+    pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu --no-cache-dir
+    pip install -r requirements.txt --no-cache-dir
+
 python -c "import torch; print(torch.__version__)"  # deve stampare 2.x.x+cpu
 python -c "import torch; print(torch.cuda.is_available())" # deve dare false
 python -c "from transformers import AutoModelForSequenceClassification"
+
+3. HELP IN LINEA
+./setup.sh
+
+4. OUTPUT DELL'HELP IN LINEA
+----------------------------------------------------
+1. Verifica Python (max versione 3.12)
+Python 3.12.1
+----------------------------------------------------
+
+----------------------------------------------------
+2. SCRIPT D'INSTALLAZIONE CONTROLLO MODIFICA E RESET ENVIRONMEN
+2.1 -> setup.sh --init  (inizializza progetto , install. librerie/venv) 
+2.2 -> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) 
+2.3 -> setup.sh --install  (installazione librerie tramite requirements.txt) 
+2.4 -> setup.sh --checks  (controllo GPU/CPU verifica installazione librerie) 
+2.5 -> source .venv/bin/activate per attivare l'ambiente virtuale
+2.6 -> deactivate per disattivare l'ambiente virtuale
+2.7 -> ruff check file.py controllo superficiale di un file python
+2.8 -> cd src + PYTHONPATH=. pylint train/train_baseline.py per controllo profondo di un file python
+2.9 -> ./run_train_prod.sh Training in produzione (--demo per un training demo veloce)
+2.10-> ./run_train_debug.sh Training in debug(default)
+2.11 -> ./run_pipe_prod.sh Pipeline Inference in produzione
+2.12 -> ./run_pipe_debug.sh Pipeline Inference in debug
