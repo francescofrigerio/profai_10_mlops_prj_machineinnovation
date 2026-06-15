@@ -44,3 +44,6 @@ Repository Space   -> contiene app.py, Dockerfile, requirements.txt
 
 Lo Space scarica automaticamente l'ultima versione del modello dal repository modello tramite la libreria huggingface_hub. 
 Questo pattern MLOps evita di copiare i file del modello dentro lo Space a ogni deploy.
+
+Citare differenza run_train_prod.sh --demo (workflow dispatch)
+oppure modalita default con train  effettivo in produzione
