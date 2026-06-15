@@ -3,8 +3,8 @@ https://huggingface.co/francescofrigerio/spaces
 Space Repository
 https://huggingface.co/spaces/francescofrigerio/SpaceMachineInnovatorsMlOps
 
-Model Repository
+Model Repository KO
 https://huggingface.co/spaces/francescofrigerio/ModelMachineInnovatorsMlOps
 
-Account Hugging Face
+Model Repository Hugging Face
 https://huggingface.co/francescofrigerio/machine-innovation-sentiment-model
