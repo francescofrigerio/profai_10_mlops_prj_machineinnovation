@@ -91,21 +91,25 @@ jobs:
         run: |
           python ci_cd/CD/hf_deploy.py
 
-      # === INVIA IL CODICE DI SERVING ALLO SPACE DI HUGGING FACE ===
+      # INVIA IL CODICE DI SERVING ALLO SPACE DI HUGGING FACE 
       - name: Deploy to Hugging Face Spaces
         env:
           HF_TOKEN_WRITE: ${{ secrets.HF_TOKEN_WRITE }}
+          GIT_LFS_SKIP_SMUDGE: 1 # EVITA IL DOWNLOAD DEI FILE PESANTI LFS IN LETTURA
         run: |
           # Configura Git con un utente fittizio
-          git config --global user.email "francesco.frigerio@greencore.it"
+          git config --global user.email "francescofrigerio529@gmail.com"
           git config --global user.name "francescofrigerio"
           
           # Clona lo Space di Hugging Face in una cartella temporanea usando il tuo Token
           # Sostituisci "NOME_UTENTE" e "NOME_SPACE" con i tuoi dati reali
-          git clone https://x:$HF_TOKEN@huggingface.co/spaces/francescofrigerio/spacemachineinnovatorsmlops hf_space
+          git clone https://x:$HF_TOKEN_WRITE@huggingface.co/spaces/francescofrigerio/spacemachineinnovatorsmlops hf_space
           
           # Svuota la cartella dello Space (tranne i file Git) e copia il nuovo contenuto di model_serving
-          rm -rf hf_space/*
+          # rm -rf hf_space/*
+          # Svuota in sicurezza la cartella preservando solo .git (inclusi i file nascosti)
+          find hf_space -maxdepth 1 -not -name 'hf_space' -not -name '.git' -exec rm -rf {} +
+
           cp -r model_serving/* hf_space/
           
           # Invio delle modifiche. 
