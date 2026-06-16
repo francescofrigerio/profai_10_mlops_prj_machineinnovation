@@ -9,11 +9,8 @@ on:
     branches: 
       - "main"
 
-  # Avviaamento manuale solo per la versione demo (vedere file deployment.md)
-  # da verificare l'esecuzione schedulata con airflow (una volta al mese oppure settimana)
-  
-  workflow_dispatch:
-  # workflow_dispatch: inputs: mode: description: "demo | prod" default: "demo" type: choice options: ["demo", "prod"]
+  # Avviaamento secondo due modalità (vedere file deployment.md)
+  # Avviamento schedulato con airflow (una volta al mese)
   workflow_dispatch:
     inputs:
       mode:
