@@ -9,7 +9,7 @@ on:
       - 'src/outputs-baseline-prod/*.db'
       - 'src/outputs-baseline-prod/*.png'
       - 'src/outputs-baseline-debug/*.db'
-      - 'src/outputs-baseline-debug*.png'
+      - 'src/outputs-baseline-debug/*.png'
       
   workflow_dispatch:
 
