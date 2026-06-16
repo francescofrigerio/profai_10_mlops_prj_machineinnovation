@@ -11,7 +11,18 @@ on:
 
   # Avviaamento manuale solo per la versione demo (vedere file deployment.md)
   # da verificare l'esecuzione schedulata con airflow (una volta al mese oppure settimana)
+  
   workflow_dispatch:
+  # workflow_dispatch: inputs: mode: description: "demo | prod" default: "demo" type: choice options: ["demo", "prod"]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Seleziona la modalità di esecuzione (demo o prod)"
+        default: "demo"
+        type: choice
+        options:
+          - "demo"
+          - "prod"
 
 permissions:
   # da verificare
@@ -74,14 +85,19 @@ jobs:
           HF_TOKEN_WRITE: ${{ secrets.HF_TOKEN_WRITE }}
         run: |
           chmod +x ./run_train_prod.sh
-          # esegue in modalita demo 
-          # perchè il progetto possa essere
-          # visionato in tempi rapidi (35 minuti)
-          # Documentato dentro pipeline-deplyment-cicd.md
-          ./run_train_prod.sh --demo
-          # Salva il percorso corretto nel file d'ambiente di GitHub Actions
-          echo "MODEL_OUT_DIR=src/outputs-baseline-debug" >> $GITHUB_ENV
           
+          # Controlla l'input del workflow_dispatch (default=demo) 
+          # se attivato da push/PR) - Vedere documentazione deployment
+          if [ "${{ github.event.inputs.mode }}" = "prod" ]; then
+            echo "Avvio training in modalità PRODUCTION..."
+            echo "Attivare Cpu con 4-core..."
+            ./run_train_prod.sh
+            echo "MODEL_OUT_DIR=src/outputs-baseline-prod" >> $GITHUB_ENV
+          else
+            echo "Avvio training in modalità DEMO..."
+            ./run_train_prod.sh --demo
+            echo "MODEL_OUT_DIR=src/outputs-baseline-debug" >> $GITHUB_ENV
+          fi    
 
       # se il train ha successo il modello viene
       # caricato su repository tipo model di Hugging Face
@@ -95,7 +111,9 @@ jobs:
       - name: Deploy to Hugging Face Spaces
         env:
           HF_TOKEN_WRITE: ${{ secrets.HF_TOKEN_WRITE }}
-          GIT_LFS_SKIP_SMUDGE: 1 # EVITA IL DOWNLOAD DEI FILE PESANTI LFS IN LETTURA
+          # PER SCARICARE IL FILE model.safetensors
+          # BISOGNA ABILITARE IL DOWNLOAD DEI FILE PESANTI LFS IN SCRITTURA
+          GIT_LFS_SKIP_SMUDGE: 1 
         run: |
           # Configura Git con un utente fittizio
           git config --global user.email "francescofrigerio529@gmail.com"
@@ -106,8 +124,7 @@ jobs:
           git clone https://x:$HF_TOKEN_WRITE@huggingface.co/spaces/francescofrigerio/spacemachineinnovatorsmlops hf_space
           
           # Svuota la cartella dello Space (tranne i file Git) e copia il nuovo contenuto di model_serving
-          # rm -rf hf_space/*
-          # Svuota in sicurezza la cartella preservando solo .git (inclusi i file nascosti)
+          # Viene usato 'find' per non cancellare file nascosti come .git o cartelle LFS locali se presenti
           find hf_space -maxdepth 1 -not -name 'hf_space' -not -name '.git' -exec rm -rf {} +
 
           cp -r model_serving/* hf_space/
