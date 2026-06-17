@@ -1,0 +1,23 @@
+
+1. Lo script setup.sh genera la cartella scheduling e le sotto cartelle
+2. Quindi eseguire in ordine i seguenti comandi per 
+installare l'ambiente.
+
+cd scheduling
+docker compose down --volumes --remove-orphans # reset totale se non è la prima installazione
+cd ..
+# 1. (Opzionale) Attivi l'ambiente locale solo per l'editor di testo
+source .venv/bin/activate
+pip install apache-airflow  # Solo per far felice VS Code/PyCharm non è presente nel requirements
+
+# 2. Inizializza il database di Airflow dentro Docker (Crea cartelle, utenti e log)
+docker compose up airflow-init
+
+# 3. Avvii Airflow vero e proprio (Webserver, Scheduler, Worker)
+docker compose up -d
+
+# 4. Stop
+docker compose down
+
+# 5. Test running state
+docker ps

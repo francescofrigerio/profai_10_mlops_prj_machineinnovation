@@ -108,8 +108,17 @@ if [ "$1" == "--init" ]; then
     # touch model/model.pkl
 
     # Altre cartelle principali
-    mkdir -p airflow monitoring architecture notebooks images
+    mkdir -p scheduling monitoring architecture notebooks images
     
+    mkdir -p ./dags ./logs ./plugins ./config
+    echo -e "AIRFLOW_UID=$(id -u)" > .env
+
+    touch dags/.gitkeep
+    touch config/.gitkeep
+    touch plugins/.gitkeep
+    echo "*" >./logs/.gitignore
+    echo "!.gitignore" >>./logs/.gitignore
+
     touch monitoring/.gitkeep
     touch images/.gitkeep
     touch scheduling/.gitkeep
