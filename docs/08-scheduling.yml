@@ -1,9 +1,22 @@
 
-1. Lo script setup.sh genera la cartella scheduling e le sotto cartelle
-2. Quindi eseguire in ordine i seguenti comandi per 
-installare l'ambiente.
+1. The ./setup.sh script has create scheduling dir and subdir.
+
+Some directories in the container are mounted, which means that their contents are synchronized
+ between your computer and the container.
+
+./dags - you can put your Dag files here.
+./logs - contains logs from task execution and scheduler.
+./config - you can add custom log parser or add airflow_local_settings.py to configure cluster policy.
+./plugins - you can put your custom plugins here.
+
+
+2. run this command to install and init airflow.
 
 cd scheduling
+# download airflow
+curl -LfO 'https://airflow.apache.org/docs/apache-airflow/3.2.2/docker-compose.yaml'
+
+# to remove previous installed version
 docker compose down --volumes --remove-orphans # reset totale se non è la prima installazione
 cd ..
 # 1. (Opzionale) Attivi l'ambiente locale solo per l'editor di testo
@@ -21,3 +34,46 @@ docker compose down
 
 # 5. Test running state
 docker ps
+
+# after run check visibility of the port 8080
+
+# if not work check this settings in the common section
+# of the docker-compose.yaml
+AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: 'True'
+AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
+AIRFLOW__WEBSERVER__BASE_URL: 'https://turbo-space-fishstick-q47wggx66w63rg5-8080.app.github.dev'
+
+# Login with default credentials
+login airflow 
+password airflow
+
+2. Create DAG (Directed Acyclic Graph)
+D=Directed : 
+The flow has a precise direction.
+If task A must be performed before task B,
+there is a link from A to B, never ambiguos.
+
+A=Acyclic: 
+Infinite cycles or loops are not allowed. The flow cannot backtrack;
+if task B depends on A, A cannot depend on B.
+
+G=Graph: 
+A graph is a structure composed of nodes (the tasks) connected by edges (the dependencies).
+
+A DAG doesn't compute , but organize execution. 
+It's based upon Operators (Task) and Dependencies (Edge):: 
+
+Operators (Task): a single Unit of work
+There is some  Operators to run python (PythonOperator)
+as script Bash (BashOperator), query SQL.
+
+Dependencies (Edge): 
+It's the narrow that links the task
+with Airflow defines it with bitwise operators >>. 
+For example : task_A >> task_B means "run B solo after A wa terminate with succesfull".
+
+# Install docker extension with CTRL+SHIFT+X
+
+# Command to reset the dag cache
+cd ./scheduling/dag
+find . -type d -name "__pycache__" -exec rm -rf {} +
