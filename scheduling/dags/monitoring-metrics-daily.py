@@ -1,49 +1,62 @@
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.python import PythonOperator, BranchPythonOperator
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from airflow.operators.empty import EmptyOperator
-import random
+from airflow.providers.http.operators.http import HttpOperator
+from airflow.operators.python import PythonOperator
+import json
+import requests  # Utilizziamo requests per leggere il file da GitHub
 
-def check_model_metrics():
-    current_accuracy = random.uniform(0.75, 0.95)
-    print(f"Monitoraggio: Accuratezza attuale = {current_accuracy}")
+def check_model_metrics_from_github():
+    # URL del file raw su GitHub (sostituisci con il percorso corretto del tuo file di metriche txt/json)
+    # Esempio: se il file si chiama 'latest_metrics.json' nella cartella monitoring
+    url = "https://raw.githubusercontent.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/main/monitoring/latest_metrics.json"
     
-    soglia_minima = 0.85
+    # Recuperiamo il file usando il Token di autenticazione
+    headers = {"Authorization": "Bearer {{ conn.github_api.password }}"}
+    response = requests.get(url, headers=headers)
     
-    # Invece di sollevare un errore, decidiamo quale strada (task) prendere
+    if response.status_code != 200:
+        raise ValueError(f"Impossibile recuperare le metriche da GitHub. Status code: {response.status_code}")
+    
+    # Leggiamo il valore (es. assumendo che il file sia un JSON tipo: {"accuracy": 0.84})
+    data = response.json()
+    current_accuracy = float(data.get("accuracy", 0))
+    
+    print(f"Monitoraggio Reale: Accuratezza estratta dal database = {current_accuracy}")
+    
+    soglia_minima = 0.80
     if current_accuracy < soglia_minima:
-        print(f"Accuratezza sotto la soglia ({soglia_minima}). Avvio RE-TRAIN.")
-        return 'trigger_retrain_dag' # ID del task che avvia il train
-    else:
-        print("Metriche ottime. Nessuna azione necessaria.")
-        return 'metrics_ok' # ID del task di successo (non fa nulla)
+        print(f"RETRAIN NECESSARIO: L'accuratezza ({current_accuracy}) è inferiore a {soglia_minima}")
+        raise ValueError(f"L'accuratezza è crollata a {current_accuracy}!")
+        
+    print("Monitoraggio superato. Il modello è stabile.")
 
 with DAG(
-    dag_id='ml_metrics_monitoring_daily',
+    dag_id='mlops_metrics_monitoring_daily',
     start_date=datetime(2026, 1, 1),
-    schedule_interval='@daily',
+    schedule='@daily',
     catchup=False,
     tags=['mlops', 'monitoring'],
 ) as dag:
 
-    # 1. Task che valuta le metriche e decide la strada da prendere
-    verify_metrics = BranchPythonOperator(
-        task_id='calculate_and_verify_metrics',
-        python_callable=check_model_metrics,
+    # TASK 1: Resta invariato, lancia il workflow che genera i grafici e aggiorna il DB
+    trigger_grafana_monitoring = HttpOperator(
+        task_id='trigger_github_monitoring_metrics',
+        http_conn_id='github_api',  
+        endpoint='repos/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/monitoring-metrics.yml/dispatches',
+        method='POST',
+        data=json.dumps({"ref": "main"}),
+        headers={
+            "Authorization": "Bearer {{ conn.github_api.password }}", 
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28"
+        },
+        response_check=lambda response: response.status_code == 204, 
     )
 
-    # 2. Strada A: Se le metriche sono KO, questo task chiama il DAG mensile
-    trigger_retrain = TriggerDagRunOperator(
-        task_id='trigger_retrain_dag',
-        trigger_dag_id='mlops_ci_cd_train_monthly', # Deve coincidere con il dag_id del file mensile
-        wait_for_completion=False, # Airflow lancia il train e non aspetta che finisca, prosegue oltre
+    # TASK 2: Ora legge il valore VERO aggiornato dal Task 1
+    verify_metrics_threshold = PythonOperator(
+        task_id='verify_metrics_threshold',
+        python_callable=check_model_metrics_from_github,
     )
 
-    # 3. Strada B: Se le metriche sono OK, il DAG finisce qui senza fare nulla
-    metrics_ok = EmptyOperator(
-        task_id='metrics_ok'
-    )
-
-    # Definizione del flusso (bivio)
-    verify_metrics >> [trigger_retrain, metrics_ok]
+    trigger_grafana_monitoring >> verify_metrics_threshold

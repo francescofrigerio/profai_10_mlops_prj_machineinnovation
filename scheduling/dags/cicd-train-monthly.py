@@ -1,27 +1,46 @@
 from datetime import datetime
 from airflow import DAG
 from airflow.providers.http.operators.http import HttpOperator
+from airflow.models.param import Param
 import json
+
+GIORNO=1
+MESE=1
 
 # DAG mensile
 with DAG(
     dag_id='mlops_ci_cd_train_monthly',
-    start_date=datetime(2026, 1, 1),
-    schedule_interval='@monthly',  # Gira il primo giorno del mese a mezzanotte
+    start_date=datetime(2026, GIORNO, MESE),
+    schedule='@monthly',  # Gira il primo giorno del mese a mezzanotte
     catchup=False,
     tags=['mlops', 'ci-cd'],
+    # Definisce il parametro che appare sulla UI di Airflow
+    params={
+        "execution_mode": Param(
+            default="demo", 
+            type="string", 
+            enum=["demo", "prod"], 
+            description="Seleziona la modalità di esecuzione per GitHub Actions"
+        )
+    },
 ) as dag:
 
-    # Task che chiama le API di GitHub per fare il trigger del workflow
+    
     trigger_github_workflow = HttpOperator(
         task_id='trigger_github_ci_cd_train',
-        http_conn_id='github_api',  # Dovrai configurare questa connessione nella UI di Airflow
-        endpoint='repos/francescofrigerio/IL_TUO_REPO/actions/workflows/cicd-train-pipeline.yml/dispatches',
+        http_conn_id='github_api',  # vedere configurazione connessione nella UI di Airflow
+        endpoint='repos/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/cicd-train-pipeline.yml/dispatches',
         method='POST',
-        # Inviamo il body richiesto da GitHub per l'evento workflow_dispatch
+        # Inv  il body richiesto da GitHub per l'evento workflow_dispatch
+        # rende dinamico il body usando {{ params.execution_mode }}
         data=json.dumps({
-            "ref": "main"  # Il branch da cui far partire il workflow
+            "ref": "main",
+            "inputs": {
+                "mode": "{{ params.execution_mode }}"
+            }
         }),
+        # qui non specifica nulla sul campo login
+        # per cui deve essere lasciato vuoto su airflow
         headers={
             "Authorization": "Bearer {{ conn.github_api.password }}", # Recupera il Token da Airflow
             "Accept": "application/vnd.github+json",
