@@ -124,11 +124,23 @@ jobs:
           echo "=== Contenuto di ./monitoring/ ==="
           ls -lrt ./monitoring/ || true
         
-      - name: Test query on db
+      # - name: Test query on db
+      #  run: |
+      #    sqlite3 /opt/machineinnovation/db/metrics.db "
+      #    SELECT *
+      #    FROM model_metrics_baseline; "
+      - name: Estrai ultima metrica e salva JSON
         run: |
-          sqlite3 /opt/machineinnovation/db/metrics.db "
-          SELECT *
-          FROM model_metrics_baseline; "
+          sqlite3 -json /opt/machineinnovation/db/metrics.db "
+          SELECT accuracy, precision, recall, f1_score
+          FROM model_metrics_baseline
+          WHERE timestamp = (SELECT MAX(timestamp) FROM model_metrics_baseline)
+          LIMIT 1;
+          " > ./monitoring/latest_metrics.json
+
+      # [DEBUG] Verifica che il file JSON sia stato creato correttamente
+      - name: Mostra JSON generato
+        run: cat ./monitoring/latest_metrics.json
 
       # 11. Spegni i container Docker 
       - name: Stop Docker
@@ -142,6 +154,7 @@ jobs:
           git config --local user.email "francesco.frigerio@greencore.it"
           git add ./images/dashboard_table.png
           git add ./images/dashboard_timeseries.png
+          git add ./monitoring/latest_metrics.json
 
           # le immagini png possono essere modificate 
           # di poco ad ogni esecuzione

@@ -27,6 +27,16 @@ DASHBOARD_URL_PANEL_2_TIMESERIES = (
 
 GRAFANA_URL = "http://localhost:3000"
 
+def dump_latest_metrics():
+    
+    last_accuracy = 0.84  
+
+    metrics_dict = {"accuracy": last_accuracy}
+
+    # Salva il file nella cartella monitoring
+    with open("./monitoring/latest_metrics.json", "w") as f:
+         json.dump(metrics_dict, f)
+
 def render_dashboard_machineinnovation(dashboard_url,file_name_png):
     """
         run render from url and file name
