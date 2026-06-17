@@ -12,6 +12,14 @@ on:
       - 'src/outputs-baseline-debug/*.png'
       
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Seleziona la modalità di esecuzione (demo o prod)"
+        default: "demo"
+        type: choice
+        options:
+          - "demo"
+          - "prod"
 
 permissions:
   contents: write
@@ -26,7 +34,13 @@ jobs:
       - name: Esegui install_db.sh e aggiorna il db
         run: |
           chmod +x ./install_db.sh
-          sudo ./install_db.sh src/outputs-baseline-prod/metrics_prod.db
+          if [ "${{ github.event.inputs.mode }}" = "prod" ]; then
+            echo "Avvio training in modalità PRODUCTION..."
+            sudo ./install_db.sh src/outputs-baseline-prod/metrics.db
+          else
+            echo "Avvio training in modalità DEMO..."
+            sudo ./install_db.sh src/outputs-baseline-debug/metrics.db
+
           sudo chmod -R 777 /opt/machineinnovation/
 
       # 3. Avvia Grafana
@@ -34,25 +48,10 @@ jobs:
         working-directory: ./monitoring
         run: docker compose up -d grafana
 
-      # - name: Docker ps
-      #   run: docker ps -a
-
-      # - name: Docker logs before
-      #   run: docker logs grafana || true
-
-      # - name: Grafana curl before
-      #   run: curl -v http://localhost:3000/api/health || true
-
       # 4. Attendi che Grafana sia pronto stabilmente
       - name: Wait start
         run: sleep 60
     
-      # - name: Docker logs after
-      #   run: docker logs grafana || true
-
-      # - name: Grafana curl after
-      #   run: curl -v http://localhost:3000/api/health || true
-
       - name: Wait Grafana Loop
         run: |
           MAX_RETRY=30
@@ -74,11 +73,6 @@ jobs:
 
           echo "Grafana pronta"
 
-      # 5. controlla install plugin
-      # - name: Check plugin directory
-      #   run: |
-      #     docker exec grafana ls -la /var/lib/grafana/plugins || true
-
       # 6. Configura l'ambiente Python
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -91,21 +85,6 @@ jobs:
         run: |
           pip install playwright 
           playwright install chromium --with-deps
-
-      # 8 debug prima del python
-      # - name: Debug Grafana
-      #   run: |
-      #     curl http://localhost:3000/api/health
-    
-      # - name: List dashboards
-      #   run: |
-      #     curl -u admin:admin \
-      #     http://localhost:3000/api/search
-    
-      # - name: List datasources
-      #   run: |
-      #     curl -u admin:admin \
-      #     http://localhost:3000/api/datasources
 
       # 9. Rimuove le vecchie immagini e cattura i nuovi Screenshot
       - name: Catch Screenshot Dashboard
@@ -125,10 +104,6 @@ jobs:
           ls -lrt ./monitoring/ || true
         
       # - name: Test query on db
-      #  run: |
-      #    sqlite3 /opt/machineinnovation/db/metrics.db "
-      #    SELECT *
-      #    FROM model_metrics_baseline; "
       - name: Estrai ultima metrica e salva JSON
         run: |
           sqlite3 -json /opt/machineinnovation/db/metrics.db "
