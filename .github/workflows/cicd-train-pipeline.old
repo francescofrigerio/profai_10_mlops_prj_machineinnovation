@@ -1,4 +1,4 @@
-name: Machine Innovation CI CD Pipeline
+name: Machine Innovation CICD Pipeline
 
 on:
   push:
