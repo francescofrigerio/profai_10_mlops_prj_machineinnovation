@@ -112,7 +112,7 @@ if [ "$1" == "--init" ]; then
     
     touch monitoring/.gitkeep
     touch images/.gitkeep
-    touch orchestration/.gitkeep
+    touch scheduling/.gitkeep
     touch architecture/.gitkeep
     touch notebooks/.gitkeep
 
@@ -122,13 +122,15 @@ if [ "$1" == "--init" ]; then
 
     # Cartella docs/ e relativi file markdown
     mkdir -p docs
-    touch docs/architecture.md
-    touch docs/ml_pipeline.md
-    touch docs/monitoring.md
-    touch docs/deployment.md
-    touch docs/api_reference.md
-    touch docs/orchestration.md
-
+    touch docs/01-architecture.md
+    touch docs/02-environment.md
+    touch docs/03-ml_training.md
+    touch docs/04-model-serving.md
+    touch docs/05-ci-test.md
+    touch docs/06-cicd-train.md
+    touch docs/07-monitoring.md
+    touch docs/08-scheduling.md
+    
     # Cartella links/ e relativi file
     mkdir -p links
     touch links/Hugging_Face.txt
