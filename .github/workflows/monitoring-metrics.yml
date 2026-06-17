@@ -35,10 +35,10 @@ jobs:
         run: |
           chmod +x ./install_db.sh
           if [ "${{ github.event.inputs.mode }}" = "prod" ]; then
-            echo "Avvio training in modalità PRODUCTION..."
+            echo "install db in modalità PRODUCTION..."
             sudo ./install_db.sh src/outputs-baseline-prod/metrics.db
           else
-            echo "Avvio training in modalità DEMO..."
+            echo "install db in modalità DEMO..."
             sudo ./install_db.sh src/outputs-baseline-debug/metrics.db
 
           sudo chmod -R 777 /opt/machineinnovation/
