@@ -104,7 +104,14 @@ jobs:
           echo "=== Contenuto di ./monitoring/ ==="
           ls -lrt ./monitoring/ || true
         
-      # - name: Test query on db
+      - name: Estrai ultima metrica e salva JSON
+        run: |
+          sqlite3 -json /opt/machineinnovation/db/metrics.db "
+          SELECT accuracy, precision, recall, f1_score
+          FROM model_metrics_baseline
+          LIMIT 1000;
+          " > ./monitoring/all_metrics.json
+
       - name: Estrai ultima metrica e salva JSON
         run: |
           sqlite3 -json /opt/machineinnovation/db/metrics.db "
