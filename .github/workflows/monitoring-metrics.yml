@@ -40,6 +40,7 @@ jobs:
           else
             echo "install db in modalità DEMO..."
             sudo ./install_db.sh src/outputs-baseline-debug/metrics.db
+          fi
 
           sudo chmod -R 777 /opt/machineinnovation/
 
