@@ -60,8 +60,8 @@ with DAG(
     # Definisce il parametro che appare sulla UI di Airflow
    params={
         "execution_mode": Param(
-            default="demo", 
-            # default="prod",
+            # default="demo", 
+            default="prod",
             type="string", 
             enum=["demo", "prod"], 
             description="Seleziona la modalità di esecuzione per GitHub Actions"

@@ -29,6 +29,10 @@ jobs:
     steps:
       - name: Checkout del codice
         uses: actions/checkout@v4
+        with:
+          # Usando il PAT GitHub registra il push  
+          # sbloccando la partenza dei workflow successivi!
+          token: ${{ secrets.PAT_TOKEN_AIRFLOW }}
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
