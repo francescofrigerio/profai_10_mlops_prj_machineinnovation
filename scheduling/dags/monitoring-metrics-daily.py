@@ -42,7 +42,7 @@ def check_model_metrics_from_github():
     
     print(f"Monitoraggio : Ultima Accuracy estratta dal database = {current_accuracy}")
     
-    soglia_minima = 0.70
+    soglia_minima = 0.80
     if current_accuracy < soglia_minima:
         print(f"RETRAIN NECESSARIO: L'accuratezza ({current_accuracy}) è inferiore a {soglia_minima}")
         raise ValueError(f"L'accuratezza è crollata a {current_accuracy}!")
@@ -52,7 +52,9 @@ def check_model_metrics_from_github():
 with DAG(
     dag_id='mlops_metrics_monitoring_daily',
     start_date=datetime(2026, 1, 1),
-    schedule='@daily',
+    # ogni giorno alle 8 di mattina
+    # formato cron m h g m y
+    schedule='0 8 * * *', 
     catchup=False,
     tags=['mlops', 'monitoring'],
     # Definisce il parametro che appare sulla UI di Airflow

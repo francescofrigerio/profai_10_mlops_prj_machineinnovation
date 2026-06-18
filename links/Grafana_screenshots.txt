@@ -1,0 +1,6 @@
+
+DASHBOARD PANEL TABLE
+https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/blob/main/images/dashboard_table.png
+
+TIME SERIES TABLE
+https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/blob/main/images/dashboard_timeseries.png

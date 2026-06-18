@@ -11,7 +11,9 @@ MESE=1
 with DAG(
     dag_id='mlops_ci_cd_train_monthly',
     start_date=datetime(2026, GIORNO, MESE),
-    schedule='@monthly',  # Gira il primo giorno del mese a mezzanotte
+    # Gira il 1° giorno di OGNI MESE a mezzanotte 
+    # formato cron m h g m y
+    schedule='0 0 1 * *',  
     catchup=False,
     tags=['mlops', 'ci-cd'],
     # Definisce il parametro che appare sulla UI di Airflow

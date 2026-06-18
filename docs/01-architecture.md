@@ -67,11 +67,12 @@
 
                                 DESCRIZIONE ARCHITETTURA E WORKFLOW
 
-                                WORKFLOW RETRAIN AUTOMATICO
+                                WORKFLOW RETRAIN AUTOMATICO (mode=prod/demo default=prod)
 Esecuzione solo con workflow_dispatch (manuale o attivato da Airflow).
 Il riaddestramento di un modello di Machine Learning è un'operazione costosa in termini di tempo e risorse (computazione, GPU, ecc.). Non deve mai scattare in automatico a ogni push.
+Pertanto nel workflow CI-CD è stato aggiunta l'esecuzione manuale/automatico del job traon separatao da test e deploy.
 
-                               WORKFLOW MONITORING CONTINUO
+                               WORKFLOW MONITORING CONTINUO (mode=prod/demo default=prod)
 Esecuzioe con push su main, manuale (workflow_dispatch), o schedulato da Airflow.
 Questo workflow fa un git commit e git push automatico dei grafici e delle metriche sul main, tenerlo isolato sul push del main evita i "loop" infiniti di esecuzione. 
  Airflow lo chiama subito dopo che il modello è stato aggiornato e i nuovi dati di produzione sono pronti.
@@ -79,6 +80,7 @@ Questo workflow fa un git commit e git push automatico dei grafici e delle metri
                               WORKFLOW CI-CD CONTINUO
 Viene eseguito ad ogni modifica (sia push che pull_request).
 Deve girare sempre per assicurarsi che nessuno rompa il codice.
+
 
                               WORKFLOW CI MANUALE
 Eseguito solo in manuale tramite workflow_dispatch in modo da non diventare 

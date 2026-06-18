@@ -1,6 +1,8 @@
+# Machine Innovation Training 
+1.
 
 
-1. Piepline inferenza
+2. Pipeline inferenza da linjea di comando
 Esempio di output delle script run_pipe_debug.sh e run_pipe_prod.sh
 
 Tweet: I love this ProfAi MLOps course! @HuggingFace http://example.com 
