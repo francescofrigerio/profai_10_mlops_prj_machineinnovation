@@ -66,7 +66,7 @@ fi
 # 4. Configurazione avanzata dei permessi per utente corrente e Grafana
 echo -e "[*] Configurazione permessi e proprietari..."
 
-# Impostiamo come proprietario l'utente reale che sta eseguendo lo script (non root) 
+# Imposta come proprietario l'utente reale che sta eseguendo lo script (non root) 
 # in modo che PyTorch possa continuare ad aggiornarlo liberamente se necessario
 REAL_USER=${SUDO_USER:-$USER}
 sudo chown -R "${REAL_USER}:${REAL_USER}" /opt/machineinnovation/
@@ -77,20 +77,17 @@ sudo chmod 777 /opt
 sudo chmod -R 777 /opt/machineinnovation
 sudo chmod -R 777 /opt/machineinnovation/db
 
-# Garantiamo i permessi di lettura/scrittura sul file SQLite (664)
+# permessi di lettura/scrittura sul file SQLite (664)
 # NOTA: SQLite richiede i permessi di scrittura anche sulla CARTELLA contenitrice (755)
-# per poter generare i file temporanei di journal/lock (.db-wal, .db-shm) durante le query.
 sudo chmod 777 "$TARGET_DB"
 
-echo -e "${GREEN}[V] Permessi configurati correttamente per l'ambiente Linux e Grafana.${NC}"
+# echo -e "${GREEN}[V] Permessi configurati correttamente per l'ambiente Linux e Grafana.${NC}"
 
 # 5. Riepilogo e istruzioni finali
-echo -e "\n${YELLOW}=== Installazione Completata con Successo! ===${NC}"
-echo -e "--------------------------------------------------------"
+echo -e "\n${YELLOW}Installazione Completata con Successo! ${NC}"
 echo -e "Percorso finale DB:  ${GREEN}${TARGET_DB}${NC}"
 echo -e "Proprietario locale:  ${GREEN}${REAL_USER}${NC}"
-echo -e "--------------------------------------------------------"
-echo -e "${YELLOW}[!] Promemoria per Grafana:${NC}"
-echo -e "Nel pannello di controllo di Grafana, aggiungi un Data Source 'SQLite' e inserisci:"
-echo -e "Path: ${GREEN}${TARGET_DB}${NC}"
-echo -e "--------------------------------------------------------"
+
+# echo -e "${YELLOW}[!] Promemoria per Grafana:${NC}"
+# echo -e "Nel pannello di controllo di Grafana, aggiungere un Data Source 'SQLite' e inserire:"
+# echo -e "Path: ${GREEN}${TARGET_DB}${NC}"
