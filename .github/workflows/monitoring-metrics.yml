@@ -149,6 +149,10 @@ jobs:
           fi
 
           git commit -m "Auto: Aggiornato grafico di training [skip ci]" || exit 0
+          
+          # Scarica gli ultimi commit remoti e riapplica il tuo commit in cima
+          git pull origin main --rebase
+          
           git push
           # dopo ogni commit automatico fare un git pull
           # ad ogni partenza del codespace 
