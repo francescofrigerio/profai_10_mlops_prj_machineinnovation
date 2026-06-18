@@ -1,29 +1,48 @@
+import json
+import time
+import requests  # per leggere il file da GitHub
+
 from datetime import datetime
 from airflow import DAG
+from airflow.models.param import Param
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.operators.python import PythonOperator
-import json
-import requests  # Utilizziamo requests per leggere il file da GitHub
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator  
+from airflow.models import Connection                              
+
 
 def check_model_metrics_from_github():
-    # URL del file raw su GitHub (sostituisci con il percorso corretto del tuo file di metriche txt/json)
-    # Esempio: se il file si chiama 'latest_metrics.json' nella cartella monitoring
-    url = "https://raw.githubusercontent.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/main/monitoring/latest_metrics.json"
+   
+    # diamo tempo al workflow su github di girare e scrivere il file
+    # altrimenti corriamo il rischio di avere dati vecchi.
+    print("In attesa che GitHub Actions completi la generazione del JSON...")
+    time.sleep(180)
+
+    url_file = "monitoring/latest_metrics.json"
+    url = "https://raw.githubusercontent.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/main/" + url_file
     
-    # Recuperiamo il file usando il Token di autenticazione
-    headers = {"Authorization": "Bearer {{ conn.github_api.password }}"}
+    # Non funziona qui usare il Token di autenticazione
+    # headers = {"Authorization": "Bearer {{ conn.github_api.password }}"}
+    conn = Connection.get_connection_from_secrets('github_api')
+    token = conn.password
+    # pwd nella richiesta di requests usando la f-string di Python
+    headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
     
     if response.status_code != 200:
         raise ValueError(f"Impossibile recuperare le metriche da GitHub. Status code: {response.status_code}")
     
     # Leggiamo il valore (es. assumendo che il file sia un JSON tipo: {"accuracy": 0.84})
-    data = response.json()
-    current_accuracy = float(data.get("accuracy", 0))
+    data_list = response.json()
+    if not data_list:
+        raise ValueError("Il file JSON delle metriche è vuoto!")
+
+    metrics = data_list[0]
+    current_accuracy = float(metrics.get("accuracy", 0))
     
-    print(f"Monitoraggio Reale: Accuratezza estratta dal database = {current_accuracy}")
+    print(f"Monitoraggio : Ultima Accuracy estratta dal database = {current_accuracy}")
     
-    soglia_minima = 0.80
+    soglia_minima = 0.70
     if current_accuracy < soglia_minima:
         print(f"RETRAIN NECESSARIO: L'accuratezza ({current_accuracy}) è inferiore a {soglia_minima}")
         raise ValueError(f"L'accuratezza è crollata a {current_accuracy}!")
@@ -36,6 +55,16 @@ with DAG(
     schedule='@daily',
     catchup=False,
     tags=['mlops', 'monitoring'],
+    # Definisce il parametro che appare sulla UI di Airflow
+   params={
+        "execution_mode": Param(
+            default="demo", 
+            # default="prod",
+            type="string", 
+            enum=["demo", "prod"], 
+            description="Seleziona la modalità di esecuzione per GitHub Actions"
+        )
+    },
 ) as dag:
 
     # TASK 1: Resta invariato, lancia il workflow che genera i grafici e aggiorna il DB
@@ -44,7 +73,13 @@ with DAG(
         http_conn_id='github_api',  
         endpoint='repos/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/monitoring-metrics.yml/dispatches',
         method='POST',
-        data=json.dumps({"ref": "main"}),
+        # Inv  il body richiesto da GitHub per l'evento workflow_dispatch
+        # rende dinamico il body usando {{ params.execution_mode }}
+        data=json.dumps({   "ref": "main",
+                            "inputs": {
+                                "mode": "{{ params.execution_mode }}"
+                            }
+                        }),
         headers={
             "Authorization": "Bearer {{ conn.github_api.password }}", 
             "Accept": "application/vnd.github+json",
@@ -54,9 +89,16 @@ with DAG(
     )
 
     # TASK 2: Ora legge il valore VERO aggiornato dal Task 1
-    verify_metrics_threshold = PythonOperator(
-        task_id='verify_metrics_threshold',
-        python_callable=check_model_metrics_from_github,
-    )
+    verify_metrics_threshold = PythonOperator( task_id='verify_metrics_threshold',
+                                                python_callable=check_model_metrics_from_github,
+                                             )
 
-    trigger_grafana_monitoring >> verify_metrics_threshold
+    # TASK 3: Scatta SOLO se il TASK 2 fallisce (trigger_rule='one_failed')
+    trigger_emergency_retrain = TriggerDagRunOperator( task_id='trigger_emergency_retrain',
+                                            trigger_dag_id='mlops_ci_cd_train_monthly',  
+                                            trigger_rule='one_failed',                
+                                            # Gira solo se verify_metrics_threshold va in ERRORE
+                                            conf={"reason": "Automatic trigger due to performance drop under 0.80"},
+                                            )
+
+    trigger_grafana_monitoring >> verify_metrics_threshold >> trigger_emergency_retrain

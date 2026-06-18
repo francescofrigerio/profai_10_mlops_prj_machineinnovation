@@ -18,6 +18,7 @@ with DAG(
     params={
         "execution_mode": Param(
             default="demo", 
+            # default="prod",
             type="string", 
             enum=["demo", "prod"], 
             description="Seleziona la modalità di esecuzione per GitHub Actions"
@@ -33,12 +34,11 @@ with DAG(
         method='POST',
         # Inv  il body richiesto da GitHub per l'evento workflow_dispatch
         # rende dinamico il body usando {{ params.execution_mode }}
-        data=json.dumps({
-            "ref": "main",
-            "inputs": {
-                "mode": "{{ params.execution_mode }}"
-            }
-        }),
+        data=json.dumps({ "ref": "main",
+                            "inputs": {
+                                "mode": "{{ params.execution_mode }}"
+                            }
+                        }),
         # qui non specifica nulla sul campo login
         # per cui deve essere lasciato vuoto su airflow
         headers={

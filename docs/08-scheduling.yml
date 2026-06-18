@@ -1,19 +1,60 @@
-1. Schedulazione 
+1. Architettura Schedulazione e Orchestrazione con Airflow
+     
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                            APACHE AIRFLOW                               │
+ │                                                                         │
+ │   ┌──────────────────────┐             ┌────────────────────────────┐   │
+ │   │  DAG: RETRAINING     │             │  DAG: DAILY MONITORING     │   │
+ │   │                      │             │                            │   │
+ │   │  - Mensile ordinario │             │  - Gira OGNI GIORNO        │   │
+ │   │  - O su emergenza ◄──┼─────────────┼─ - Controlla soglia drift  │   │
+ │   └──────────┬───────────┘ (Trigger    └─────────────┬──────────────┘   │
+ └──────────────┼────────────── if drift)               │                  │
+                │                                       │                  │
+    Chiamata API (Passa "mode":"prod")      Chiamata API (Estrae JSON)     │
+                │                                       │                  │
+                ▼                                       ▼                  │
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                           GITHUB REPOSITORY                             │
+ │                                                                         │
+ │   [WORKFLOW: RETRAIN] ──────────────────► [WORKFLOW: MONITORING]        │
+ │   Addestra il modello (2 epoche)          Aggiorna grafici e            │
+ │   e fa il push del nuovo .db              genera il file JSON metriche  │
+ └──────────────┬───────────────────────────────────────▲──────────────────┘
+                │                                       │
+                │ Deploy automatico                     │ Legge dati reali
+                ▼                                       │
+ ┌──────────────────────────┐             ┌─────────────┴──────────────┐
+ │   HUGGING FACE SPACE     │             │         SQLITE DB          │
+ │                          │             │                            │
+ │   Servizio FastAPI       │────────────►│   Tabelle con predizioni   │
+ │   in produzione          │ (Log di     │   e performance reali      │
+ └──────────────────────────┘  output)    └────────────────────────────┘
 
-1.1 Task di schedulazione mensile per il retrain automatico 
+
+
+2. Descrizione Schedulazione e Orchestrazione con Airflow
+
+
+2.1 Task di schedulazione mensile per il retrain automatico 
 , a patto che il modello non soffra 
 di data drift ( improvvisi cambi repentini di trend di mercato). 
 
+2.2 Task di schedulazione per il monitoraggio continuo.
 unita a un trigger automatico se il DAG di monitoraggio 
 giornaliero rileva che le metriche di accuratezza sono scese sotto una certa soglia.
 
+Ecco gli step eseguiti dal monitoraggio continuo di Airflow.
+STEP1: Lo script analizza il database SQLite con i dati reali raccolti da Hugging Face
+e genera il file latest_metrics.json.
+
+STEP2: Se le metriche scendono sotto la soglia critica (accuracy=0.80), Airflow intercetta 
+il fallimento e attiva immediatamente il DAG di Retrain, 
+senza aspettare la fine del mese.
 
 
-
-
-
-2. AirFlow Setupcd 
-2.1. The ./setup.sh script has create scheduling dir and subdir.
+3. AirFlow Setup
+3.1. The ./setup.sh script has create scheduling dir and subdir.
 
 Some directories in the container are mounted, which means that their contents are synchronized
  between your computer and the container.
@@ -24,7 +65,7 @@ Some directories in the container are mounted, which means that their contents a
 ./plugins - you can put your custom plugins here.
 
 
-2.2. run this command to install and init airflow.
+3.2. run this command to install and init airflow.
 
 cd scheduling
 # download airflow
@@ -61,7 +102,7 @@ AIRFLOW__WEBSERVER__BASE_URL: 'https://turbo-space-fishstick-q47wggx66w63rg5-808
 login airflow 
 password airflow
 
-2.3. Create DAG (Directed Acyclic Graph)
+3.3. Create DAG (Directed Acyclic Graph)
 D=Directed : 
 The flow has a precise direction.
 If task A must be performed before task B,
