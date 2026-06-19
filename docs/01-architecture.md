@@ -5,42 +5,7 @@
 # MACHINE INNOVATION - ARCHITETTURA
 
 ## 1. Schema Architettura
-
-```mermaid
-graph TB
-    %% Sotto-grafico Airflow
-    subgraph AIRFLOW [APACHE AIRFLOW]
-        DAG1[DAG: RETRAINING<br>- mode: prod<br>- Mensile ordinario<br>- O su emergenza]
-        DAG2[DAG: DAILY MONITORING<br>- mode: prod<br>- Gira OGNI GIORNO<br>- Controlla soglia drift]
-        DAG2 -->|Trigger if drift| DAG1
-    end
-
-    %% Sotto-grafico GitHub
-    subgraph GITHUB [GITHUB REPOSITORY]
-        W_RETRAIN[WORKFLOW: RETRAIN<br>- mode: prod/demo<br>- Addestra il modello<br>- Push del nuovo .db]
-        W_MONITOR[WORKFLOW: MONITORING<br>- Aggiorna grafici<br>- Genera JSON metriche]
-        W_RETRAIN ---> W_MONITOR
-    end
-
-    %% Elementi Esterni
-    HF[HUGGING FACE SPACE<br>- Servizio FastAPI in prod]
-    DB[(SQLITE DB<br>- Predizioni & Performance)]
-
-    %% Connessioni e Flussi
-    DAG1 -->|Chiamata API workflow_dispatch| W_RETRAIN
-    DAG2 -->|Chiamata API Estrae JSON| W_MONITOR
-    
-    W_RETRAIN -->|Deploy automatico| HF
-    HF -->|Log di output| DB
-    DB -->|Legge dati reali| W_MONITOR
-
-    %% Stili grafici
-    style AIRFLOW fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style GITHUB fill:#f5f5f5,stroke:#333,stroke-width:2px
-    style HF fill:#fff5e6,stroke:#ff9900,stroke-width:2px
-    style DB fill:#e6f2ff,stroke:#0066cc,stroke-width:2px
-
- ## 1. `01-architecture.md`
+## 1. `01-architecture.md`
 
  ┌─────────────────────────────────────────────────────────────────────────┐
  │                            APACHE AIRFLOW                               │
