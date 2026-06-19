@@ -1,8 +1,13 @@
 from datetime import datetime
+import pendulum 
+
 from airflow import DAG
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.models.param import Param
 import json
+
+# Definisce il fuso orario italiano
+local_tz = pendulum.timezone("Europe/Rome")
 
 GIORNO=1
 MESE=1
@@ -10,10 +15,12 @@ MESE=1
 # DAG mensile
 with DAG(
     dag_id='mlops_ci_cd_train_monthly',
-    start_date=datetime(2026, GIORNO, MESE),
+    # start_date=datetime(2026, GIORNO, MESE),
+    start_date=datetime(2026, GIORNO, MESE, tzinfo=local_tz),
     # Gira il 1° giorno di OGNI MESE a mezzanotte 
     # formato cron m h g m y
-    schedule='0 0 1 * *',  
+    schedule='0 0 1 * *',
+    # schedule='30 8 1 * *',  
     catchup=False,
     tags=['mlops', 'ci-cd'],
     # Definisce il parametro che appare sulla UI di Airflow

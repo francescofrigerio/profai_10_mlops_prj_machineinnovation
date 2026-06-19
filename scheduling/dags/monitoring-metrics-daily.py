@@ -3,6 +3,8 @@ import time
 import requests  # per leggere il file da GitHub
 
 from datetime import datetime
+import pendulum  
+
 from airflow import DAG
 from airflow.models.param import Param
 from airflow.providers.http.operators.http import HttpOperator
@@ -10,6 +12,8 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator  
 from airflow.models import Connection                              
 
+# Definisce il fuso orario italiano
+local_tz = pendulum.timezone("Europe/Rome")
 
 def check_model_metrics_from_github():
    
@@ -51,10 +55,12 @@ def check_model_metrics_from_github():
 
 with DAG(
     dag_id='mlops_metrics_monitoring_daily',
-    start_date=datetime(2026, 1, 1),
+    # start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 1, 1, tzinfo=local_tz),
     # ogni giorno alle 8 di mattina
     # formato cron m h g m y
-    schedule='0 8 * * *', 
+    # schedule='30 8 * * *', 
+    schedule='40 8 * * *', 
     catchup=False,
     tags=['mlops', 'monitoring'],
     # Definisce il parametro che appare sulla UI di Airflow
