@@ -18,20 +18,24 @@ graph TB
     %% Sotto-grafico GitHub
     subgraph GITHUB [GITHUB REPOSITORY]
         W_RETRAIN[WORKFLOW: RETRAIN<br>- mode: prod/demo<br>- Addestra il modello<br>- Push del nuovo .db]
-        W_MONITOR[WORKFLOW: MONITORING<br>- Aggiorna grafici<br>- Genera JSON metriche]
-        W_RETRAIN ---> W_MONITOR
+        W_MONITOR[WORKFLOW: MONITORING<br>- Aggiorna grafici<br>- lettura latest_metrics.json]
+        W_MONITOR -->|Scrittura Ultime Metriche| latest_metrics.json
+        W_MONITOR -->|Se Ultima Accuracy < 0.8| W_RETRAIN
     end
 
     %% Elementi Esterni
     HF[HUGGING FACE SPACE<br>- Servizio FastAPI in prod]
-    DB[(SQLITE DB<br>- Predizioni & Performance)]
+    DB[(SQLITE DB<br>- Artefatto del modello
+                 <br>- Metriche
+                 <br>- Performance)]
 
     %% Connessioni e Flussi
     DAG1 -->|Chiamata API workflow_dispatch| W_RETRAIN
     DAG2 -->|Chiamata API Estrae JSON| W_MONITOR
     
     W_RETRAIN -->|Deploy automatico| HF
-    HF -->|Log di output| DB
+    W_RETRAIN -->|Metriche di output| DB
+    W_MONITOR -->|Lettura Ultime Metriche| DB
     DB -->|Legge dati reali| W_MONITOR
 
     %% Stili grafici

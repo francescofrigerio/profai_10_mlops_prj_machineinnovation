@@ -5,7 +5,7 @@
 ## 1. `08-scheduling.md`
 Questo documento descrive la configurazione Machine Innovation su Airflow
 per la schedulazione e l'orchestrazione del sistema.
-In fondo si trovano anche accenni sull'installazione.
+In fondo si trovano anche accenni sull'installazione per sistemisti e sviluppatori.
 
 ## 2. Descrizione Schedulazione e Orchestrazione con Airflow
 
@@ -13,11 +13,49 @@ In fondo si trovano anche accenni sull'installazione.
 , a patto che il modello non soffra 
 di data drift ( improvvisi cambi repentini di trend di mercato). 
 
+cco gli step eseguiti dal retraining automatico di Airflow
+```mermaid
+ [DAG Retrain Mensile]
+          │
+          ▼
+   [Workflow Retrain]
+          │
+          ▼
+      [sqlite.db]
+          │
+          ▼ 
+     [HF Space]
+```
+
 2.2 Task di schedulazione per il monitoraggio continuo.
 unita a un trigger automatico se il DAG di monitoraggio 
 giornaliero rileva che le metriche di accuratezza sono scese sotto una certa soglia.
 
-Ecco gli step eseguiti dal monitoraggio continuo di Airflow.
+Ecco gli step eseguiti dal monitoraggio continuo di Airflow
+```mermaid
+   [STEP1: DAG Daily Monitoring]
+          │
+          ▼
+  [Workflow Monitoring]
+          │
+          ▼
+     [sqlite.db] 
+          │
+          ▼
+   [latest_metrics.json]
+          │
+          ▼
+[STEP2:DAG Daily Monitoring]
+          │
+          ├─ accuracy >= 0.80
+          │      STOP
+          │
+          └─ accuracy < 0.80
+                 │
+                 ▼
+          [Workflow Retrain]
+```
+.
 STEP1: Lo script analizza il database SQLite con i dati reali raccolti da Hugging Face
 e genera il file latest_metrics.json.
 
@@ -28,25 +66,24 @@ senza aspettare la fine del mese.
 
 ## 3. Manutenzione del sistema
 per fare pulizia sul disco e cancellare i vecchi container
-
+```bash
 docker system prune -a --volumes -f
-
-
+```
 
 ## 4. AirFlow Setup
-4.1. The ./setup.sh script has create scheduling dir and subdir.
+4.1. La script ./setup.sh --init script ha creato la cartella scheduling e le sotto directory.
 
-Some directories in the container are mounted, which means that their contents are synchronized
- between your computer and the container.
+Alcuni directories sono montate(comando mount) dal container il che significa
+che il loro contenuto è sincronizzato tra il pc locale e il container.
 
-./dags - you can put your Dag files here.
-./logs - contains logs from task execution and scheduler.
-./config - you can add custom log parser or add airflow_local_settings.py to configure cluster policy.
-./plugins - you can put your custom plugins here.
+./dags - dove mettere i file python dei singoli dag.
+./logs - contiene i logs per l'escuzione dei task e la schedulazione.
+./config - si possono aggiungere log parser custom oppure airflow_local_settings.py per configurare policy a livello cluster.
+./plugins - serve per inserire custom plugins .
 
 
-4.2. run this command to install and init airflow.
-
+4.2. Eseguire i seguenti comandi per installare e inizializzare airflow.
+```bash
 cd scheduling
 # download airflow
 curl -LfO 'https://airflow.apache.org/docs/apache-airflow/3.2.2/docker-compose.yaml'
@@ -61,7 +98,7 @@ pip install apache-airflow  # Solo per far felice VS Code/PyCharm non è present
 # 2. Inizializza il database di Airflow dentro Docker (Crea cartelle, utenti e log)
 docker compose up airflow-init
 
-# 3. Avvii Airflow vero e proprio (Webserver, Scheduler, Worker)
+# 3. Avvia Airflow vero e proprio (Webserver, Scheduler, Worker)
 docker compose up -d
 
 # 4. Stop
@@ -69,20 +106,24 @@ docker compose down
 
 # 5. Test running state
 docker ps
+```
 
-# after run check visibility of the port 8080
+Dopo l'esecuzione controllare la visibilita della porta after 8080
+Se nopn funziona aggiungere la seguente configurazione all'environment
+nel file ./scheduling/docker-compose.yml
 
-# if not work check this settings in the common section
-# of the docker-compose.yaml
 AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: 'True'
 AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
 AIRFLOW__WEBSERVER__BASE_URL: 'https://turbo-space-fishstick-q47wggx66w63rg5-8080.app.github.dev'
 
-# Login with default credentials
+Credenziali di default di airflow
 login airflow 
 password airflow
 
-4.3. Create DAG (Directed Acyclic Graph)
+4.3. Creazione DAG (Directed Acyclic Graph)
+Valgono le seguenti considerazioni prese dalla documentazione
+per riepilogare il funzionamento dei dag.
+
 D=Directed : 
 The flow has a precise direction.
 If task A must be performed before task B,
@@ -107,8 +148,9 @@ It's the narrow that links the task
 with Airflow defines it with bitwise operators >>. 
 For example : task_A >> task_B means "run B solo after A wa terminate with succesfull".
 
-# Install docker extension with CTRL+SHIFT+X
-
+4.4 Installare le estensioni di docker nel codespac(CTRL+SHIFT+X)
+```bash
 # Command to reset the dag cache
 cd ./scheduling/dag
 find . -type d -name "__pycache__" -exec rm -rf {} +
+```

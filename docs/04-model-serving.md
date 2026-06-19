@@ -1,6 +1,7 @@
                     # MACHINE INNOVATION MODEL SERVING
 
 ## 1. `04-model-serving.md`
+Descrizione ,note e link per l'utilizzo dell'interfaccia web che eroga il servizio di predizione del sentiment del modello.
 
 ## 2. Contenuto del file requirements:
 
@@ -60,6 +61,7 @@ model_serving/test_predict_from_web.sh esegue una post
 
 ## 10. E' possibile anche testare la get direttamente sul browser
 con il seguente url:
+
 https://francescofrigerio-spacemachineinnovatorsmlops.hf.space/predict?text=Oggi è una orribile giornata
 
 https://francescofrigerio-spacemachineinnovatorsmlops.hf.space/predict?text=Oggi è una meravigliosa giornata
