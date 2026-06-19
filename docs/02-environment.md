@@ -1,13 +1,17 @@
 
                    # MACHINE INNOVATION - ENVIRONMENT
 
-## 1. `02-environment.md`
+## 1. ENVIRONMENT `02-environment.md`
+Questo file descrive i comandi operativi per la creazione
+e la manutenzione efficiente dell'environment.
 
-## 2. CREAZIONE DELL'ENVIRONMENT DA ZERO
+## 2. INIZIALIZZAZIONE DELL'ENVIRONMENT
+```bash
 ./setup --init
+```
 
 ## 3. RESET DELL'ENVIRONMENT E REINSTALLAZIONE DELLE LIBRERIE
-
+```bash
 deactivate
 rm -rf .venv
 python -m venv .venv
@@ -15,26 +19,26 @@ source .venv/bin/activate
 pip cache purge
 pip install --upgrade pip
 
-    pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-    pip install -r requirements.txt
-oppure
-    pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu --no-cache-dir
-    pip install -r requirements.txt --no-cache-dir
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt
+# oppure
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu --no-cache-dir
+pip install -r requirements.txt --no-cache-dir
 
 python -c "import torch; print(torch.__version__)"  # deve stampare 2.x.x+cpu
 python -c "import torch; print(torch.cuda.is_available())" # deve dare false
 python -c "from transformers import AutoModelForSequenceClassification"
+```
 
-## 3. HELP IN LINEA
+## 4. HELP IN LINEA
+```bash
 ./setup.sh
+```
 
-## 4. OUTPUT DELL'HELP IN LINEA
-----------------------------------------------------
+## 5. OUTPUT DELL'HELP IN LINEA
 1. Verifica Python (max versione 3.12)
 Python 3.12.1
-----------------------------------------------------
 
-----------------------------------------------------
 2. SCRIPT D'INSTALLAZIONE CONTROLLO MODIFICA E RESET ENVIRONMEN
 2.1 -> setup.sh --init  (inizializza progetto , install. librerie/venv) 
 2.2 -> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) 
@@ -49,26 +53,36 @@ Python 3.12.1
 2.11 -> ./run_pipe_prod.sh Pipeline Inference in produzione
 2.12 -> ./run_pipe_debug.sh Pipeline Inference in debug
 
-5. PULIZIA DEL DISCO FISSO
+## 6. PULIZIA DEL DISCO FISSO
 Lavorando con sviluppo e test spesso si riempie il disco
 del codespace.
 Vale la pena in questi casi individuare i 10 files più
 pesanti nel workspace e verificare se non sia il caso
 di cancellarli.
 
-# segnala occupazione disco sopra il 95%
+Il seguente comando segnala occupazione disco sopra il 95%
+```bash
 df -h /workspaces 
+```
 
-# trova i 10 files che occpano + spazio
+Il seguente comando trova i 10 files che occpano + spazio
+``` bash
 sudo find / -type f -not -path '*/.git/*' -not -path '/proc/*' -not -path '/sys/*' -exec du -h {} + 2>/dev/null | sort -rh | head -n 10
+```
 
-# Cancella qualcuno dei files elencati
+I seguenti comandi Cancellano qualcuno dei files elencati
+```bash
 rm -rf /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/593167092950942131/*
 rm -rf /home/codespace/.cache/huggingface/hub/*
+```
 
-# controlla occupazione disco sotto il 95%
+Ricontrollo occupazione disco sotto il 95%
+```bash
 df -h /workspaces 
+```
 
-# Verificare anche la pulizia dei docker container
-# Può essere lanciato dalla home(non guarda il file docker-compose.yaml)
+Verificare anche la pulizia dei docker container
+Può essere lanciato dalla home(non guarda il file docker-compose.yaml)
+```bash
 docker builder prune -a -f
+```

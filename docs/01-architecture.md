@@ -4,10 +4,7 @@
 
 # MACHINE INNOVATION - ARCHITETTURA
 
-## 1. Schema Architettura
-# MACHINE INNOVATION - ARCHITETTURA
-
-## 1. Architettura del Sistema
+## 1. Schema Architettura `01-architecture.md`
 
 ```mermaid
 graph TB
@@ -42,45 +39,10 @@ graph TB
     style GITHUB fill:#f5f5f5,stroke:#333,stroke-width:2px
     style HF fill:#fff5e6,stroke:#ff9900,stroke-width:2px
     style DB fill:#e6f2ff,stroke:#0066cc,stroke-width:2px
-    
-## 1. `01-architecture.md`
+```   
 
- ┌─────────────────────────────────────────────────────────────────────────┐
- │                            APACHE AIRFLOW                               │
- │                                                                         │
- │   ┌──────────────────────┐             ┌────────────────────────────┐   │
- │   │  DAG: RETRAINING     │             │  DAG: DAILY MONITORING     │   │
- │   │  - "mode":"prod"     |             │  - "mode":"prod"           │   │
- │   │  - Mensile ordinario │             │  - Gira OGNI GIORNO        │   │
- │   │  - O su emergenza ◄──┼─────────────┼─ - Controlla soglia drift  │   │
- │   └──────────┬───────────┘ (Trigger    └─────────────┬──────────────┘   │
- └──────────────┼────────────── if drift)               │                  │
-                │                                       │                  │
-    Chiamata API ("mode":"prod"/"demo")      Chiamata API (Estrae JSON)    │
-                │                                       │                  │
-                ▼                                       ▼                  │
- ┌─────────────────────────────────────────────────────────────────────────┐
- │                           GITHUB REPOSITORY                             │
- │                                                                         │
- │   [WORKFLOW: RETRAIN] ──────────────────► [WORKFLOW: MONITORING]        │
- │   mode:"prod"                                                           |
- |   Addestra il modello (2 epoche)          Aggiorna grafici e            │
- │   e fa il push del nuovo .db              genera il file JSON metriche  │
- |                                                                         |
- |   mode:"demo"                                                           |
- |   Addestra il modello (meno di 1 epoca)   Aggiorna grafici e            │
- │   e fa il push del nuovo .db              genera il file JSON metriche  │
- └──────────────┬───────────────────────────────────────▲──────────────────┘
-                │                                       │
-                │ Deploy automatico                     │ Legge dati reali
-                ▼                                       │
- ┌──────────────────────────┐             ┌─────────────┴──────────────┐
- │   HUGGING FACE SPACE     │             │         SQLITE DB          │
- │                          │             │                            │
- │   Servizio FastAPI       │────────────►│   Tabelle con predizioni   │
- │   in produzione          │ (Log di     │   e performance reali      │
- └──────────────────────────┘  output)    └────────────────────────────┘
 
+ 
 
 
 ## 2. DESCRIZIONE ARCHITETTURA E WORKFLOW
