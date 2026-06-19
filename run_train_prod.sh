@@ -31,8 +31,8 @@ if [ "$MODE" == "DEBUG" ]; then
 else
     # Salva i files che potrebbero essere sovrascritti dalla modalita' demo
     cp ./src/outputs-baseline-prod/metrics.db ./src/outputs-baseline-prod/metrics.bak 
-    cp ./src/outputs-baseline-prod/roc_curve.png cp ./src/outputs-baseline-prod/roc_curve.bak 
-    cp ./src/outputs-baseline-prod/confusion_matrix.png cp ./src/outputs-baseline-prod/confusion_matrix.bak
+    cp ./src/outputs-baseline-prod/roc_curve.png ./src/outputs-baseline-prod/roc_curve.bak 
+    cp ./src/outputs-baseline-prod/confusion_matrix.png ./src/outputs-baseline-prod/confusion_matrix.bak
 fi
 
 
