@@ -1,71 +1,86 @@
                  
                  
-                 
- ┌────────────────────────────────────────────────────────┐
- │                    APACHE AIRFLOW                      │
- │   Orchestratore Centrale delle Pipeline Dati & ML      │
- │                                                        │
- │   DAGs:                                                │
- │   - [Data Ingestion & Preprocessing]                   │
- │   - [Retraining Scheduler] ───(API call)───┐          │
- │   - [Monitoring Automation]                │          │
- └─────────────────────────┬──────────────────│───────────┘
-                           │                  │
-               Invia parametri e metriche    Attiva Workflow
-                           │             (workflow_dispatch)
-                           ▼                  │
- ┌────────────────────────────────────────┐   │
- │                    MLFLOW              │   │
- │   - Experiments & Hyperparameters      │   │
- │   - Model Registry (Modelli Validati)  │   │
- │   - Artifact Storage                   │   │
- └─────────────────────────┬──────────────┘   │
-                           │                  │
-               Genera nuove metriche e DB     │
-                           │                  │
-                           ▼                  ▼
- ┌────────────────────────────────────────────────────────┐
- │                   GITHUB REPOSITORY                    │
- │                                                        │
- │   Branch Struttura: [main]                             │
- │   Contenuto: FastAPI App, Dockerfile, metrics.db       │
- │                                                        │
- │   GITHUB ACTIONS WORKFLOWS:                            │
- │                                                        │
- │   1. RETRAIN WORKFLOW (Trigger: workflow_dispatch)     │
- │      Addestra il modello e aggiorna i file .db         │
- │                                                        │
- │   2. TEST & DEPLOY (Trigger: push su main / PR)        │
- │      Esegue CI/CD, convalida il codice e fa il deploy  │
- │                                                        │
- │   3. MONITORING (Trigger: push su main / manuale)      │
- │      Aggiorna metriche, lancia Grafana e fa screenshot │
- └─────────────┬──────────────────────────────┬───────────┘
-               │                              │
-               │ Git Push / Deploy            │ Genera / Aggiorna
-               ▼                              ▼
- ┌──────────────────────────┐   ┌──────────────────────────┐
- │   HUGGING FACE SPACE     │   │        SQLITE DB         │
- │                          │   │                          │
- │   - FastAPI Application  │   │   - model_metrics        │
- │   - Loaded ML Model      │   │   - prediction_logs      │
- │   - Public /predict API  │   │   - tracking_metrics     │
- └─────────────┬────────────┘   └─────────────┬────────────┘
-               │                              │
-       Logga predizioni                       │ Legge i dati
-       e metriche reali                       │ dalle tabelle
-               │                              ▼
-               │                ┌──────────────────────────┐
-               │                │         GRAFANA          │
-               │                │                          │
-               └───────────────►│   Dashboards:            │
-                                │   - Accuracy & Loss      │
-                                │   - System Latency       │
-                                │   - Data & Model Drift   │
-                                └──────────────────────────┘
 
 
-                                DESCRIZIONE ARCHITETTURA E WORKFLOW
+# MACHINE INNOVATION - ARCHITETTURA
+
+## 1. Schema Architettura
+
+```mermaid
+graph TB
+    %% Sotto-grafico Airflow
+    subgraph AIRFLOW [APACHE AIRFLOW]
+        DAG1[DAG: RETRAINING<br>- mode: prod<br>- Mensile ordinario<br>- O su emergenza]
+        DAG2[DAG: DAILY MONITORING<br>- mode: prod<br>- Gira OGNI GIORNO<br>- Controlla soglia drift]
+        DAG2 -->|Trigger if drift| DAG1
+    end
+
+    %% Sotto-grafico GitHub
+    subgraph GITHUB [GITHUB REPOSITORY]
+        W_RETRAIN[WORKFLOW: RETRAIN<br>- mode: prod/demo<br>- Addestra il modello<br>- Push del nuovo .db]
+        W_MONITOR[WORKFLOW: MONITORING<br>- Aggiorna grafici<br>- Genera JSON metriche]
+        W_RETRAIN ---> W_MONITOR
+    end
+
+    %% Elementi Esterni
+    HF[HUGGING FACE SPACE<br>- Servizio FastAPI in prod]
+    DB[(SQLITE DB<br>- Predizioni & Performance)]
+
+    %% Connessioni e Flussi
+    DAG1 -->|Chiamata API workflow_dispatch| W_RETRAIN
+    DAG2 -->|Chiamata API Estrae JSON| W_MONITOR
+    
+    W_RETRAIN -->|Deploy automatico| HF
+    HF -->|Log di output| DB
+    DB -->|Legge dati reali| W_MONITOR
+
+    %% Stili grafici
+    style AIRFLOW fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style GITHUB fill:#f5f5f5,stroke:#333,stroke-width:2px
+    style HF fill:#fff5e6,stroke:#ff9900,stroke-width:2px
+    style DB fill:#e6f2ff,stroke:#0066cc,stroke-width:2px
+
+ ## 1. `01-architecture.md`
+
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                            APACHE AIRFLOW                               │
+ │                                                                         │
+ │   ┌──────────────────────┐             ┌────────────────────────────┐   │
+ │   │  DAG: RETRAINING     │             │  DAG: DAILY MONITORING     │   │
+ │   │  - "mode":"prod"     |             │  - "mode":"prod"           │   │
+ │   │  - Mensile ordinario │             │  - Gira OGNI GIORNO        │   │
+ │   │  - O su emergenza ◄──┼─────────────┼─ - Controlla soglia drift  │   │
+ │   └──────────┬───────────┘ (Trigger    └─────────────┬──────────────┘   │
+ └──────────────┼────────────── if drift)               │                  │
+                │                                       │                  │
+    Chiamata API ("mode":"prod"/"demo")      Chiamata API (Estrae JSON)    │
+                │                                       │                  │
+                ▼                                       ▼                  │
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                           GITHUB REPOSITORY                             │
+ │                                                                         │
+ │   [WORKFLOW: RETRAIN] ──────────────────► [WORKFLOW: MONITORING]        │
+ │   mode:"prod"                                                           |
+ |   Addestra il modello (2 epoche)          Aggiorna grafici e            │
+ │   e fa il push del nuovo .db              genera il file JSON metriche  │
+ |                                                                         |
+ |   mode:"demo"                                                           |
+ |   Addestra il modello (meno di 1 epoca)   Aggiorna grafici e            │
+ │   e fa il push del nuovo .db              genera il file JSON metriche  │
+ └──────────────┬───────────────────────────────────────▲──────────────────┘
+                │                                       │
+                │ Deploy automatico                     │ Legge dati reali
+                ▼                                       │
+ ┌──────────────────────────┐             ┌─────────────┴──────────────┐
+ │   HUGGING FACE SPACE     │             │         SQLITE DB          │
+ │                          │             │                            │
+ │   Servizio FastAPI       │────────────►│   Tabelle con predizioni   │
+ │   in produzione          │ (Log di     │   e performance reali      │
+ └──────────────────────────┘  output)    └────────────────────────────┘
+
+
+
+## 2. DESCRIZIONE ARCHITETTURA E WORKFLOW
 
                                 WORKFLOW RETRAIN AUTOMATICO (mode=prod/demo default=prod)
 Esecuzione solo con workflow_dispatch (manuale o attivato da Airflow).
@@ -93,7 +108,8 @@ Vedere la sezione dedicata alla schedulazione per i dettagli.
                              RIEPILOGO
 I 4 flussi interagiscono con i seguenti step:
 STEP1: Airflow esegue mensilmente un Retrain automatico (tramite API).
-        Il Retrain genera i nuovi file metrics.db e i grafici png e fa il push.
+        Il Retrain genera i nuovi file metrics.db e i grafici png.
+        Viene eseguito il push deuìi files db e png.
 
 STEP2: Il push attiva il Test Deploy per validare l'integrità del sistema.
 

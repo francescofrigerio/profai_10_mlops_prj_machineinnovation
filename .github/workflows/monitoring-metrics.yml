@@ -104,7 +104,7 @@ jobs:
           echo "=== Contenuto di ./monitoring/ ==="
           ls -lrt ./monitoring/ || true
         
-      - name: Estrai ultima metrica e salva JSON
+      - name: Estrai tutte le metriche e salva JSON
         run: |
           sqlite3 -json /opt/machineinnovation/db/metrics.db "
           SELECT accuracy, precision, recall, f1_score
@@ -156,3 +156,6 @@ jobs:
           git push
           # dopo ogni commit automatico fare un git pull
           # ad ogni partenza del codespace 
+          # per non generare errori al successivo push
+          # In caso di errori eseguire dal codespace
+          # git pull origin main --rebase e poi rifare git push

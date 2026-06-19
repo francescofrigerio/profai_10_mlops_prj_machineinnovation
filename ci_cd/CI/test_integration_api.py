@@ -28,14 +28,6 @@ def client(monkeypatch):
         def __init__(self, *args, **kwargs):
             print("MOCK PIPELINE CREATA")
 
-        # def predict(self, text):
-        #
-        #    sentiment = random.choice(["positive", "negative", "neutral"])
-        #
-        #    return {
-        #        "label": sentiment,
-        #        "sentiment": sentiment
-        #    }
         def predict(self, text):
             # Scegliamo un'etichetta coerente con la LABEL_MAPPING di app.py (LABEL_0, LABEL_1, LABEL_2)
             raw_label = random.choice(["LABEL_0", "LABEL_1", "LABEL_2"])

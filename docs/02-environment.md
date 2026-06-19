@@ -1,8 +1,12 @@
 
-1. CREAZIONE DELL'ENVIRONMENT DA ZERO
+                   # MACHINE INNOVATION - ENVIRONMENT
+
+## 1. `02-environment.md`
+
+## 2. CREAZIONE DELL'ENVIRONMENT DA ZERO
 ./setup --init
 
-2. RICREAZIONE DELL'ENVIRONMENT E REINSTALLAZIONE DELLE LIBRERIE
+## 3. RESET DELL'ENVIRONMENT E REINSTALLAZIONE DELLE LIBRERIE
 
 deactivate
 rm -rf .venv
@@ -21,10 +25,10 @@ python -c "import torch; print(torch.__version__)"  # deve stampare 2.x.x+cpu
 python -c "import torch; print(torch.cuda.is_available())" # deve dare false
 python -c "from transformers import AutoModelForSequenceClassification"
 
-3. HELP IN LINEA
+## 3. HELP IN LINEA
 ./setup.sh
 
-4. OUTPUT DELL'HELP IN LINEA
+## 4. OUTPUT DELL'HELP IN LINEA
 ----------------------------------------------------
 1. Verifica Python (max versione 3.12)
 Python 3.12.1
@@ -44,3 +48,27 @@ Python 3.12.1
 2.10-> ./run_train_debug.sh Training in debug(default)
 2.11 -> ./run_pipe_prod.sh Pipeline Inference in produzione
 2.12 -> ./run_pipe_debug.sh Pipeline Inference in debug
+
+5. PULIZIA DEL DISCO FISSO
+Lavorando con sviluppo e test spesso si riempie il disco
+del codespace.
+Vale la pena in questi casi individuare i 10 files più
+pesanti nel workspace e verificare se non sia il caso
+di cancellarli.
+
+# segnala occupazione disco sopra il 95%
+df -h /workspaces 
+
+# trova i 10 files che occpano + spazio
+sudo find / -type f -not -path '*/.git/*' -not -path '/proc/*' -not -path '/sys/*' -exec du -h {} + 2>/dev/null | sort -rh | head -n 10
+
+# Cancella qualcuno dei files elencati
+rm -rf /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/593167092950942131/*
+rm -rf /home/codespace/.cache/huggingface/hub/*
+
+# controlla occupazione disco sotto il 95%
+df -h /workspaces 
+
+# Verificare anche la pulizia dei docker container
+# Può essere lanciato dalla home(non guarda il file docker-compose.yaml)
+docker builder prune -a -f
