@@ -102,11 +102,17 @@ jobs:
           echo "=== Contenuto di ./images/ "
           ls -lrt ./images/ || true
           
-        
-      - name: Estrai tutte le metriche e salva JSON
+      # Retention dei dati 
+      - name: Retention dei dati sul db
+        run: |
+          sqlite3 /opt/machineinnovation/db/metrics.db "
+             DELETE FROM model_metrics_baseline WHERE timestamp < datetime('now', '-365 days');
+          "
+
+      - name: Estrai tutti i dati e salva JSON
         run: |
           sqlite3 -json /opt/machineinnovation/db/metrics.db "
-          SELECT accuracy, precision, recall, f1_score
+          SELECT *
           FROM model_metrics_baseline
           LIMIT 1000;
           " > ./monitoring/all_metrics.json
