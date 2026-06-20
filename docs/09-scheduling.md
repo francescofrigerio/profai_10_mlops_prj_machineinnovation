@@ -109,7 +109,7 @@ docker ps
 ```
 
 Dopo l'esecuzione controllare la visibilita della porta after 8080
-Se nopn funziona aggiungere la seguente configurazione all'environment
+Se non funziona aggiungere la seguente configurazione all'environment
 nel file ./scheduling/docker-compose.yml
 
 AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: 'True'
@@ -153,4 +153,10 @@ For example : task_A >> task_B means "run B solo after A wa terminate with succe
 # Command to reset the dag cache
 cd ./scheduling/dag
 find . -type d -name "__pycache__" -exec rm -rf {} +
+
+# 4.5 Mancato accesso alla dashboard (airflow/airfloe)
+# eseguire in ordine e riprovare ad accedere
+cd scheduling/
+docker system prune -f
+docker compose up -d
 ```

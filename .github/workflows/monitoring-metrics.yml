@@ -94,15 +94,14 @@ jobs:
           rm -f ./images/dashboard_timeseries.png
           python ./monitoring/rend_dashboard_panel.py
         
-      # 10. [DEBUG] Verifica i percorsi di output
-      - name: Debug Images check
+      # Verifica immagini in output
+      - name: Images check
         run: |
-          echo "=== Contenuto della Root ==?"
+          echo "Contenuto della Root"
           ls -lrt
-          echo "=== Contenuto di ./images/ ==="
+          echo "=== Contenuto di ./images/ "
           ls -lrt ./images/ || true
-          echo "=== Contenuto di ./monitoring/ ==="
-          ls -lrt ./monitoring/ || true
+          
         
       - name: Estrai tutte le metriche e salva JSON
         run: |
@@ -123,7 +122,12 @@ jobs:
 
       # [DEBUG] Verifica che il file JSON sia stato creato correttamente
       - name: Mostra JSON generato
-        run: cat ./monitoring/latest_metrics.json
+        run: |
+          echo "Contenuto di ./monitoring/ "
+          ls -lrt ./monitoring/ || true
+          
+          echo "Ultime Metriche Generate "
+          cat ./monitoring/latest_metrics.json
 
       # 11. Spegni i container Docker 
       - name: Stop Docker
@@ -138,6 +142,7 @@ jobs:
           git add ./images/dashboard_table.png
           git add ./images/dashboard_timeseries.png
           git add ./monitoring/latest_metrics.json
+          git add ./monitoring/all_metrics.json
 
           # le immagini png possono essere modificate 
           # di poco ad ogni esecuzione

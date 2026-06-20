@@ -15,7 +15,6 @@ MESE=1
 # DAG mensile
 with DAG(
     dag_id='mlops_ci_cd_train_monthly',
-    # start_date=datetime(2026, GIORNO, MESE),
     start_date=datetime(2026, GIORNO, MESE, tzinfo=local_tz),
     # Gira il 1° giorno di OGNI MESE a mezzanotte 
     # formato cron m h g m y
@@ -26,8 +25,8 @@ with DAG(
     # Definisce il parametro che appare sulla UI di Airflow
     params={
         "execution_mode": Param(
-            # default="demo", 
-            default="prod",
+            default="demo", 
+            # default="prod",
             type="string", 
             enum=["demo", "prod"], 
             description="Seleziona la modalità di esecuzione per GitHub Actions"
