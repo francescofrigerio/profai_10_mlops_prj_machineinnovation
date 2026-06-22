@@ -25,7 +25,7 @@ permissions:
   contents: write
 
 jobs:
-  render-charts:
+  monitoring-metrics:
     runs-on: ubuntu-latest 
     steps:
       - name: Checkout repository
@@ -120,7 +120,7 @@ jobs:
       - name: Estrai ultima metrica e salva JSON
         run: |
           sqlite3 -json /opt/machineinnovation/db/metrics.db "
-          SELECT accuracy, precision, recall, f1_score
+          SELECT accuracy, precision, recall, f1_score,timestamp,dom_name
           FROM model_metrics_baseline
           WHERE timestamp = (SELECT MAX(timestamp) FROM model_metrics_baseline)
           LIMIT 1;
