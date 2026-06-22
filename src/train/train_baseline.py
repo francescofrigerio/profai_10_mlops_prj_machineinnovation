@@ -6,8 +6,9 @@
     e salva su SQLite.
 
     Program entrypoint
-    python train.train_baseline.py DEBUG
-    python train.train_baseline.py PROD
+    python train.train_baseline.py DEBUG usato solo in sviluppo su branch dev-
+    python train.train_baseline.py PROD usato in produzione (default)
+    python train.train_baseline.py DEMO usato in per test/demo in produzione
 """
 import argparse
 import os
@@ -90,7 +91,7 @@ def create_project_dirs(config):
     # os.makedirs(CONFIG.MLFLOW_DIR, exist_ok=True)
 
     # config.MODEL_WEIGHTS_DIR.mkdir(parents=True,exist_ok=True )
-    os.makedirs(CONFIG.MODEL_WEIGHTS_DIR, exist_ok=True)
+    os.makedirs(config.MODEL_WEIGHTS_DIR, exist_ok=True)
 
 def set_all_seeds(seed=42):
     """
@@ -352,7 +353,7 @@ def train_baseline( model_ ,
 
     # MFlow Logging
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
-    
+
     # Raggruppiamo i metadati in un unico dizionario (1 sola variabile invece di 3)
     run_metadata = {
         "run_name": config_.MLFLOW_RUN_NAME,
@@ -363,7 +364,7 @@ def train_baseline( model_ ,
 
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
 
-    if config_.FLAG_DEBUG_MODE:
+    if config_.FLAG_DEBUG_MODE or config_.FLAG_DEMO_MODE:
         # debug mode con max_steps
         logger.info("RUN TRAINING WITH DEBUG MODE")
         training_args = TrainingArguments(
@@ -521,9 +522,9 @@ if __name__ == '__main__':
     # Definisci l'argomento (es. --mode, accettando solo DEBUG o PROD)
     parser.add_argument( '--mode',
                         type=str,
-                        choices=['DEBUG', 'PROD'],
-                        default='DEBUG',
-                        help="Modalità di esecuzione dell'addestramento (default: DEBUG)"
+                        choices=['DEBUG', 'PROD','DEMO'],
+                        default='PROD',
+                        help="Modalità di esecuzione dell'addestramento (default: PROD)"
                     )
 
     # Effettua il parse degli argomenti lanciati da terminale
@@ -534,8 +535,12 @@ if __name__ == '__main__':
         CONFIG = ConfigProdConstants()
         print("Training avviato in modalità: PRODUCTION")
     else:
-        CONFIG = ConfigDebugConstants()
-        print("Training avviato in modalità: DEBUG")
+        if args.mode == 'DEMO':
+            CONFIG = ConfigDemoConstants()
+            print("Training avviato in modalità: DEMO")
+        else:
+            CONFIG = ConfigDebugConstants()
+            print("Training avviato in modalità: DEBUG")
 
     # definizione/creazione dir e file di di output
     os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
@@ -550,10 +555,7 @@ if __name__ == '__main__':
     set_all_seeds(CONFIG.SEED)
 
     # Test trace levels
-    print("--- Inizio Test Logging ---")
-    test_debug_division(logger,10, 2)   # Genera DEBUG e INFO
-    test_debug_division(logger,10, -2)  # Genera DEBUG, WARNING e INFO
-    test_debug_division(logger,10, 0)   # Genera DEBUG e ERROR
+    print("Start Logging Training")
     logger.setLevel(logging.INFO)
 
     # load dataset
@@ -563,26 +565,24 @@ if __name__ == '__main__':
     print_counter(dataset["validation"]["label"],label_mapping,"VAL")
     print_counter(dataset["test"]["label"],label_mapping,"TEST")
 
-    # logger.info(f"{dataset['train']}")
-    # logger.info(f"{dataset['test']}")
-    # logger.info(f"{dataset['validation']}")
     logger.info("%s:",dataset['train'])
     logger.info("%s:",dataset['test'])
     logger.info("%s:",dataset['validation'])
-    # logger.info(f"{dataset['train']['text'][6]}")
-    # logger.info(f"{dataset['train']['label'][6]}")
 
     # model and tokenizer
     # Load model directly
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
-    dataset = load_dataset("cardiffnlp/tweet_eval", "sentiment")
 
     tokenized_dataset = dataset.map(preprocess_function,
                                     batched=True)
 
-    if CONFIG.FLAG_DEBUG_MODE:
+    if CONFIG.FLAG_DEBUG_MODE or CONFIG.FLAG_DEMO_MODE:
         # debug mode con max_steps
-        logger.info("START RUN TRAIN WITH DEBUG MODE")
+        if CONFIG.FLAG_DEBUG_MODE:
+            logger.info("START RUN TRAIN WITH DEBUG MODE")
+        else:
+            logger.info("START RUN TRAIN WITH DEMO MODE")
+
         small_train_dataset = tokenized_dataset["train"].shuffle(
                                                             seed=CONFIG.SEED
                                                             ).select (
@@ -600,7 +600,11 @@ if __name__ == '__main__':
                        small_val_dataset,
                        tokenized_dataset,
                         CONFIG )
-        logger.info("END RUN TRAIN WITH DEBUG MODE")
+
+        if CONFIG.FLAG_DEBUG_MODE:
+            logger.info("END RUN TRAIN WITH DEBUG MODE")
+        else:
+            logger.info("END RUN TRAIN WITH DEMO MODE")
     else:
         logger.info("RUN TRAIN WITH PROD MODE")
         train_baseline(model,
