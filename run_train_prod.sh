@@ -20,6 +20,7 @@ cd src || exit
 python -m train.train_baseline --mode "$MODE" 2>&1 | tee train_${MODE}.log
 cd ..
 
+ls -lrt $OUT_DIR
 
 
 

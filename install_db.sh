@@ -13,8 +13,8 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Configurazione percorsi predefiniti
-DEFAULT_DEBUG_SOURCE_DB="metrics_debug.db"
-DEFAULT_SOURCE_DB="metrics_prod.db"
+DEFAULT_DEBUG_SOURCE_DB="metrics.db"
+DEFAULT_SOURCE_DB="metrics.db"
 TARGET_DIR="/opt/machineinnovation/db"
 TARGET_DB="${TARGET_DIR}/metrics.db"
 
@@ -23,8 +23,8 @@ echo -e "${YELLOW}=== machineinnovation App: Inizio Installazione Database Metri
 # 1. Controllo se il file sorgente esiste nella directory corrente
 if [ ! -f "$DEFAULT_SOURCE_DB" ]; then
     # Cerchiamo se esiste la versione di produzione o se è stato specificato un argomento
-    if [ -f "metrics_prod.db" ]; then
-        DEFAULT_SOURCE_DB="metrics_prod.db"
+    if [ -f "metrics.db" ]; then
+        DEFAULT_SOURCE_DB="metrics.db"
         echo -e "${YELLOW}[!] Rilevato database di produzione: ${DEFAULT_SOURCE_DB}${NC}"
     elif [ -n "$1" ] && [ -f "$1" ]; then
         DEFAULT_SOURCE_DB="$1"
@@ -32,7 +32,8 @@ if [ ! -f "$DEFAULT_SOURCE_DB" ]; then
         echo -e "${RED}[X] Errore: File database sorgente non trovato!${NC}"
         echo -e "Assicurati di lanciare lo script dalla cartella principale del progetto o specifica il file come argomento:"
         echo -e "Uso: ./install_db.sh [percorso_file_database.db]"
-        echo -e "Uso: ./install_db.sh src/outputs-baseline-prod/metrics_prod.db"
+        echo -e "Uso: ./install_db.sh src/outputs-baseline-prod/metrics.db"
+        echo -e "Uso: ./install_db.sh src/outputs-baseline-debug/metrics.db"
         exit 1
     fi
 fi
@@ -71,24 +72,20 @@ echo -e "[*] Configurazione permessi e proprietari..."
 REAL_USER=${SUDO_USER:-$USER}
 sudo chown -R "${REAL_USER}:${REAL_USER}" /opt/machineinnovation/
 
-
 # Garantiamo l'accesso in lettura ed esecuzione alle cartelle superiori (cruciale per l'utente 'grafana')
 sudo chmod 777 /opt
 sudo chmod -R 777 /opt/machineinnovation
 sudo chmod -R 777 /opt/machineinnovation/db
 
-# permessi di lettura/scrittura sul file SQLite (664)
-# NOTA: SQLite richiede i permessi di scrittura anche sulla CARTELLA contenitrice (755)
+# permessi di lettura/scrittura sul file SQLite 
 sudo chmod 777 "$TARGET_DB"
 
-# echo -e "${GREEN}[V] Permessi configurati correttamente per l'ambiente Linux e Grafana.${NC}"
+echo -e "${GREEN}[V] Permessi configurati correttamente.${NC}"
 
 # 5. Riepilogo e istruzioni finali
 echo -e "\n${YELLOW}Installazione Completata con Successo! ${NC}"
 echo -e "Percorso finale DB:  ${GREEN}${TARGET_DB}${NC}"
 echo -e "Proprietario locale:  ${GREEN}${REAL_USER}${NC}"
 
-# echo -e "${YELLOW}[!] Promemoria per Grafana:${NC}"
-# echo -e "Nel pannello di controllo di Grafana, aggiungere un Data Source 'SQLite' e inserire:"
-# echo -e "Path: ${GREEN}${TARGET_DB}${NC}"
+ls -lrt $TARGET_DB
 echo -e "Installazione db su grafana eseguita con successo"

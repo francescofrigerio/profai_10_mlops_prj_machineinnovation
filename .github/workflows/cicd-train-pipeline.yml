@@ -140,3 +140,24 @@ jobs:
           api.restart_space(repo_id='francescofrigerio/spacemachineinnovatorsmlops')
           print('Space restart triggered successfully!')
           "
+
+      - name: Commit and Push Results to GitHub (Trigger Monitor)
+        run: |
+          git config --global user.name "francescofrigerio"
+          git config --global user.email "francesco.frigerio@greencore.it"
+          
+          # Aggiunge i file in base alla modalità rilevata dall'env
+          git add ${{ env.MODEL_OUT_DIR }}/metrics.db || true
+          git add ${{ env.MODEL_OUT_DIR }}/roc_curve.png || true
+          git add ${{ env.MODEL_OUT_DIR }}/confusion_matrix.png || true
+          
+          if git diff --staged --quiet; then
+            echo "Nessuna modifica rilevata nelle metriche. Monitoraggio non invocato."
+          else
+            # NOTA: Qui NON bisogna usare [skip ci], altrimenti 
+            # il workflow di monitoraggio non si attiverà!
+            git commit -m "data: aggiornato database metriche training"
+            git pull origin main --rebase
+            git push origin HEAD:${{ github.ref }}
+          fi
+      

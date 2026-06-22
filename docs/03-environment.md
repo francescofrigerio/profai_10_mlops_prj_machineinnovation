@@ -86,3 +86,24 @@ Può essere lanciato dalla home(non guarda il file docker-compose.yaml)
 ```bash
 docker builder prune -a -f
 ```
+
+## 7. NOTA PER GITHUB
+In caso il push dia il seguente errore :
+
+error: failed to push some refs to 'https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+bisogna eseguire il comando git pull con l'opzione --rebase
+
+git add .
+git commit -m "Il tuo messaggio di commit"
+
+# 2. Scarica le modifiche fatte da GitHub Actions e mettile "sotto" le tue
+git pull origin main --rebase
+
+# 3. Ora puoi pushare in tutta sicurezza
+git push origin main
