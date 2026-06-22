@@ -33,6 +33,10 @@ jobs:
       # 2. Configura i permessi ed esegui lo script del DB
       - name: Esegui install_db.sh e aggiorna il db
         run: |
+          ls -lh /opt/machineinnovation/db/metrics.db || true
+          echo "Numero di righe iniziali nel DB :"
+          sqlite3 /opt/machineinnovation/db/metrics.db "SELECT COUNT(*) FROM model_metrics_baseline;"
+
           chmod +x ./install_db.sh
           if [ "${{ github.event.inputs.mode }}" = "prod" ]; then
             echo "install db in modalità PRODUCTION..."
@@ -43,6 +47,11 @@ jobs:
           fi
 
           sudo chmod -R 777 /opt/machineinnovation/
+
+          ls -lh /opt/machineinnovation/db/metrics.db || true
+          echo "Numero di righe finali nel DB:"
+          sqlite3 /opt/machineinnovation/db/metrics.db "SELECT COUNT(*) FROM model_metrics_baseline;" || true
+
 
       # 3. Avvia Grafana
       - name: Avvia Grafana

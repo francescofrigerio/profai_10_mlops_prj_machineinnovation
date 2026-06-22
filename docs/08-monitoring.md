@@ -60,4 +60,34 @@ docker compose up -d
 docker logs grafana
 ```
 
+note path sul file docker-compose.yml
+All'avvio: Grafana legge il file di configurazione dentro /etc/... 
+(grazie al mount di Docker).
+
+Direttiva: Il file gli dice "Guarda che i tuoi JSON si trovano in /var/lib/grafana/dashboards".
+
+Lettura/Scrittura: Grafana va in quel percorso, che è abilitato alla lettura e alla scrittura. Quando si modifica un grafico e Salviamo, Grafana genera il nuovo JSON e lo scrive in /var/lib/grafana/dashboards.
+
+Sincronizzazione col Codespace: Poiché nel docker-compose.yml hai mappato quella cartella sul tuo file system locale (- ./dashboards:/var/lib/grafana/dashboards), la modifica si riflette all'istante nel Codespace.
+```markdown
+docker-compose.yml
+volumes:
+      # Save Grafana data (dashboard, utsers) so we don't loses with reboot
+      - grafana-storage:/var/lib/grafana
+      # docker compose parte gia' da monitoring come work dir
+      # Mappa la cartella del JSON nel Codespace dentro il container di Grafana
+      # Sincronizza JSON nel Codespace (./dashboards basato su dove risiede questo file compose)
+      - ./dashboards:/var/lib/grafana/dashboards
+
+      - ./grafana-provisioning:/etc/grafana/provisioning
+      # mount custom dir host inside Grafana container (ro=read only)
+      - /opt/machineinnovation/db:/opt/machineinnovation/db:ro
+```
+
+dashboard.yml
+```markdown
+path: /var/lib/grafana/dashboards
+```
+
+
 
