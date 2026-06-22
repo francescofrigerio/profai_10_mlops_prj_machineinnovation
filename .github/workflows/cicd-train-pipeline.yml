@@ -119,7 +119,7 @@ jobs:
           else
             echo "Avvio training in modalità DEMO..."
             ./run_train_prod.sh --demo
-            echo "MODEL_OUT_DIR=src/outputs-baseline-debug" >> $GITHUB_ENV
+            echo "MODEL_OUT_DIR=src/outputs-baseline-prod" >> $GITHUB_ENV
           fi    
 
       # Carica i nuovi pesi nel Model Repository "MachineInnovation/twitter-sentiment-model"
@@ -143,6 +143,11 @@ jobs:
 
       - name: Commit and Push Results to GitHub (Trigger Monitor)
         run: |
+          echo "start Commit and Push Results to GitHub" 
+          echo "MODEL_OUT_DIR ${{ env.MODEL_OUT_DIR }}" 
+          
+          ls -lrt ./src/outputs-baseline-prod || true
+
           git config --global user.name "francescofrigerio"
           git config --global user.email "francesco.frigerio@greencore.it"
           

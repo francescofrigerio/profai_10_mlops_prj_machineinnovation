@@ -98,7 +98,7 @@ hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 
 bisogna eseguire il comando git pull con l'opzione --rebase
-
+```bash
 git add .
 git commit -m "Il tuo messaggio di commit"
 
@@ -107,3 +107,4 @@ git pull origin main --rebase
 
 # 3. Ora puoi pushare in tutta sicurezza
 git push origin main
+```
