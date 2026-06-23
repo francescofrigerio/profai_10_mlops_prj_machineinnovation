@@ -90,4 +90,45 @@ path: /var/lib/grafana/dashboards
 ```
 
 
+Query grafana panel table
+SELECT
+  -- 1. Converte il timestamp nel formato 
+  -- richiesto da Grafana (Unix Epoch in secondi)
+  CAST(strftime('%s', timestamp) AS INTEGER) AS Data_Train,
+  
+  -- 2. Seleziona le metriche da visualizzare sul grafico
+  accuracy AS "Accuracy",
+  precision AS "Precision",
+  recall AS "Recall",
+  f1_score AS "F1-Score",
+  dom_name as "Mode_Train"
 
+FROM model_metrics_baseline
+
+-- 3. Applica il filtro temporale nativo di Grafana
+-- Divide per 1000 perché Grafana ragiona in millisecondi, 
+-- mentre SQLite (e strftime %s) in secondi
+WHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 
+  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000
+
+-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente
+ORDER BY timestamp ASC
+
+Query grafana panel time series
+ SELECT
+  -- 1. Converte il timestamp nel formato
+  -- richiesto da Grafana (Unix Epoch in secondi)
+  -- 2. Seleziona le metriche da visualizzare sul grafico
+  accuracy AS "Accuracy",
+  precision AS "Precision",
+  recall AS "Recall",
+  f1_score AS "F1-Score",
+FROM model_metrics_baseline
+-- 3. Applica il filtro temporale nativo di Grafana
+-- Divide per 1000 perché Grafana ragiona in millisecondi,
+-- mentre SQLite (e strftime %s) in secondi
+WHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000
+  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000
+  --AND DOM_NAME in ('train','demo')
+-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente
+ORDER BY timestamp ASC      
