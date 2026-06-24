@@ -304,6 +304,7 @@ def insert_table_baseline( metrics,
         prec = metrics.get("test_precision", metrics.get("eval_precision", metrics.get("precision", 0)))
         rec = metrics.get("test_recall", metrics.get("eval_recall", metrics.get("recall", 0)))
         f1 = metrics.get("test_f1", metrics.get("eval_f1", metrics.get("f1", 0)))
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         dom_name = "TEST-" + config.MLFLOW_RUN_NAME
     else:
         acc = metrics.get("eval_accuracy", 0)
