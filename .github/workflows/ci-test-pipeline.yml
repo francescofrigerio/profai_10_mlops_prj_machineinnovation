@@ -6,7 +6,7 @@
 
 name: Machine Innovation CI Pipeline
 
-on:
+on:ls -
   # Non viene mai triggerato da push/PR
   # esecuzione solo manuale da Github
 

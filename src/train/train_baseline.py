@@ -62,7 +62,7 @@ from sklearn.metrics import roc_curve, auc
 
 from utils.login_mlops_hf import Login
 from utils.const_baseline import ConfigDebugConstants, ConfigProdConstants , ConfigDemoConstants
-from utils.utils import preprocess_tweet , print_counter,init_debug_logger,test_debug_division
+from utils.utils import preprocess_tweet , print_counter,init_debug_logger
 
 from train.metrics import compute_metrics
 
@@ -285,10 +285,11 @@ def create_table_baseline(path_connect="metrics.db",
     conn.close()
     # End Creazione una tabella model_metrics_baseline
 
-def insert_table_baseline(metrics,
-                          exp_obj,
-                          path_connect="metrics.db",
-                          config=None):
+def insert_table_baseline( metrics,
+                           exp_obj,
+                           path_connect="metrics.db",
+                           config=None,
+                           flag_test=False ):
     """
         Inserisci i dati in tabella a partire
         dalle metriche ritornate dal training/test
@@ -302,7 +303,10 @@ def insert_table_baseline(metrics,
     rec = metrics.get("eval_recall", 0)
     f1 = metrics.get("eval_f1", 0)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    dom_name = config.MLFLOW_RUN_NAME
+    if flag_test:
+        dom_name = "TEST-" + config.MLFLOW_RUN_NAME
+    else:
+        dom_name = "TRAIN-" + config.MLFLOW_RUN_NAME
     # Recupera l'ID di MLflow
     # exp_obj = mlflow.get_experiment_by_name(experiment_name)
     if exp_obj is not None:
@@ -310,18 +314,37 @@ def insert_table_baseline(metrics,
     else:
         exp_id = "N/A"
 
-    conn = sqlite3.connect(path_connect)
-    cursor = conn.cursor()
+    logger.info(f"[insert_table_baseline] acc {acc}")
+    logger.info(f"[insert_table_baseline] prec {prec}")
+    logger.info(f"[insert_table_baseline] rec {rec}")
+    logger.info(f"[insert_table_baseline] f1 {f1}")
+    logger.info(f"[insert_table_baseline] timestamp {timestamp}")
+    logger.info(f"[insert_table_baseline] dom_name {dom_name}")
+    logger.info(f"[insert_table_baseline] exp_id {exp_id}")
 
-    # Inserimento manuale
-    cursor.execute("""INSERT INTO model_metrics_baseline
+
+    try:
+        logger.info(f"[insert_table_baseline] path {path_connect}")
+
+        conn = sqlite3.connect(path_connect)
+        cursor = conn.cursor()
+
+        logger.info(f"[insert_table_baseline] execute insert to {path_connect}")
+
+        # Inserimento manuale
+        cursor.execute("""INSERT INTO model_metrics_baseline
                       (timestamp, dom_name,exp_id,accuracy, precision, recall, f1_score)
                       VALUES (?,?,?,?,?,?,?)
                    """,
                    (timestamp,dom_name,exp_id, acc, prec, rec, f1))
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
+        
+        logger.info(f"[insert_table_baseline] ok record inseriti in {path_connect}")
+        
+    except sqlite3.Error as e:
+        print(f"[insert_table_baseline] Errore SQLite: {e}")
 
 def train_baseline( model_ ,
                     train_dataset_,
@@ -487,24 +510,32 @@ def train_baseline( model_ ,
                                     )
 
     # grafici sui dati di test
+    logger.info("start grafici sui dati di test")
     plot_confusion_matrix(trainer,tokenized_dataset_,config_)
     plot_roc_curve(trainer,tokenized_dataset_,config_)
+    logger.info("end grafici sui dati di test")
 
     test_metrics = test_baseline(trainer,
                                  tokenized_dataset_)
 
+    logger.info("start scrittura sul db")
     create_table_baseline(path_connect=db_path,
                           config=config_)
 
     insert_table_baseline(train_metrics,
                           mlflow.get_experiment_by_name(experiment_name),
                           path_connect=db_path,
-                          config=config_)
+                          config=config_,
+                          flag_test=False)
 
     insert_table_baseline(test_metrics,
                           mlflow.get_experiment_by_name(experiment_name),
                           path_connect=db_path,
-                          config=config_)
+                          config=config_,
+                          flag_test=True)
+    
+    logger.info("end scrittura sul db")
+
     # end export to sqllite
     trainer.save_model(config_.OUTPUT_DIR)
     tokenizer.save_pretrained(config_.OUTPUT_DIR)
