@@ -298,15 +298,21 @@ def insert_table_baseline( metrics,
     """
     # Estrai i dati dal dizionario metrics del trainer
     # Assicurati che le chiavi corrispondano a quelle calcolate in compute_metrics
-    acc = metrics.get("eval_accuracy", 0)
-    prec = metrics.get("eval_precision", 0)
-    rec = metrics.get("eval_recall", 0)
-    f1 = metrics.get("eval_f1", 0)
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     if flag_test:
+        acc = metrics.get("test_accuracy", metrics.get("eval_accuracy", metrics.get("accuracy", 0)))
+        prec = metrics.get("test_precision", metrics.get("eval_precision", metrics.get("precision", 0)))
+        rec = metrics.get("test_recall", metrics.get("eval_recall", metrics.get("recall", 0)))
+        f1 = metrics.get("test_f1", metrics.get("eval_f1", metrics.get("f1", 0)))
         dom_name = "TEST-" + config.MLFLOW_RUN_NAME
     else:
+        acc = metrics.get("eval_accuracy", 0)
+        prec = metrics.get("eval_precision", 0)
+        rec = metrics.get("eval_recall", 0)
+        f1 = metrics.get("eval_f1", 0)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         dom_name = "TRAIN-" + config.MLFLOW_RUN_NAME
+        
     # Recupera l'ID di MLflow
     # exp_obj = mlflow.get_experiment_by_name(experiment_name)
     if exp_obj is not None:
@@ -322,9 +328,11 @@ def insert_table_baseline( metrics,
     logger.info(f"[insert_table_baseline] dom_name {dom_name}")
     logger.info(f"[insert_table_baseline] exp_id {exp_id}")
 
-
     try:
         logger.info(f"[insert_table_baseline] path {path_connect}")
+
+        ass_path = os.path.abspath(path_connect)
+        logger.info(f"[insert_table_baseline] append sul file fisico: {ass_path}")
 
         conn = sqlite3.connect(path_connect)
         cursor = conn.cursor()

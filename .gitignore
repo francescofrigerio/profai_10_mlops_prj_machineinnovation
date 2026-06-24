@@ -13,3 +13,5 @@ src/outputs-baseline-prod/tokenizer.json
 src/outputs-baseline-prod/tokenizer_config.json
 mlruns-debug/
 outputs-baseline-debug/
+src/outputs-baseline-prod/model_weights/
+src/outputs-baseline-debug/model_weights/

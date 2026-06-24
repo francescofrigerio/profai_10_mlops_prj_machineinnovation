@@ -72,8 +72,15 @@ sudo find / -type f -not -path '*/.git/*' -not -path '/proc/*' -not -path '/sys/
 
 I seguenti comandi Cancellano qualcuno dei files elencati
 ```bash
+ls /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/
 rm -rf /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/593167092950942131/*
+ls /home/codespace/.cache/huggingface/hub/
 rm -rf /home/codespace/.cache/huggingface/hub/*
+pip cache info
+pip cache purge
+# controllo lo spazio sui diversi file system
+du -h --max-depth=1 | sort -hr
+
 ```
 
 Ricontrollo occupazione disco sotto il 95%
