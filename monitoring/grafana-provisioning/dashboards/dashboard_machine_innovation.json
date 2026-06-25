@@ -4,20 +4,20 @@
   "metadata": {
     "name": "adgxjdf",
     "namespace": "default",
-    "uid": "5b183c5a-4fcf-4b22-ad38-d43cdf592ebd",
-    "resourceVersion": "1782381551052998",
+    "uid": "f388455a-8d39-458c-bb14-267bf2a198d4",
+    "resourceVersion": "1782388915172016",
     "generation": 1,
-    "creationTimestamp": "2026-06-25T09:59:11Z",
+    "creationTimestamp": "2026-06-25T12:01:55Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2932150577782784"
+      "grafana.app/deprecatedInternalID": "2963037886119936"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "Default",
-      "grafana.app/sourceChecksum": "4713498cdc8e3b5aa65ca1d3ed9e1de4",
+      "grafana.app/sourceChecksum": "ca8732773d5c6ac4718313b11bb5e759",
       "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/dashboard_machine_innovation.json",
-      "grafana.app/sourceTimestamp": "1782377379000",
+      "grafana.app/sourceTimestamp": "1782382045000",
       "grafana.app/folder": ""
     }
   },
@@ -66,40 +66,15 @@
                       "kind": "DataQuery",
                       "spec": {
                         "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\",\n  dom_name As \"Mode_Train\"\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
-                        "queryType": "table",
+                        "queryType": "time series",
                         "rawQueryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\",\n  dom_name As \"Mode_Train\"\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
                         "timeColumns": [
-                          "time",
-                          "ts"
+                          "time"
                         ]
                       },
                       "version": "v0"
                     },
                     "refId": "A"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "efneymi371atca"
-                      },
-                      "group": "frser-sqlite-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "queryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= 1779693457130 / 1000 and time < 1782285457130 / 1000",
-                        "queryType": "table",
-                        "rawQueryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= $__from / 1000 and time < $__to / 1000",
-                        "timeColumns": [
-                          "time",
-                          "ts"
-                        ]
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "B"
                   }
                 }
               ],
