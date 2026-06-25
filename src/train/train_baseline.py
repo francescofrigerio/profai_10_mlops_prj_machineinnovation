@@ -305,14 +305,14 @@ def insert_table_baseline( metrics,
         rec = metrics.get("test_recall", metrics.get("eval_recall", metrics.get("recall", 0)))
         f1 = metrics.get("test_f1", metrics.get("eval_f1", metrics.get("f1", 0)))
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        dom_name = "TEST-" + config.MLFLOW_RUN_NAME
+        dom_name = "test-" + config.MLFLOW_RUN_NAME
     else:
         acc = metrics.get("eval_accuracy", 0)
         prec = metrics.get("eval_precision", 0)
         rec = metrics.get("eval_recall", 0)
         f1 = metrics.get("eval_f1", 0)
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        dom_name = "TRAIN-" + config.MLFLOW_RUN_NAME
+        dom_name = "train-" + config.MLFLOW_RUN_NAME
         
     # Recupera l'ID di MLflow
     # exp_obj = mlflow.get_experiment_by_name(experiment_name)
@@ -339,6 +339,49 @@ def insert_table_baseline( metrics,
         cursor = conn.cursor()
 
         logger.info(f"[insert_table_baseline] execute insert to {path_connect}")
+
+
+        # prod
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'train-sent-analysis-prod' 
+                      where dom_name = 'twitter-sentiment-roberta-prod' 
+                      and accuracy > 0.75""")
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'test-sent-analysis-prod' 
+                      where dom_name = 'twitter-sentiment-roberta-prod' 
+                      and accuracy > 0.70""")
+
+        # debug
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'train-sent-analysis-debug' 
+                      where dom_name = 'twitter-sentiment-roberta-debug' 
+                      and accuracy > 0.72""")
+
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'test-sent-analysis-debug' 
+                      where dom_name = 'twitter-sentiment-roberta-debug' 
+                      and accuracy > 0.60""")
+
+        # demo
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'train-sent-analysis-demo' 
+                      where dom_name = 'twitter-sentiment-roberta-demo' 
+                      and accuracy > 0.72""")
+
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'test-sent-analysis-demo' 
+                      where dom_name = 'twitter-sentiment-roberta-demo' 
+                      and accuracy > 0.60""")
+
+        # demo ultimi
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'train-sent-analysis-demo' 
+                      where dom_name = 'TRAIN-twitter-sentiment-roberta-demo' """)
+
+        cursor.execute("""UPDATE model_metrics_baseline
+                      set dom_name = 'test-sent-analysis-demo' 
+                      where dom_name = 'TEST-twitter-sentiment-roberta-demo'  """)
+
 
         # Inserimento manuale
         cursor.execute("""INSERT INTO model_metrics_baseline
@@ -585,9 +628,7 @@ if __name__ == '__main__':
     # definizione/creazione dir e file di di output
     os.makedirs(CONFIG.OUTPUT_DIR, exist_ok=True)
     os.makedirs(CONFIG.MODEL_WEIGHTS_DIR, exist_ok=True)
-    # db_path = os.path.join(CONFIG.OUTPUT_DIR, CONFIG.METRICS_DB_PATH)
-    # model_weights_dir = os.path.join(CONFIG.OUTPUT_DIR, "model_weights")
-
+    
     obj_login = Login("MachineInnovation")
     obj_login.login_hf()
     print(f"lunghezza auth token {len(obj_login.get_token())}")
