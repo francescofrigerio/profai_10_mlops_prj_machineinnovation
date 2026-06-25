@@ -5,8 +5,8 @@
     "name": "adgxjdf",
     "namespace": "default",
     "uid": "d10dd2a3-a692-4db7-965a-728798aa1bfa",
-    "resourceVersion": "1782285409503986",
-    "generation": 1,
+    "resourceVersion": "1782285649926017",
+    "generation": 2,
     "creationTimestamp": "2026-06-24T07:16:49Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "2528903645859840"
@@ -15,9 +15,11 @@
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "Default",
-      "grafana.app/sourceChecksum": "b44714432dee3938395ec57f8c8d9205",
+      "grafana.app/sourceChecksum": "1f5db43a299d3fb1abc4d852b0c9ea64",
       "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/dashboard_machine_innovation.json",
-      "grafana.app/sourceTimestamp": "1782283154000",
+      "grafana.app/sourceTimestamp": "1782285644000",
+      "grafana.app/updatedBy": "access-policy:service",
+      "grafana.app/updatedTimestamp": "2026-06-24T07:20:49Z",
       "grafana.app/folder": ""
     }
   },
@@ -193,9 +195,9 @@
                       "group": "frser-sqlite-datasource",
                       "kind": "DataQuery",
                       "spec": {
-                        "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato\n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi,\n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= 1774746039349 / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < 1784422839349 / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato\n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi,\n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n  -- impone che il timestamp sia maggiore o uguale \n  -- al primo dato reale\n  AND timestamp >= (SELECT MIN(timestamp) FROM model_metrics_baseline WHERE accuracy IS NOT NULL)\n-- 4. Ordina i dati dal più vecchio al più recente \n-- per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
                         "queryType": "table",
-                        "rawQueryText": "SELECT\n  -- 1. Converte il timestamp nel formato\n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi,\n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "rawQueryText": "SELECT\n  -- 1. Converte il timestamp nel formato\n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\n\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi,\n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n  -- impone che il timestamp sia maggiore o uguale \n  -- al primo dato reale\n  AND timestamp >= (SELECT MIN(timestamp) FROM model_metrics_baseline WHERE accuracy IS NOT NULL)\n-- 4. Ordina i dati dal più vecchio al più recente \n-- per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
                         "timeColumns": [
                           "time",
                           "ts"
@@ -298,32 +300,7 @@
                     ]
                   }
                 },
-                "overrides": [
-                  {
-                    "__systemRef": "hideSeriesFrom",
-                    "matcher": {
-                      "id": "byNames",
-                      "options": {
-                        "mode": "exclude",
-                        "names": [
-                          "Accuracy"
-                        ],
-                        "prefix": "All except:",
-                        "readOnly": true
-                      }
-                    },
-                    "properties": [
-                      {
-                        "id": "custom.hideFrom",
-                        "value": {
-                          "legend": false,
-                          "tooltip": true,
-                          "viz": true
-                        }
-                      }
-                    ]
-                  }
-                ]
+                "overrides": []
               },
               "options": {
                 "annotations": {
