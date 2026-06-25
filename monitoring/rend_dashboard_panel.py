@@ -15,14 +15,14 @@ DASHBOARD_URL_PANEL_1_TABLE = (
     "http://localhost:3000/"
     "d-solo/adgxjdf/a0bc2dc"
     # "?orgId=1&panelId=panel-1"  
-    "?orgId=1&panelId=panel-1&from=now-90d&to=now&timezone=browser"
+    "?orgId=1&panelId=panel-1&from=now-60d&to=now&timezone=browser"
 )
 
 DASHBOARD_URL_PANEL_2_TIMESERIES = (
     "http://localhost:3000/"
     "d-solo/adgxjdf/a0bc2dc"
     # "?orgId=1&panelId=panel-2"  
-    "?orgId=1&panelId=panel-2&from=now-365d&to=now&timezone=browser"
+    "?orgId=1&panelId=panel-2&from=now-60d&to=now&timezone=browser"
 )
 
 GRAFANA_URL = "http://localhost:3000"
