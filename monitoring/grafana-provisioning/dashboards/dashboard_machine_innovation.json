@@ -4,20 +4,20 @@
   "metadata": {
     "name": "adgxjdf",
     "namespace": "default",
-    "uid": "4403bc82-65e0-4a2d-bbfb-95df0086a536",
-    "resourceVersion": "1782395758420997",
+    "uid": "12339f43-92ba-4252-a54b-5a7c2f7147f8",
+    "resourceVersion": "1782397262036982",
     "generation": 1,
-    "creationTimestamp": "2026-06-25T13:55:58Z",
+    "creationTimestamp": "2026-06-25T14:21:02Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2991740619878400"
+      "grafana.app/deprecatedInternalID": "2998047232176128"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "Default",
-      "grafana.app/sourceChecksum": "b96f7be69528b61d30c016236e48b0c1",
+      "grafana.app/sourceChecksum": "8ecb0139d917d6ceedd99605e5cc29d7",
       "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/dashboard_machine_innovation.json",
-      "grafana.app/sourceTimestamp": "1782394770000",
+      "grafana.app/sourceTimestamp": "1782396325000",
       "grafana.app/folder": ""
     }
   },
@@ -65,9 +65,9 @@
                       "group": "frser-sqlite-datasource",
                       "kind": "DataQuery",
                       "spec": {
-                        "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\",\n  dom_name As \"Mode_Train\"\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= 1779804135757 / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < 1782396135757 / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) * 1000 AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\",\n  dom_name As \"Mode_Train\"\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
                         "queryType": "table",
-                        "rawQueryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\",\n  dom_name As \"Mode_Train\"\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
+                        "rawQueryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) * 1000 AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\",\n  dom_name As \"Mode_Train\"\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
                         "timeColumns": []
                       },
                       "version": "v0"

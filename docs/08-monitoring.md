@@ -56,6 +56,7 @@ docker logs grafana
 cd monitoring/
 docker compose down -v
 docker system prune -f
+
 docker compose up -d
 docker logs grafana
 ```
