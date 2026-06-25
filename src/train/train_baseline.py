@@ -340,49 +340,6 @@ def insert_table_baseline( metrics,
 
         logger.info(f"[insert_table_baseline] execute insert to {path_connect}")
 
-
-        # prod
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'train-sent-analysis-prod' 
-                      where dom_name = 'twitter-sentiment-roberta-prod' 
-                      and accuracy > 0.75""")
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'test-sent-analysis-prod' 
-                      where dom_name = 'twitter-sentiment-roberta-prod' 
-                      and accuracy > 0.70""")
-
-        # debug
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'train-sent-analysis-debug' 
-                      where dom_name = 'twitter-sentiment-roberta-debug' 
-                      and accuracy > 0.72""")
-
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'test-sent-analysis-debug' 
-                      where dom_name = 'twitter-sentiment-roberta-debug' 
-                      and accuracy > 0.60""")
-
-        # demo
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'train-sent-analysis-demo' 
-                      where dom_name = 'twitter-sentiment-roberta-demo' 
-                      and accuracy > 0.72""")
-
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'test-sent-analysis-demo' 
-                      where dom_name = 'twitter-sentiment-roberta-demo' 
-                      and accuracy > 0.60""")
-
-        # demo ultimi
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'train-sent-analysis-demo' 
-                      where dom_name = 'TRAIN-twitter-sentiment-roberta-demo' """)
-
-        cursor.execute("""UPDATE model_metrics_baseline
-                      set dom_name = 'test-sent-analysis-demo' 
-                      where dom_name = 'TEST-twitter-sentiment-roberta-demo'  """)
-
-
         # Inserimento manuale
         cursor.execute("""INSERT INTO model_metrics_baseline
                       (timestamp, dom_name,exp_id,accuracy, precision, recall, f1_score)
