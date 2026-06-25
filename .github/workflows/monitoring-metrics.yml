@@ -129,10 +129,11 @@ jobs:
       - name: Estrai ultima metrica e salva JSON
         run: |
           sqlite3 -json /opt/machineinnovation/db/metrics.db "
-          SELECT accuracy, precision, recall, f1_score,timestamp,dom_name
-          FROM model_metrics_baseline
-          WHERE timestamp = (SELECT MAX(timestamp) FROM model_metrics_baseline)
-          LIMIT 1;
+              SELECT accuracy, precision, recall, f1_score, timestamp, dom_name
+              FROM model_metrics_baseline
+              WHERE dom_name IN ('test-sent-analysis-prod', 'test-sent-analysis-demo')
+              ORDER BY timestamp DESC
+              LIMIT 1;
           " > ./monitoring/latest_metrics.json
 
       # [DEBUG] Verifica che il file JSON sia stato creato correttamente
