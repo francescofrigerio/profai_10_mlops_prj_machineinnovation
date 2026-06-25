@@ -5,8 +5,8 @@
     "name": "adgxjdf",
     "namespace": "default",
     "uid": "f388455a-8d39-458c-bb14-267bf2a198d4",
-    "resourceVersion": "1782390138224002",
-    "generation": 2,
+    "resourceVersion": "1782388915172016",
+    "generation": 1,
     "creationTimestamp": "2026-06-25T12:01:55Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "2963037886119936"
@@ -15,11 +15,9 @@
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "Default",
-      "grafana.app/sourceChecksum": "b96f7be69528b61d30c016236e48b0c1",
+      "grafana.app/sourceChecksum": "ca8732773d5c6ac4718313b11bb5e759",
       "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/dashboard_machine_innovation.json",
-      "grafana.app/sourceTimestamp": "1782390133000",
-      "grafana.app/updatedBy": "access-policy:service",
-      "grafana.app/updatedTimestamp": "2026-06-25T12:22:18Z",
+      "grafana.app/sourceTimestamp": "1782382045000",
       "grafana.app/folder": ""
     }
   },
@@ -28,20 +26,20 @@
       {
         "kind": "AnnotationQuery",
         "spec": {
-          "query": {
-            "kind": "DataQuery",
-            "group": "grafana",
-            "version": "v0",
-            "datasource": {
-              "name": "-- Grafana --"
-            },
-            "spec": {}
-          },
+          "builtIn": true,
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
           "name": "Annotations & Alerts",
-          "builtIn": true
+          "query": {
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "group": "grafana",
+            "kind": "DataQuery",
+            "spec": {},
+            "version": "v0"
+          }
         }
       }
     ],
@@ -52,10 +50,6 @@
       "panel-1": {
         "kind": "Panel",
         "spec": {
-          "id": 1,
-          "title": "Sentiment Analisys Table",
-          "description": " Training Metrics ( Accuracy , precision , recall , f1) ",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -63,13 +57,13 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "frser-sqlite-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "efneymi371atca"
                       },
+                      "group": "frser-sqlite-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "queryText": "SELECT\n  -- 1. Converte il timestamp nel formato \n  -- richiesto da Grafana (Unix Epoch in secondi)\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  \n  -- 2. Seleziona le metriche da visualizzare sul grafico\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\",\n  dom_name As \"Mode_Train\"\nFROM model_metrics_baseline\n\n-- 3. Applica il filtro temporale nativo di Grafana\n-- Divide per 1000 perché Grafana ragiona in millisecondi, \n-- mentre SQLite (e strftime %s) in secondi\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000 \n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\n\n-- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente\nORDER BY timestamp ASC",
                         "queryType": "time series",
@@ -77,47 +71,27 @@
                         "timeColumns": [
                           "time"
                         ]
-                      }
+                      },
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": " Training Metrics ( Accuracy , precision , recall , f1) ",
+          "id": 1,
+          "links": [],
+          "title": "Sentiment Analisys Table",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "table",
-            "version": "13.0.2",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "cellHeight": "sm",
-                "showHeader": true,
-                "sortBy": [
-                  {
-                    "desc": true,
-                    "displayName": "F1-Score"
-                  }
-                ]
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "thresholds"
                   },
@@ -130,14 +104,27 @@
                       "reducers": []
                     },
                     "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": [
                   {
                     "matcher": {
                       "id": "byName",
-                      "scope": "series",
-                      "options": "time"
+                      "options": "time",
+                      "scope": "series"
                     },
                     "properties": [
                       {
@@ -147,18 +134,25 @@
                     ]
                   }
                 ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "F1-Score"
+                  }
+                ]
               }
-            }
+            },
+            "version": "13.0.2"
           }
         }
       },
       "panel-2": {
         "kind": "Panel",
         "spec": {
-          "id": 2,
-          "title": "Sentiment Analysis Time Series",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -166,13 +160,13 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "frser-sqlite-datasource",
-                      "version": "v0",
                       "datasource": {
                         "name": "efneymi371atca"
                       },
+                      "group": "frser-sqlite-datasource",
+                      "kind": "DataQuery",
                       "spec": {
                         "queryText": "SELECT\n  CAST(strftime('%s', timestamp) AS INTEGER) AS time,\n  accuracy AS \"Accuracy\",\n  precision AS \"Precision\",\n  recall AS \"Recall\",\n  f1_score AS \"F1-Score\"\nFROM model_metrics_baseline\nWHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000\n  AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000\nORDER BY timestamp ASC",
                         "queryType": "time series",
@@ -180,56 +174,27 @@
                         "timeColumns": [
                           "time"
                         ]
-                      }
+                      },
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": "",
+          "id": 2,
+          "links": [],
+          "title": "Sentiment Analysis Time Series",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.2",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "single",
-                  "sort": "none"
-                }
-              },
               "fieldConfig": {
                 "defaults": {
-                  "min": 0,
-                  "max": 1,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "palette-classic"
                   },
@@ -266,11 +231,44 @@
                     "thresholdsStyle": {
                       "mode": "off"
                     }
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": []
+              },
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
               }
-            }
+            },
+            "version": "13.0.2"
           }
         }
       }
@@ -282,27 +280,27 @@
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 0,
-              "y": 0,
-              "width": 23,
-              "height": 8,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-1"
-              }
+              },
+              "height": 8,
+              "width": 23,
+              "x": 0,
+              "y": 0
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 0,
-              "y": 8,
-              "width": 12,
-              "height": 8,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-2"
-              }
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 8
             }
           }
         ]
@@ -310,12 +308,17 @@
     },
     "links": [],
     "liveNow": false,
+    "preferences": {
+      "layout": {
+        "kind": "GridLayout",
+        "spec": {
+          "items": []
+        }
+      }
+    },
     "preload": false,
     "tags": [],
     "timeSettings": {
-      "timezone": "browser",
-      "from": "now-30d",
-      "to": "now",
       "autoRefresh": "",
       "autoRefreshIntervals": [
         "5s",
@@ -329,18 +332,13 @@
         "2h",
         "1d"
       ],
+      "fiscalYearStartMonth": 0,
+      "from": "now-30d",
       "hideTimepicker": false,
-      "fiscalYearStartMonth": 0
+      "timezone": "browser",
+      "to": "now"
     },
     "title": "Machine Innovation Dashboard - Monitoring Sentiment Analysis",
-    "variables": [],
-    "preferences": {
-      "layout": {
-        "kind": "GridLayout",
-        "spec": {
-          "items": []
-        }
-      }
-    }
+    "variables": []
   }
 }
