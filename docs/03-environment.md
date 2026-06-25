@@ -73,9 +73,13 @@ sudo find / -type f -not -path '*/.git/*' -not -path '/proc/*' -not -path '/sys/
 I seguenti comandi Cancellano qualcuno dei files elencati
 ```bash
 ls /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/
-rm -rf /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/593167092950942131/*
+rm -rf ls 593167092950942131/*
 ls /home/codespace/.cache/huggingface/hub/
 rm -rf /home/codespace/.cache/huggingface/hub/*
+
+# se ho già salvato il modello da qualche parte
+rm -rf /workspaces/profai_10_mlops_prj_machineinnovation/src/outputs-baseline-prod/model_weights/checkpoint-20
+
 pip cache info
 pip cache purge
 # controllo lo spazio sui diversi file system

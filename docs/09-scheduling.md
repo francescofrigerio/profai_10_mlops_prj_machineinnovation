@@ -158,5 +158,6 @@ find . -type d -name "__pycache__" -exec rm -rf {} +
 # eseguire in ordine e riprovare ad accedere
 cd scheduling/
 docker system prune -f
+
 docker compose up -d
 ```

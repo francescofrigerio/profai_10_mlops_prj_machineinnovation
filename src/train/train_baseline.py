@@ -490,6 +490,10 @@ def train_baseline( model_ ,
         else:
             trainer.train()
 
+        # 
+        logger.info(f"WARNING!! Check Best checkpoint: {trainer.state.best_model_checkpoint}")
+        logger.info(f"WARNING!! Check Best metric: {trainer.state.best_metric}")
+
         # valutazione sul validation
         train_metrics = trainer.evaluate()
 
