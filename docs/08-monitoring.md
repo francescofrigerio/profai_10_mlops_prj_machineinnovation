@@ -130,5 +130,7 @@ FROM model_metrics_baseline
 WHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000
   AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000
   --AND DOM_NAME in ('train','demo')
+  -- impone che il timestamp sia maggiore o uguale al primo dato storico reale
+  AND timestamp >= (SELECT MIN(timestamp) FROM model_metrics_baseline WHERE accuracy IS NOT NULL)
 -- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente
 ORDER BY timestamp ASC      
