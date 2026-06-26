@@ -159,7 +159,6 @@ find . -type d -name "__pycache__" -exec rm -rf {} +
 cd scheduling/
 docker compose down -v
 docker system prune -f
-
 docker compose up -d
 
 # Controlli
@@ -184,5 +183,13 @@ docker rm -f $(docker ps -aq)
 # 2. Rimuove i volumi residui che potrebbero avere lock sul database
 docker volume prune -f
 
+# Sequenza finale di reset semplificata ed efficace
+# Dovrebbe essere sufficiente uno solo dei comandi di pulizia
+# ma per sicurezza possiamo eseguirle tutti e tre (down -v, rm , prune)
+docker compose down -v
+docker rm -f $(docker ps -aq) 2>/dev/null || true
+docker system prune -f --volumes
+docker compose up -d
+docker compose logs airflow-webserver
 ```
 

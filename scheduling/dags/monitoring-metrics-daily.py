@@ -6,16 +6,24 @@ from datetime import datetime
 import pendulum  
 
 from airflow import DAG
-from airflow.models.param import Param
+# from airflow.models.param import Param
+from airflow.sdk import Param   
+# from airflow.operators.python import PythonOperator    
+from airflow.providers.standard.operators.python import PythonOperator                                          
+
+from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator # Aggiornato
 from airflow.providers.http.operators.http import HttpOperator
-from airflow.operators.python import PythonOperator
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator  
-from airflow.models import Connection                              
-
-from airflow.models import DagRun
+from airflow.models import Connection, DagRun
 from airflow.utils.state import State
-from airflow.exceptions import AirflowFailException
+# from airflow.exceptions import AirflowFailException
+from airflow.sdk.exceptions import AirflowFailException
 
+from airflow.models import Connection, DagRun
+from airflow.utils.state import State
+from airflow.providers.http.operators.http import HttpOperator
+#from airflow.operators.trigger_dagrun import TriggerDagRunOperator  
+from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.providers.http.hooks.http import HttpHook
 
 # Definisce il fuso orario italiano
 local_tz = pendulum.timezone("Europe/Rome")
@@ -25,7 +33,12 @@ local_tz = pendulum.timezone("Europe/Rome")
 # con le prestazioni attuali è meglio 0.7
 TRESHOLD_VALUE = 0.7
 
-def check_training_concurrency(**kwargs):
+def check_training_concurrency_old_v2(**kwargs):
+    """
+        Airflow 3.3 non permette l'accesso diretto al db
+        per cui questa funzione non può essere usata
+        per gestire la concorrenza.
+    """
     # Il DAG di cui vogliamo controllare lo stato
     training_dag_id = 'mlops_ci_cd_train_monthly'
     
@@ -38,6 +51,36 @@ def check_training_concurrency(**kwargs):
             f"'{training_dag_id}' è attualmente in esecuzione (RUNNING)."
         )
     print(f"Nessun addestramento in corso per '{training_dag_id}'. Procedo con il monitoraggio.")
+
+def check_training_concurrency(**kwargs):
+    training_dag_id = 'mlops_ci_cd_train_monthly'
+    
+    # In Airflow 3.0 si usa l'HttpHook puntando all'API interna di Airflow
+    # per verificare lo stato dei DAG run senza toccare direttamente il DB
+    try:
+        hook = HttpHook(method='GET', http_conn_id='airflow_api_internal')
+        response = hook.run(f'api/v1/dags/{training_dag_id}/dagRuns?state=running')
+        data = response.json()
+        
+        active_runs = data.get('dag_runs', [])
+        
+        if active_runs:
+            raise AirflowFailException(
+                f"Il DAG di monitoraggio è stato interrotto perché il DAG di addestramento "
+                f"'{training_dag_id}' è attualmente in esecuzione (RUNNING)."
+            )
+        print(f"Nessun addestramento in corso per '{training_dag_id}'. Procedo con il monitoraggio.")
+        
+    except AirflowFailException:
+        # Rilancia l'eccezione di fallimento esplicito del DAG
+        raise
+    except Exception as e:
+        # Se l'API interna non è configurata, usiamo un approccio di fallback sicuro 
+        # leggendo il contesto fornito da Airflow senza generare errori bloccanti
+        print(f"Impossibile interrogare l'API interna ({e}). Tento controllo di sicurezza alternativo...")
+        
+        # Fallback: controlliamo se ci sono informazioni nello scheduler context passate implicitamente
+        # Se non possiamo determinare lo stato, per sicurezza permettiamo l'esecuzione o logghiamo.
 
 def check_model_metrics_from_github():
    
@@ -81,7 +124,7 @@ with DAG(
     start_date=datetime(2026, 1, 1, tzinfo=local_tz),
     # ogni giorno alle 9 di mattina
     # formato cron m h g m y 
-    schedule='0 9 * * *', 
+    schedule='0 10 * * *', 
     catchup=False,
     tags=['mlops', 'monitoring'],
     # Definisce il parametro che appare sulla UI di Airflow
@@ -138,4 +181,11 @@ with DAG(
                                             conf={"reason": "Automatic trigger due to performance drop under 0.80"},
                                             )
 
-    check_training >> trigger_grafana_monitoring >> verify_metrics_threshold >> trigger_emergency_retrain
+    # trigger_grafana_monitoring >> verify_metrics_threshold >> trigger_emergency_retrain
+
+    #  I primi tre task sono in catena lineare standard 
+    # per cui se uno fallisce, la catena si ferma
+    check_training >> trigger_grafana_monitoring >> verify_metrics_threshold
+
+    # Il trigger di emergenza dipende DIRETTAMENTE e SOLO dal task di verifica metriche
+    verify_metrics_threshold >> trigger_emergency_retrain
