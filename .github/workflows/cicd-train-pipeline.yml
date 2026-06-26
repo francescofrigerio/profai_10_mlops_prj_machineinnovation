@@ -162,7 +162,11 @@ jobs:
             # NOTA: Qui NON bisogna usare [skip ci], altrimenti 
             # il workflow di monitoraggio non si attiverà!
             git commit -m "data: aggiornato database metriche training"
-            git pull origin main --rebase
+          
+            # Aggiunta al rebase:
+            # -X theirs Forza il rebase a far vincere le modifiche correnti 
+            # del workflow sui file binari
+            git pull origin main --rebase -X theirs
             git push origin HEAD:${{ github.ref }}
           fi
       

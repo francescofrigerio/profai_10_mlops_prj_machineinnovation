@@ -12,8 +12,32 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator  
 from airflow.models import Connection                              
 
+from airflow.models import DagRun
+from airflow.utils.state import State
+from airflow.exceptions import AirflowFailException
+
+
 # Definisce il fuso orario italiano
 local_tz = pendulum.timezone("Europe/Rome")
+
+# con 0.8 ad ogni esecuzione
+# partirebbe il train per cui 
+# con le prestazioni attuali è meglio 0.7
+TRESHOLD_VALUE = 0.7
+
+def check_training_concurrency(**kwargs):
+    # Il DAG di cui vogliamo controllare lo stato
+    training_dag_id = 'mlops_ci_cd_train_monthly'
+    
+    # Cerchiamo se ci sono run in stato RUNNING per il DAG di train
+    active_training_runs = DagRun.find(dag_id=training_dag_id, state=State.RUNNING)
+    
+    if active_training_runs:
+        raise AirflowFailException(
+            f"Il DAG di monitoraggio è stato interrotto perché il DAG di addestramento "
+            f"'{training_dag_id}' è attualmente in esecuzione (RUNNING)."
+        )
+    print(f"Nessun addestramento in corso per '{training_dag_id}'. Procedo con il monitoraggio.")
 
 def check_model_metrics_from_github():
    
@@ -46,9 +70,8 @@ def check_model_metrics_from_github():
     
     print(f"Monitoraggio : Ultima Accuracy estratta dal database = {current_accuracy}")
     
-    soglia_minima = 0.70
-    if current_accuracy < soglia_minima:
-        print(f"RETRAIN NECESSARIO: L'accuratezza ({current_accuracy}) è inferiore a {soglia_minima}")
+    if current_accuracy < TRESHOLD_VALUE:
+        print(f"RETRAIN NECESSARIO: L'accuratezza ({current_accuracy}) è inferiore a {TRESHOLD_VALUE}")
         raise ValueError(f"L'accuratezza è crollata a {current_accuracy}!")
         
     print("Monitoraggio superato. Il modello è stabile.")
@@ -73,7 +96,13 @@ with DAG(
     },
 ) as dag:
 
-    # TASK 1: Resta invariato, lancia il workflow che genera i grafici e aggiorna il DB
+    # TASK 1: Controlla che non ci sia già attivo un training
+    check_training = PythonOperator(
+        task_id='check_training_running',
+        python_callable=check_training_concurrency,
+    )
+
+    # TASK 2: lancia il workflow che genera i grafici e aggiorna il DB
     trigger_grafana_monitoring = HttpOperator(
         task_id='trigger_github_monitoring_metrics',
         http_conn_id='github_api',  
@@ -94,12 +123,14 @@ with DAG(
         response_check=lambda response: response.status_code == 204, 
     )
 
-    # TASK 2: Ora legge il valore VERO aggiornato dal Task 1
+    # TASK 3: legge l'ultima valore aggiornato dal Task 1
+    # e verifica che non sia sotto la soglia
     verify_metrics_threshold = PythonOperator( task_id='verify_metrics_threshold',
                                                 python_callable=check_model_metrics_from_github,
                                              )
 
-    # TASK 3: Scatta SOLO se il TASK 2 fallisce (trigger_rule='one_failed')
+    # TASK 4: Scatta SOLO se il TASK 2 fallisce (trigger_rule='one_failed')
+    # quindi solo se l'accuracy è sotto la soglia
     trigger_emergency_retrain = TriggerDagRunOperator( task_id='trigger_emergency_retrain',
                                             trigger_dag_id='mlops_ci_cd_train_monthly',  
                                             trigger_rule='one_failed',                
@@ -107,4 +138,4 @@ with DAG(
                                             conf={"reason": "Automatic trigger due to performance drop under 0.80"},
                                             )
 
-    trigger_grafana_monitoring >> verify_metrics_threshold >> trigger_emergency_retrain
+    check_training >> trigger_grafana_monitoring >> verify_metrics_threshold >> trigger_emergency_retrain

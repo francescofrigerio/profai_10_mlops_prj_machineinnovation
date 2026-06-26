@@ -157,7 +157,32 @@ find . -type d -name "__pycache__" -exec rm -rf {} +
 # 4.5 Mancato accesso alla dashboard (airflow/airfloe)
 # eseguire in ordine e riprovare ad accedere
 cd scheduling/
+docker compose down -v
 docker system prune -f
 
 docker compose up -d
+
+# Controlli
+docker compose ps
+
+docker compose logs airflow-webserver
+# KO no such service: airflow-webserver
+
+sudo lsof -i :8080
+# KO docker-pr 31538 root    8u  IPv4 1051593      0t0  TCP *:http-alt (LISTEN)
+# KO docker-pr 31545 root    8u  IPv6 1051594      0t0  TCP *:http-alt (LISTEN)
+
+# lista servizi disponibili
+docker compose config --services
+
+# Ferma tutti i container docker attivi sul sistema
+docker kill $(docker ps -q)
+
+# 1. Forza lo spegnimento di qualsiasi container attivo in questo ambiente
+docker rm -f $(docker ps -aq)
+
+# 2. Rimuove i volumi residui che potrebbero avere lock sul database
+docker volume prune -f
+
 ```
+
