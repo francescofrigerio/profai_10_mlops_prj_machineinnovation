@@ -30,6 +30,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # solo in caso di esecuzione da Airflow (workflow_dispatch) 
+      # rimuove il file JSON precedente
+      - name: Rimuovi metrics JSON precedente (Solo se dispatch da Airflow)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "Rilevato trigger da Airflow (workflow_dispatch). Svuoto il file semaforo..."
+          mv -f ./monitoring/latest_metrics.json ./monitoring/latest_metrics.bak
+          
+          # Crea un file temporaneo vuoto (o un array vuoto []) per evitare 
+          # che eventuali letture concorrenti falliscano brutalmente con 404
+          echo "[]" > ./monitoring/latest_metrics.json
+          
+          # Facciamo un commit immediato e push per pulire la history remota prima che Grafana parta
+          git config --local user.name "francescofrigerio"
+          git config --local user.email "francesco.frigerio@greencore.it"
+          git add ./monitoring/latest_metrics.json
+          git commit -m "Auto: Reset del file semaforo metriche [skip ci]" || echo "Nessun reset necessario"
+          git pull origin main --rebase
+          git push || echo "Nessuna modifica remota da sincronizzare"
+
       # 2. Configura i permessi ed esegui lo script del DB
       - name: Esegui install_db.sh e aggiorna il db
         run: |

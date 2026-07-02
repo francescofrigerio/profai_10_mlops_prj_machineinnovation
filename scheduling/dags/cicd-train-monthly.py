@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime 
 import pendulum 
 
 from airflow import DAG
@@ -10,12 +10,19 @@ import json
 local_tz = pendulum.timezone("Europe/Rome")
 
 GIORNO=1
-MESE=1
+MESE=6
+
+# Per evitare bche airflow alla prima esecuzione
+# lanci due volte il dag
+default_args = {
+    'owner': 'airflow',
+}
 
 # DAG mensile
 with DAG(
     dag_id='mlops_ci_cd_train_monthly',
-    start_date=datetime(2026, GIORNO, MESE, tzinfo=local_tz),
+    default_args=default_args,
+    start_date=datetime(2026, MESE, GIORNO, tzinfo=local_tz),
     # Gira il 1° giorno di OGNI MESE a mezzanotte 
     # formato cron m h g m y
     schedule='0 0 1 * *',

@@ -114,7 +114,8 @@ nel file ./scheduling/docker-compose.yml
 
 AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: 'True'
 AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
-AIRFLOW__WEBSERVER__BASE_URL: 'https://turbo-space-fishstick-q47wggx66w63rg5-8080.app.github.dev'
+AIRFLOW__WEBSERVER__BASE_URL: 'http://localhost:8080'
+AIRFLOW_CONN_GITHUB_API: '{"conn_type": "http", "host": "api.github.com", "schema": "https" "password": "${GITHUB_PAT}"}'
 
 Credenziali di default di airflow
 login airflow 
