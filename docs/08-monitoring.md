@@ -16,9 +16,12 @@ Il sistema monitora costantemente le performance dell'API (latenza, numero di ri
 
 ## 4.  Dashboard di Grafana
 Abbiamo configurato una dashboard principale per il controllo della produzione.
-Credenziali di default di airflow
+In questa versione alpha del sistema sono state mantenute le 
+credenziali di default di airflow
+```bash
 login admin 
 password admin
+```
 
 * **Link alla Dashboard Live:** [Grafana Cloud Instance](Non disponibile)
 * **Backup JSON della Dashboard:** [grafana_dashboard.json](../monitoring/latest_metrics.json)
@@ -31,7 +34,7 @@ Ecco come appare il monitoraggio delle metriche:
 
 ## 6.  Alerting
 Gli alert su Airflow sono impostati per attivare il retraing se:
-* L'accuracy è inferiore a **0.8** .
+* L'accuracy è inferiore a **0.7** .
 
 ## 7. Manutenzione del sistema
 Ogni tanto occorre fare pulizia sul disco del codespace e cancellare i vecchi container
@@ -92,6 +95,7 @@ path: /var/lib/grafana/dashboards
 
 
 Query grafana panel table
+```bash
 SELECT
   -- 1. Converte il timestamp nel formato 
   -- richiesto da Grafana (Unix Epoch in secondi)
@@ -114,8 +118,10 @@ WHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000
 
 -- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente
 ORDER BY timestamp ASC
-
+```
 Query grafana panel time series
+
+```bash
  SELECT
   -- 1. Converte il timestamp nel formato
   -- richiesto da Grafana (Unix Epoch in secondi)
@@ -134,4 +140,5 @@ WHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000
   -- impone che il timestamp sia maggiore o uguale al primo dato storico reale
   AND timestamp >= (SELECT MIN(timestamp) FROM model_metrics_baseline WHERE accuracy IS NOT NULL)
 -- 4. Ordina i dati dal più vecchio al più recente per permettere a Grafana di tirare le linee correttamente
-ORDER BY timestamp ASC      
+ORDER BY timestamp ASC  
+```bash    

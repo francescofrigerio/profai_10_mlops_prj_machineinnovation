@@ -32,11 +32,19 @@ unita a un trigger automatico se il DAG di monitoraggio
 giornaliero rileva che le metriche di accuratezza sono scese sotto una certa soglia.
 
 Ecco gli step eseguiti dal monitoraggio continuo di Airflow
+
+
 ```mermaid
-   [STEP1: DAG Daily Monitoring]
+   [STEP1: Check Training]
+          │
+          ▼
+   [STEP2: Trigger Github Monitoring]
           │
           ▼
   [Workflow Monitoring]
+          │
+          ▼
+  [rename latest_metrics.json]
           │
           ▼
      [sqlite.db] 
@@ -45,25 +53,68 @@ Ecco gli step eseguiti dal monitoraggio continuo di Airflow
    [latest_metrics.json]
           │
           ▼
-[STEP2:DAG Daily Monitoring]
+[STEP3:Wait For Github File (HttpSensor)]
           │
-          ├─ accuracy >= 0.80
+          ▼
+          404
+          404
+          404
+          404
+          200  il file è stato rigenerato
+          │
+          ▼
+[STEP4:Branch On Metrics (compare latest_metrics with treshold=0.7)]
+          │
+          ├─ accuracy >= 0.70
           │      STOP
           │
-          └─ accuracy < 0.80
+          └─ accuracy < 0.70
                  │
                  ▼
           [Workflow Retrain]
 ```
 .
-STEP1: Lo script analizza il database SQLite con i dati reali raccolti da Hugging Face
+In pratica Abbiamo 5 step nel dag di monitoraggio e due possibili flussi
+```bash
+# opzione 1 il dag termina senza eseguire il retrain (accuracy >= 0.7 )
+check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on_metrics >> end_monitoring
+
+# opzione 2 il dag esegue il retrain (accuracy < 0.7 )
+check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on_metrics >> trigger_emergency_retrain
+```
+
+Ecco come funziona logicamente il flusso MLOps:
+
+STEP1:
+Controlla solo che non sia in corso un'altro training
+per non lanciarne due.
+
+STEP2:
+trigger_github_monitoring (HttpOperator): Dice a GitHub "Fai partire il workflow di monitoraggio". 
+Se Riceve un codice 204 (OK, ho recepito l'ordine) e termina immediatamente. 
+Non sa quando il workflow su GitHub finirà davvero.
+Intanto su github il workflow parte e analizza il database SQLite con i dati reali 
 e genera il file latest_metrics.json.
 
-STEP2: Se le metriche scendono sotto la soglia critica (accuracy=0.80), Airflow intercetta 
-il fallimento e attiva immediatamente il DAG di Retrain, 
-senza aspettare la fine del mese.
+STEP3:
+wait_for_github_file (HttpSensor):  
+Invece di far fermare tutto il codice con un pesante time.sleep(180),
+(usato nelle prime versioni del dag)
+questo sensore fa una chiamata HTTP veloce a GitHub ogni 30 secondi 
+(poke_interval=30) chiedendo: 
+"C'è il file JSON aggiornato?".
+Se GitHub risponde 404 (il file non c'è ancora o si sta aggiornando), 
+il sensore si "addormenta" (mode='reschedule') liberando la CPU del Codespace.
+Dopo 30 secondi ci riprova. 
+Appena riceve 200 (File pronto!), 
+il task diventa verde e passa al punto successivo.
+
+branch_on_metrics (BranchPythonOperator): 
+Legge il contenuto del file JSON, sicuro al 100% 
+che il file esista e sia aggiornato, confrontando l'accuratezza con la soglia.
 
 
+              
 ## 3. Manutenzione del sistema
 per fare pulizia sul disco e cancellare i vecchi container
 ```bash
@@ -111,15 +162,18 @@ docker ps
 Dopo l'esecuzione controllare la visibilita della porta after 8080
 Se non funziona aggiungere la seguente configurazione all'environment
 nel file ./scheduling/docker-compose.yml
-
+```bash
 AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: 'True'
 AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
-AIRFLOW__WEBSERVER__BASE_URL: 'http://localhost:8080'
 AIRFLOW_CONN_GITHUB_API: '{"conn_type": "http", "host": "api.github.com", "schema": "https" "password": "${GITHUB_PAT}"}'
+```
 
-Credenziali di default di airflow
+In questa versione alpha del sistema sono state mantenute
+le credenziali di default di airflow
+```bash
 login airflow 
 password airflow
+```
 
 4.3. Creazione DAG (Directed Acyclic Graph)
 Valgono le seguenti considerazioni prese dalla documentazione

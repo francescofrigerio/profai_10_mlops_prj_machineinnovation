@@ -37,21 +37,23 @@ python -c "from transformers import AutoModelForSequenceClassification"
 
 ## 5. OUTPUT DELL'HELP IN LINEA
 1. Verifica Python (max versione 3.12)
-Python 3.12.1
+
 
 2. SCRIPT D'INSTALLAZIONE CONTROLLO MODIFICA E RESET ENVIRONMEN
-2.1 -> setup.sh --init  (inizializza progetto , install. librerie/venv) 
-2.2 -> setup.sh --change  (modifica struttura progetto , installazione nuove librerie) 
-2.3 -> setup.sh --install  (installazione librerie tramite requirements.txt) 
-2.4 -> setup.sh --checks  (controllo GPU/CPU verifica installazione librerie) 
-2.5 -> source .venv/bin/activate per attivare l'ambiente virtuale
-2.6 -> deactivate per disattivare l'ambiente virtuale
-2.7 -> ruff check file.py controllo superficiale di un file python
-2.8 -> cd src + PYTHONPATH=. pylint train/train_baseline.py per controllo profondo di un file python
-2.9 -> ./run_train_prod.sh Training in produzione (--demo per un training demo veloce)
-2.10-> ./run_train_debug.sh Training in debug(default)
-2.11 -> ./run_pipe_prod.sh Pipeline Inference in produzione
-2.12 -> ./run_pipe_debug.sh Pipeline Inference in debug
+```bash
+setup.sh --init  # (inizializza progetto , install. librerie/venv) 
+setup.sh --change  # (modifica struttura progetto , installazione nuove librerie) 
+setup.sh --install  #  (installazione librerie tramite requirements.txt) 
+setup.sh --checks  #  (controllo GPU/CPU verifica installazione librerie) 
+source .venv/bin/activate #  per attivare l'ambiente virtuale
+deactivate #  per disattivare l'ambiente virtuale
+ruff check file.py #  controllo superficiale di un file python
+cd src + PYTHONPATH=. pylint train/train_baseline.py #  per controllo profondo di un file python
+./run_train_prod.sh #  Training in produzione (--demo per un training demo veloce)
+./run_train_debug.sh #  Training in debug(default)
+./run_pipe_prod.sh #  Pipeline Inference in produzione
+./run_pipe_debug.sh #  Pipeline Inference in debug
+```
 
 ## 6. PULIZIA DEL DISCO FISSO
 Lavorando con sviluppo e test spesso si riempie il disco
@@ -65,19 +67,19 @@ Il seguente comando segnala occupazione disco sopra il 95%
 df -h /workspaces 
 ```
 
-Il seguente comando trova i 10 files che occpano + spazio
+Il seguente comando trova i 10 files che occupano + spazio
 ``` bash
 sudo find / -type f -not -path '*/.git/*' -not -path '/proc/*' -not -path '/sys/*' -exec du -h {} + 2>/dev/null | sort -rh | head -n 10
 ```
 
-I seguenti comandi Cancellano qualcuno dei files elencati
+I seguenti comandi cancellano uno dei files elencati
 ```bash
 ls /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/
 rm -rf ls 593167092950942131/*
 ls /home/codespace/.cache/huggingface/hub/
 rm -rf /home/codespace/.cache/huggingface/hub/*
 
-# se ho già salvato il modello da qualche parte
+# se abbiamo già salvato il modello da qualche parte
 rm -rf /workspaces/profai_10_mlops_prj_machineinnovation/src/outputs-baseline-prod/model_weights/checkpoint-20
 
 pip cache info
@@ -87,7 +89,7 @@ du -h --max-depth=1 | sort -hr
 
 ```
 
-Ricontrollo occupazione disco sotto il 95%
+Ricontrollare occupazione disco sotto il 95%
 ```bash
 df -h /workspaces 
 ```
@@ -99,7 +101,7 @@ docker builder prune -a -f
 ```
 
 ## 7. NOTA PER GITHUB
-In caso il push dia il seguente errore :
+In caso il comando git push da il seguente errore :
 
 error: failed to push some refs to 'https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation'
 hint: Updates were rejected because the remote contains work that you do not

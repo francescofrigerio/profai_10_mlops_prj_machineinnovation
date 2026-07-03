@@ -4,7 +4,7 @@
 Descrizione ,note e link per l'utilizzo dell'interfaccia web che eroga il servizio di predizione del sentiment del modello.
 
 ## 2. Contenuto del file requirements:
-
+ ```bash
 fastapi
 uvicorn
 pydantic
@@ -13,6 +13,7 @@ transformers
 sentencepiece
 protobuf
 huggingface-hub
+ ```
 
 Nota sulla riga torch:
 Il progetto gira(codespace di github e Space di Hugging Face) su CPU. 
@@ -39,7 +40,10 @@ perchè molte librerie Python non distribuiscono sempre i binari pre-compilati (
 Vedere anche le best praticse
 https://docs.docker.com/build/building/best-practices/
 
-Comando eseguito : rm -rf /var/lib/apt/lists/*.
+Comando eseguito : 
+ ```bash
+rm -rf /var/lib/apt/lists/*.
+ ```
 
 Quando si esegue apt-get update, Debian/Ubuntu scarica i registri di tutti i pacchetti disponibili su internet, creando centinaia di megabyte di file di cache dentro il container. 
 Se non vengono cancellati nella stessa identica riga (RUN) 
@@ -48,7 +52,11 @@ Vedere anche la pagina dedicata alla build della cache
 https://docs.docker.com/build/cache/
 
 ## 6. Per fare il deploy su Hugging face
-eseguire deploy_space.sh
+eseguire 
+ ```bash
+ cd model_serving
+./deploy_space.sh
+ ```
 
 ## 7. Aggiornare github e allineare il local space
 
@@ -56,9 +64,11 @@ eseguire deploy_space.sh
 dalla dir locale collegata a github alla dir locale collegata allo space.
 
 ## 9. Test in locale(pc, codespace) con i seguenti script curl
+ ```bash
 model_serving/test_predict_from_app.sh esegue una post  
 model_serving/test_predict_from_web.sh esegue una post
-
+ ```
+ 
 ## 10. E' possibile anche testare la get direttamente sul browser
 con il seguente url:
 

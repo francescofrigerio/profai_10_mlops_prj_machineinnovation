@@ -1,6 +1,6 @@
 # MACHINE INNOVATION - PROJECT OVERVIEW
 
-Questo documento fornisce una descrizione ad alto livello dell'architettura e dei flussi di lavoro del progetto Machine Innovation, evidenziando le interazioni, i trigger e lo scambio di dati tra i vari componenti del sistema.
+Questo documento fornisce una descrizione ad alto livello dell'architettura e dei flussi del progetto Machine Innovation, evidenziando le interazioni, i trigger e lo scambio di dati tra i vari componenti del sistema MLops.
 
 ```mermaid
 graph TD
@@ -59,12 +59,21 @@ Machine Innovation è basato su un modello di NLP per la Sentiment Analysis.
 Modello utilizzato: twitter-roberta-base-sentiment-latest (inizializzato su architettura RoBERTa/FastText) ottimizzato per il riconoscimento del sentiment su testi social.
 
 Dataset: tweeteval (specifico per compiti di classificazione di tweet).
+https://github.com/cardiffnlp/tweeteval
 
-Modalità di Esecuzione:
+Modalità di Esecuzione: (prod/demp/debug) Per non confondere le diverse modalità sono stati introdotti i campi timestamp e dom_name su ogni record del database metrics.db
 
 prod (Produzione): Addestramento completo, lento ma accurato. Garantisce l'affidabilità del modello finale da distribuire agli utenti.
+Il campo dom_name può contenere train-sent-analysis-prod oppure test-sent-analysis-prod.
+I record al momento non sono mai cancellati visto che i dati sono limitati.
 
-debug (Sviluppo/Demo/Test): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per demo rapide o test d'integrazione senza spreco di risorse computazionali.
+demo (Demo/Test): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per demo rapide o test d'integrazione senza spreco di risorse computazionali. E' la stessa parametrizzazione della versione in debug solo che l'output è nelle stesse cartelle della produzione.
+Il campo dom_name può contenere train-sent-analysis-demo oppure test-sent-analysis-demo
+I record sono cancellati in fase di retention nel worflow di monitoraggio per non appesantire i grafici e sono mantenuti solo gli ultimi 10 records.
+
+debug (solo sviluppo nel codespace): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per test di sviluppo senza spreco di risorse computazionali.
+Il campo dom_name può contenere train-sent-analysis-debug oppure test-sent-analysis-debug
+I record sono cancellati in fase di retention nel worflow di monitoraggio per non appesantire i grafici.
 
 
 2. MODEL SERVING (Hugging Face & FastAPI)
@@ -102,10 +111,11 @@ Garantisce la trasparenza e la tracciabilità delle performance dei modelli stor
 
 Trigger: Si attiva ad ogni push diretto su main (escludendo le pull_request per evitare ridondanze in fase di sviluppo).
 
-Funzionamento: 1.  Istanzia un container Docker temporaneo con Grafana.
+Funzionamento: 
+1.  Istanzia un container Docker temporaneo con Grafana.
 2.  Carica l'ultimo database SQLite (metrics.db) generato dall'ultimo addestramento.
 3.  Genera automaticamente gli screenshot in formato .png dei grafici chiave della dashboard.
-4.  Esporta un file(latest_metrics.json) consolidato contenente le ultime metriche registrate (accuratezza, loss, f1-score).
+4.  Esporta un file(latest_metrics.json) consolidato contenente le ultime metriche registrate (accuratezza, precision,recall, f1-score).
 
 
 5. SCHEDULAZIONE & ORCHESTRAZIONE (Apache Airflow)
@@ -122,13 +132,13 @@ Schedulazione: Gira ogni giorno alle 08:40.
 Azione: Scarica ed esamina il file delle ultime metriche generate.
 
 Gestione del Drift: Valuta l'accuratezza dell'ultimo modello. 
-Se l'accuratezza scende sotto la soglia di guardia di 0.80 ($Accuracy < 0.80$), 
+Se l'accuratezza scende sotto la soglia di guardia di 0.70 ($Accuracy < 0.70$), 
 Airflow rileva un Model Drift (deterioramento delle prestazioni) e anticipa immediatamente l'avvio del Retrain chiamando il workflow di train su GitHub, senza aspettare la fine del mese.
 
 6. COLLEGAMENTI E FLUSSO LOGICO DEI DATI
 
 Raccolta Dati & Monitoraggio (Airflow giornaliero): 
-Airflow monitora le metriche. Se l'accuratezza è ottimale ($>0.80$), 
+Airflow monitora le metriche. Se l'accuratezza è ottimale ($>0.70$), 
 il sistema rimane silente.
 
 Rilevamento del Drift o Scadenza Mensile: 

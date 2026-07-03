@@ -17,8 +17,16 @@ Per comprendere a fondo il progetto, si consiglia di leggere la documentazione n
 
 [![Premere Run Workflows per avviare il monitoraggio](https://img.shields.io/badge/GitHub%20Actions-Premere%20Run%20Workflow%20per%20avviare%20il%20monitoraggio-blue?style=for-the-badge&logo=github)](https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/monitoring-metrics.yml)
 
+
 ![Table Training](./images/dashboard_timeseries.png).
+
+
 ![Time Series Training](./images/dashboard_table.png).
+
+![Roc Curce Training](./src/outputs-baseline-prod/roc_curve.png).
+
+
+![Confusion Matrix Training](./src/outputs-baseline-prod/confusion_matrix.png).
 
 
 
