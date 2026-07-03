@@ -12,14 +12,12 @@ from airflow.sdk.exceptions import AirflowFailException
 # 2. Import degli Operatori Standard e Python
 from airflow.providers.standard.operators.python import PythonOperator                                            
 from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator 
-from airflow.providers.standard.operators.python import BranchPythonOperator
-from airflow.providers.standard.operators.empty import EmptyOperator
 
 # 3. Import del pacchetto HTTP (Tutti uniti qui, senza duplicati!)
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.http.sensors.http import HttpSensor
+# from airflow.providers.http.hooks.http_hook import HttpHook
 from airflow.providers.http.hooks.http import HttpHook
-
 
 # Definisce il fuso orario italiano
 local_tz = pendulum.timezone("Europe/Rome")
@@ -48,7 +46,7 @@ def check_training_concurrency(**kwargs):
     except Exception as e:
         print(f"Impossibile interrogare l'API interna ({e}). Fallback sicuro...")
 
-def decide_next_step(**kwargs):
+def check_model_metrics_from_github(**kwargs):
     """
     Questo task viene eseguito SOLO DOPO che l'HttpSensor ha confermato 
     che il file su GitHub esiste ed è pronto. 
@@ -76,11 +74,9 @@ def decide_next_step(**kwargs):
     if current_accuracy < TRESHOLD_VALUE:
         print(f"RETRAIN NECESSARIO: {current_accuracy} < {TRESHOLD_VALUE}")
         # Solleviamo un'eccezione esplicita per contrassegnare il task come FAILED
-        # raise AirflowFailException(f"Accuratezza sotto la soglia: {current_accuracy}")
-        return "trigger_emergency_retrain"
-    else:  
-        print("Monitoraggio superato. Il modello è stabile.")
-        return "end_monitoring"
+        raise AirflowFailException(f"Accuratezza sotto la soglia: {current_accuracy}")
+        
+    print("Monitoraggio superato. Il modello è stabile.")
 
 GIORNO=1
 MESE=6
@@ -118,6 +114,26 @@ with DAG(
         python_callable=check_training_concurrency,
     )
 
+    # TASK 2: lancia il workflow che genera i grafici e aggiorna il DB
+    # trigger_github_monitoring = HttpOperator(
+    #     task_id='trigger_github_monitoring_metrics',
+    #    http_conn_id='github_api',  
+    #    endpoint='repos/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/monitoring-metrics.yml/dispatches',
+    #    method='POST',
+        # Inv  il body richiesto da GitHub per l'evento workflow_dispatch
+        # rende dinamico il body usando {{ params.execution_mode }}
+    #    data=json.dumps({   "ref": "main",
+    #                        "inputs": {
+    #                            "mode": "{{ params.execution_mode }}"
+    #                        }
+    #                    }),
+    #    headers={
+    #        "Authorization": "Bearer {{ conn.github_api.password }}", 
+    #        "Accept": "application/vnd.github+json",
+    #        "X-GitHub-Api-Version": "2022-11-28"
+    #    },
+    #    response_check=lambda response: response.status_code == 204, 
+    # )
     # TASK 2: Trigger del workflow GitHub (Asincrono, non aspetta il completamento)
     trigger_github_monitoring = HttpOperator(
         task_id='trigger_github_monitoring_metrics',
@@ -154,26 +170,25 @@ with DAG(
     )
 
     # TASK 4: verifica effetiva della soglia di accuratezza, legge il file JSON da GitHub
-    branch_on_metrics = BranchPythonOperator( task_id="branch_on_metrics",
-                                              python_callable=decide_next_step,
-                                          )
+    verify_metrics_threshold = PythonOperator( task_id='verify_metrics_threshold',
+                                                python_callable=check_model_metrics_from_github,
+                                             )
 
-    # OPTION1 OF BranchPythonOperator
-    # TASK 5: End monitoring, non fa nulla, serve solo per chiudere il flusso
-    end_monitoring = EmptyOperator(task_id="end_monitoring")
-
-    # OPTION2 OF BranchPythonOperator
-    # eseguito solo se l'accuracy è sotto la soglia
+    # TASK 5: Scatta SOLO se il TASK 4 fallisce (trigger_rule='one_failed')
+    # quindi solo se l'accuracy è sotto la soglia
     trigger_emergency_retrain = TriggerDagRunOperator( task_id='trigger_emergency_retrain', 
-                                                       trigger_dag_id=TRAINING_DAG_ID,
-                                                       conf={"reason": f"Automatic trigger due to performance drop under {TRESHOLD_VALUE}",
-                                                            }
-                                                    )
+                                            trigger_dag_id=TRAINING_DAG_ID,
+                                            trigger_rule='one_failed',                
+                                            # Gira solo se verify_metrics_threshold va in ERRORE
+                                            conf={"reason": "Automatic trigger due to performance drop under 0.80"},
+                                            )
 
-    # OPTION1 ON RUNTIME
-    check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on_metrics >> end_monitoring
+    # trigger_github_monitoring >> verify_metrics_threshold >> trigger_emergency_retrain
+    # check_training >> trigger_github_monitoring >> verify_metrics_threshold
+    # Il trigger di emergenza dipende DIRETTAMENTE e SOLO dal task di verifica metriche
+    # verify_metrics_threshold >> trigger_emergency_retrain
 
-    # OPTION2 ON RUNTIME
+    # 
     # Ecco come funziona logicamente il flusso MLOps:
     # trigger_github_monitoring (HttpOperator): Dice a GitHub "Fai partire il workflow". 
     # Riceve un codice 204 (OK, ho recepito l'ordine) e termina immediatamente. 
@@ -192,5 +207,5 @@ with DAG(
     # verify_metrics_threshold (PythonOperator): 
     # Legge finalmente il contenuto del file JSON, sicuro al 100% 
     # che il file esista e sia aggiornato, confrontando l'accuratezza.
-    check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on_metrics >> trigger_emergency_retrain
+    check_training >> trigger_github_monitoring >> wait_for_github_file >> verify_metrics_threshold >> trigger_emergency_retrain
 
