@@ -132,11 +132,18 @@ jobs:
           echo "=== Contenuto di ./images/ "
           ls -lrt ./images/ || true
           
-      # Retention dei dati 
+      # Retention dei dati solo per debug e demo
+      # per il momento non cancello mai i dati di produzione
       - name: Retention dei dati sul db
         run: |
           sqlite3 /opt/machineinnovation/db/metrics.db "
-             DELETE FROM model_metrics_baseline WHERE timestamp < datetime('now', '-365 days');
+             
+             DELETE FROM model_metrics_baseline 
+             WHERE dom_name like '%debug';
+
+             DELETE FROM model_metrics_baseline 
+             WHERE dom_name like '%demo' 
+             AND timestamp < datetime('now', '-10 days');
           "
 
       - name: Estrai tutti i dati e salva JSON
