@@ -1,0 +1,9 @@
+# 1. Analisi Esplorativa del Progetto.
+https://colab.research.google.com/drive/17HCeprkOP-aWqEG9zJ9RxuqIW1aIBwTX?usp=sharing
+
+# 2. LINK CORRELATI: TEMPLATES PER TRAINING
+template training baseline
+https://colab.research.google.com/drive/1h_1OgheIrauXtDKy9wah1S1vNsOHS7B2?usp=sharing) 
+
+template training finetuning mlm
+https://colab.research.google.com/drive/15vppELulgC2xW97ivuhQNWVM913_kSIh?usp=sharing) 

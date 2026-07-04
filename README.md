@@ -1,6 +1,6 @@
 # Progetto: Monitoraggio della reputazione online di un’azienda 
 
-## Guida alla Documentazione
+## 1. Guida alla Documentazione
 
 Per comprendere a fondo il progetto, si consiglia di leggere la documentazione nella cartella `docs/` seguendo l'ordine logico:
 
@@ -14,14 +14,20 @@ Per comprendere a fondo il progetto, si consiglia di leggere la documentazione n
 8. [08 - Monitoraggio](docs/08-monitoring.md): Dashboard Grafana e logica di alerting.
 9. [09 - Schedulazione e Orchestrazione](docs/09-scheduling.md) Retrain automatico e Monitoraggio continuo
 10. [10 - Specifiche iniziali del Progetto](docs/10-technical-specifications.md)
+11. [11 - Risultati Scelte Future Versioni](docs/11-scores-choices-insights.md)
+
+## 2. Accesso al workflow di Monitoraggio
 
 [![Premere Run Workflows per avviare il monitoraggio](https://img.shields.io/badge/GitHub%20Actions-Premere%20Run%20Workflow%20per%20avviare%20il%20monitoraggio-blue?style=for-the-badge&logo=github)](https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation/actions/workflows/monitoring-metrics.yml)
 
+## 3. Grafici Monitoraggio
 
 ![Table Training](./images/dashboard_timeseries.png).
 
 
 ![Time Series Training](./images/dashboard_table.png).
+
+## 4. Grafici Addestramento
 
 ![Roc Curce Training](./src/outputs-baseline-prod/roc_curve.png).
 

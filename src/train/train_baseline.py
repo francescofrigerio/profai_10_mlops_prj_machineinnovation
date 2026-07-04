@@ -345,11 +345,11 @@ def insert_table_baseline( metrics,
 
         
             # Inserimento manuale
-            # cursor.execute("""INSERT INTO model_metrics_baseline
-            #           (timestamp, dom_name,exp_id,accuracy, precision, recall, f1_score)
-            #           VALUES (?,?,?,?,?,?,?)
-            #        """,
-            #        (timestamp,dom_name,exp_id, acc, prec, rec, f1))
+            cursor.execute("""INSERT INTO model_metrics_baseline
+                       (timestamp, dom_name,exp_id,accuracy, precision, recall, f1_score)
+                       VALUES (?,?,?,?,?,?,?)
+                    """,
+                    (timestamp,dom_name,exp_id, acc, prec, rec, f1))
 
             # Retention demo mode
             cursor.execute(""" DELETE FROM model_metrics_baseline 

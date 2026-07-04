@@ -14,7 +14,8 @@ In fondo si trovano anche accenni sull'installazione per sistemisti e sviluppato
 di data drift ( improvvisi cambi repentini di trend di mercato). 
 
 cco gli step eseguiti dal retraining automatico di Airflow
-```mermaid
+
+```text
  [DAG Retrain Mensile]
           │
           ▼
@@ -34,7 +35,7 @@ giornaliero rileva che le metriche di accuratezza sono scese sotto una certa sog
 Ecco gli step eseguiti dal monitoraggio continuo di Airflow
 
 
-```mermaid
+```text
    [STEP1: Check Training]
           │
           ▼

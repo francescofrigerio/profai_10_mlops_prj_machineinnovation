@@ -103,8 +103,8 @@ with DAG(
     # Definisce il parametro che appare sulla UI di Airflow
    params={
         "execution_mode": Param(
-            default="demo", 
-            # default="prod",
+            # default="demo", 
+            default="prod",
             type="string", 
             enum=["demo", "prod"], 
             description="Seleziona la modalità di esecuzione per GitHub Actions"
@@ -174,23 +174,26 @@ with DAG(
     check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on_metrics >> end_monitoring
 
     # OPTION2 ON RUNTIME
-    # Ecco come funziona logicamente il flusso MLOps:
-    # trigger_github_monitoring (HttpOperator): Dice a GitHub "Fai partire il workflow". 
+    # come funziona logicamente il flusso MLOps:
+    
+    # 1) trigger_github_monitoring (HttpOperator): 
+    # come se dicesse a GitHub "Fai partire il workflow". 
     # Riceve un codice 204 (OK, ho recepito l'ordine) e termina immediatamente. 
     # Non sa quando il workflow su GitHub finirà davvero.
-    # wait_for_github_file (HttpSensor): Entra in gioco subito dopo. 
+    
+    # 2) wait_for_github_file (HttpSensor): Entra in gioco subito dopo. 
     # Invece di far fermare tutto il codice con un pesante time.sleep(180),
-    # usato nelle prime versioni del codice 
+    # come nelle prime versioni del codice 
     # questo sensore fa una chiamata HTTP veloce a GitHub ogni 30 secondi 
-    # (poke_interval=30) chiedendo: 
-    # "C'è il file JSON aggiornato?".
+    # (poke_interval=30) come se chiedesse: "C'è il file JSON aggiornato?".
+    
     # Se GitHub risponde 404 (il file non c'è ancora o si sta aggiornando), 
-    # il sensore si "addormenta" (mode='reschedule') liberando la CPU del tuo Codespace.
+    # il sensore si "addormenta" (mode='reschedule') liberando la CPU del Codespace.
     # Dopo 30 secondi ci riprova. 
     # Appena riceve 200 (File pronto!), 
-    # il task diventa verde e passa la palla al punto successivo.
-    # verify_metrics_threshold (PythonOperator): 
-    # Legge finalmente il contenuto del file JSON, sicuro al 100% 
-    # che il file esista e sia aggiornato, confrontando l'accuratezza.
+    # il task diventa verde e passa al punto successivo.
+    # decide_next_step (BranchPythonOperator): 
+    # Alla fine viene Letto il contenuto del file JSON, sicuro al 100% 
+    # che il file esista e sia aggiornato, confrontando l'accuratezza con la soglia
     check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on_metrics >> trigger_emergency_retrain
 
