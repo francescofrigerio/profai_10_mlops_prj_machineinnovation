@@ -335,20 +335,34 @@ def insert_table_baseline( metrics,
         ass_path = os.path.abspath(path_connect)
         logger.info(f"[insert_table_baseline] append sul file fisico: {ass_path}")
 
-        conn = sqlite3.connect(path_connect)
-        cursor = conn.cursor()
+        # conn = sqlite3.connect(path_connect)
+        # cursor = conn.cursor()
+        with sqlite3.connect(path_connect) as conn:
+            cursor = conn.cursor()
 
-        logger.info(f"[insert_table_baseline] execute insert to {path_connect}")
 
-        # Inserimento manuale
-        cursor.execute("""INSERT INTO model_metrics_baseline
-                      (timestamp, dom_name,exp_id,accuracy, precision, recall, f1_score)
-                      VALUES (?,?,?,?,?,?,?)
-                   """,
-                   (timestamp,dom_name,exp_id, acc, prec, rec, f1))
+            logger.info(f"[insert_table_baseline] execute insert to {path_connect}")
 
-        conn.commit()
-        conn.close()
+        
+            # Inserimento manuale
+            # cursor.execute("""INSERT INTO model_metrics_baseline
+            #           (timestamp, dom_name,exp_id,accuracy, precision, recall, f1_score)
+            #           VALUES (?,?,?,?,?,?,?)
+            #        """,
+            #        (timestamp,dom_name,exp_id, acc, prec, rec, f1))
+
+            # Retention demo mode
+            cursor.execute(""" DELETE FROM model_metrics_baseline 
+                            WHERE dom_name like '%demo' 
+                            AND timestamp < datetime('now', '-10 days');
+                       """)
+            cursor.execute(""" DELETE FROM model_metrics_baseline 
+                            WHERE dom_name like '%debug' 
+                            AND timestamp < datetime('now', '-1 days');
+                       """)
+            # non serve con with
+            # conn.commit()
+            # conn.close()
         
         logger.info(f"[insert_table_baseline] ok record inseriti in {path_connect}")
         

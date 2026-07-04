@@ -6,6 +6,7 @@ on:
       - "main"
     paths:
       # si attiva solo se sono i modificati i files
+      # quindi se è girato un training e sono stati generatu nuovi dati
       - 'src/outputs-baseline-prod/*.db'
       - 'src/outputs-baseline-prod/*.png'
       - 'src/outputs-baseline-debug/*.db'
@@ -132,20 +133,6 @@ jobs:
           echo "=== Contenuto di ./images/ "
           ls -lrt ./images/ || true
           
-      # Retention dei dati solo per debug e demo
-      # per il momento non cancello mai i dati di produzione
-      - name: Retention dei dati sul db
-        run: |
-          sqlite3 /opt/machineinnovation/db/metrics.db "
-             
-             DELETE FROM model_metrics_baseline 
-             WHERE dom_name like '%debug';
-
-             DELETE FROM model_metrics_baseline 
-             WHERE dom_name like '%demo' 
-             AND timestamp < datetime('now', '-10 days');
-          "
-
       - name: Estrai tutti i dati e salva JSON
         run: |
           sqlite3 -json /opt/machineinnovation/db/metrics.db "
