@@ -354,7 +354,7 @@ def insert_table_baseline( metrics,
             # Retention demo mode
             cursor.execute(""" DELETE FROM model_metrics_baseline 
                             WHERE dom_name like '%demo' 
-                            AND timestamp < datetime('now', '-10 days');
+                            AND timestamp < datetime('now', '-30 days');
                        """)
             cursor.execute(""" DELETE FROM model_metrics_baseline 
                             WHERE dom_name like '%debug' 
