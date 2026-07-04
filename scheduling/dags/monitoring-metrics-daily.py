@@ -70,11 +70,14 @@ def decide_next_step(**kwargs):
 
     metrics = data_list[0]
     current_accuracy = float(metrics.get("accuracy", 0))
+    current_f1_score = float(metrics.get("f1_score", 0))
     
     print(f"Ultima Accuracy estratta = {current_accuracy}")
-    
-    if current_accuracy < TRESHOLD_VALUE:
-        print(f"RETRAIN NECESSARIO: {current_accuracy} < {TRESHOLD_VALUE}")
+    print(f"Ultima F1 Score estratta = {current_f1_score}")
+
+    if current_accuracy < TRESHOLD_VALUE or current_f1_score < TRESHOLD_VALUE:
+        print(f"START RETRAIN current_accuracy: {current_accuracy} < {TRESHOLD_VALUE}")
+        print(f"START RETRAIN current_f1_score: {current_f1_score} < {TRESHOLD_VALUE}")
         # Solleviamo un'eccezione esplicita per contrassegnare il task come FAILED
         # raise AirflowFailException(f"Accuratezza sotto la soglia: {current_accuracy}")
         return "trigger_emergency_retrain"

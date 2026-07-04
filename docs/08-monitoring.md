@@ -62,6 +62,7 @@ docker system prune -f
 
 docker compose up -d
 docker logs grafana
+sudo lsof -i :3000
 ```
 
 note path sul file docker-compose.yml
