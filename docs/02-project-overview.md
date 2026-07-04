@@ -69,11 +69,11 @@ I record al momento non sono mai cancellati visto che i dati sono limitati.
 
 demo (Demo/Test): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per demo rapide o test d'integrazione senza spreco di risorse computazionali. E' la stessa parametrizzazione della versione in debug solo che l'output è nelle stesse cartelle della produzione.
 Il campo dom_name può contenere train-sent-analysis-demo oppure test-sent-analysis-demo
-I record sono cancellati in fase di retention nel worflow di monitoraggio per non appesantire i grafici e sono mantenuti solo gli ultimi 10 records.
+I record sono cancellati in fase di retention nel codice del training per non appesantire i grafici e sono mantenuti solo gli ultimi 10 records.
 
 debug (solo sviluppo nel codespace): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per test di sviluppo senza spreco di risorse computazionali.
 Il campo dom_name può contenere train-sent-analysis-debug oppure test-sent-analysis-debug
-I record sono cancellati in fase di retention nel worflow di monitoraggio per non appesantire i grafici.
+A parte i dati di oggi e ieri i record sono cancellati in fase di retention nel codice del training per non appesantire i grafici.
 
 
 2. MODEL SERVING (Hugging Face & FastAPI)
