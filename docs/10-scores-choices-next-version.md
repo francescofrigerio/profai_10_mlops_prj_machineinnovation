@@ -1,16 +1,16 @@
 # MACHINE INNOVATION RISULTATI SCELTE PROSSIMA VERSIONE
 
-## 1. `11-scores-choices-next-version.md`
+## 1. `10-scores-choices-next-version.md`
 
 ## 2. RISULTATI 
-Le prestazioni sono stabilmente discrete sopra lo 0.70
+In produzione (mode=prod) le prestazioni sono stabilmente sopra lo 0.70 (discrete)
 su tutte le metriche (accuracy , precision , recall , f1_score).
 Non sono stati raggiunti risultati migliori per l'esiguo numero di epoche = 2
 definito in fase di parametrizzazione del training.
 Avendo poche risorse a disposizione e considerato che le specifiche
 non prevedono di ottimizzare le prestazioni del modello si è preferito
 dedicare tempo e risorse alla progettazione e orchestrazione del progetto MLops
-che invece è previsto dalle specifiche. 
+come previsto dalle specifiche. 
 ```bash
 [{"accuracy":0.712959947899706958,
   "precision":0.719111669048697055,
@@ -21,17 +21,17 @@ che invece è previsto dalle specifiche.
 
 ## 3. SCELTE
 Si è deciso di introdurre due modalità di esecuzione del train prod e demo.
-La modalità prod permette di generare i dati reali ed effettive di produzione.
+La modalità prod permette di generare i dati reali ed effettivi di produzione.
 La modalita demo permette di eseguire dei test in produzione ed è stato
 infatti possibile testare l'orchestrazione del dag giornaliero
 di monitoraggio che lancia in automatico il train tutte le volte
-che l'accuracy scende sotto la soglia dello 0.7. 
+che l'accuracy o l'f1_score scendono sotto la soglia dello 0.7. 
 
 ## 4. PROSSIMA VERSIONE
 Nelle prossime versioni vanno valutate le seguenti modifiche:
 
 - Valuatre con maggiore attenzione il valore degli hiperparametri 
-del training in particolare aumentare il numero di epoche = 2.
+del training in particolare aumentare il numero di epoche come minimo a 3.
 
 - Valutare se non sia il caso , sopratutto in caso
 il sistema dovesse essere usato in un contesto più dinamico
@@ -41,13 +41,13 @@ ad una logica "Cold Warm" (addestramento che parte dal migliore dei modelli
 in uscita dai precedenti training).
 
 - Valutare l'aggiunta di tecniche avanzate di fine tuning come la 
-Domain Adaptation (MLM) prima della classificazione, è una pratica utile con Twitter 
-dove il linguaggio è molto poco formale.
+Domain Adaptation (MLM) prima della classificazione.
+E' una pratica utile con Twitter dove il linguaggio è poco formale.
 Si tratta di Aggiungere rispetto al flusso baseline la classificazione MLM sul dominio
 e il Fine-tuning sentiment per migliorare accuracy, robustezza, gestione del sarcasmo 
 e del parlare in gergo.
 
-FLUSSO DEL FINE TUNING CON MLM
+FLUSSO DEL FINE TUNING CON MLM ADAPTION
 ```text
 RAW TWEETS
    ↓

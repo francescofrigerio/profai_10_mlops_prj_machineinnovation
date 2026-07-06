@@ -1,20 +1,22 @@
                 # MACHINE INNOVATION TRAINING  
 
-## 1. `03-ml-training.md`
-Descrizione ,comandi e note per il training del modello di Sentiment Analysis
+## 1. ADDESTRAMENTO DEL MODELLO DI ML `04-ml-training.md`
+Descrizione e note per il training del modello di Sentiment Analysis
 
 Il training viene eseguito in modalita baseline (Cold Start)
 che è consigliabile quando dati sono sempre gli stessi perchè conviene ripartire sempre dallo modello scaricato
 e riaddestrare da zero sull'intero dataset.(modalita prod) mentre solo ai fine dimostrativo o di test si considera solo una parte del dataset (modalità demo).
-VANTAGGI E SVANTAGGI
+
+Cold Start : VANTAGGI 
 Non c'è rischio di "data leakage" (contaminazione dei dati) 
 o di catastrophic forgetting (il modello che dimentica la lingua generale per concentrarsi troppo sui dati).
 
+Cold Start : SVANTAGGI 
 Spreca un'immensa quantità di tempo e potenza di calcolo (GPU). Se il dataset cresce nel tempo,
 ogni addestramento durerà sempre di più perché il modello deve imparare tutto da capo ogni volta
-ed è per questo che si è dovuto implementare la modalità demo.
+ed è per questo che si è pensato di aggiungere la modalità di esecuzione demo.
 
-ALTERNATIVA
+ALTERNATIVA AL Cold Start
 In alternativa si dovrebbe Salvare il modello migliore e ripartire da lì ("Warm Start" / Continual Learning) caricare quel modello locale invece di scaricare quello da internet.
 In questo caso la velocità del training è molto superiore al Cold Start. 
 Il modello ha già imparato a fare Sentiment Analysis sullo stile di testi; quindi, se arrivano nuovi dati, ha solo bisogno di pochissime epoche di "rifinitura" (fine-tuning fine) per aggiornarsi.
@@ -159,7 +161,7 @@ mlflow ui --backend-store-uri sqlite:///outputs-baseline-debug/mlruns-debug/mlfl
    ```
 
   Seguono l'output e l'analisi di questo snippet di codice
-  che si può osservare sul seguente notebook https://colab.research.google.com/drive/15vppELulgC2xW97ivuhQNWVM913_kSIh?usp=sharing
+  che si può osservare sul notebook notebooks/twitter_roberta_base_sentiment_latest_fine_tuning.ipynb
 
    ```bash
       metrica	             valore 
@@ -172,7 +174,7 @@ mlflow ui --backend-store-uri sqlite:///outputs-baseline-debug/mlruns-debug/mlfl
       max	                 93 
 
 Da queste metriche si deduce che quasi tutti i tweet sono molto corti
-cosa tipico di questo social network.
+cosa tipica di twitter / X .
 Il fatto che:
 99% = 49
 max = 93

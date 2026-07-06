@@ -1,7 +1,7 @@
                              
                              # MACHINE INNOVATION MONITORING
 
-## 1. `07-monitoring.md`
+## 1. MONITORAGGIO CONTINUO `08-monitoring.md`
 Il monitoring implementa l'osservabilità del sistema. 
 Qui viene spiegato cosa viene tracciato su Grafana e come accedere alle dashboard.
 

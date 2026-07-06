@@ -1,7 +1,7 @@
 
                    # MACHINE INNOVATION - ENVIRONMENT
 
-## 1. ENVIRONMENT `02-environment.md`
+## 1. ENVIRONMENT `03-environment.md`
 Questo file descrive i comandi operativi per la creazione
 e la manutenzione efficiente dell'environment.
 

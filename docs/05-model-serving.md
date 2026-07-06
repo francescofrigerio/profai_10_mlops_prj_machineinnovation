@@ -1,7 +1,7 @@
                     # MACHINE INNOVATION MODEL SERVING
 
-## 1. `04-model-serving.md`
-Descrizione ,note e link per l'utilizzo dell'interfaccia web che eroga il servizio di predizione del sentiment del modello.
+## 1. Distribuzione del modello `05-model-serving.md`
+Descrizione ,note e link per l'utilizzo dell'interfaccia web che eroga il servizio di distribuzione e predizione del sentiment del modello.
 
 ## 2. Contenuto del file requirements:
  ```bash
@@ -17,6 +17,7 @@ huggingface-hub
 
 Nota sulla riga torch:
 Il progetto gira(codespace di github e Space di Hugging Face) su CPU. 
+
 Forzare l'installazione della versione CPU di PyTorch rende il build dello Space molto più veloce (ci mette pochi secondi invece di svariati minuti), perché evita al container di HF di scaricare e compilare i gigabyte inutili di driver CUDA per GPU.
 
 ## 3. Dockerfile userid

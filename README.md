@@ -13,8 +13,7 @@ Per comprendere a fondo il progetto, si consiglia di leggere la documentazione n
 7. [07 - CI/CD & Train](docs/07-cicd-train.md): Workflow di CI/CD GitHub Actions e Docker.
 8. [08 - Monitoraggio](docs/08-monitoring.md): Dashboard Grafana e logica di alerting.
 9. [09 - Schedulazione e Orchestrazione](docs/09-scheduling.md) Retrain automatico e Monitoraggio continuo
-10. [10 - Specifiche iniziali del Progetto](docs/10-technical-specifications.md)
-11. [11 - Risultati Scelte Future Versioni](docs/11-scores-choices-insights.md)
+10. [10 - Risultati Scelte Future Versioni](docs/11-scores-choices-insights.md)
 
 ## 2. Accesso al workflow di Monitoraggio
 

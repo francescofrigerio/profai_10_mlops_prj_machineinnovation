@@ -2,7 +2,7 @@
                   
                   # MACHINE INNOVATION SCHEDULAZIONE E ORCHESTRAZIONE
 
-## 1. `08-scheduling.md`
+## 1. ADDESTRAMENTO CONTINUO `09-scheduling.md`
 Questo documento descrive la configurazione Machine Innovation su Airflow
 per la schedulazione e l'orchestrazione del sistema.
 In fondo si trovano anche accenni sull'installazione per sistemisti e sviluppatori.

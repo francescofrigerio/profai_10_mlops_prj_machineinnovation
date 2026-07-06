@@ -20,7 +20,7 @@ graph TB
         W_RETRAIN[WORKFLOW: RETRAIN<br>- mode: prod/demo<br>- Addestra il modello<br>- Push del nuovo .db]
         W_MONITOR[WORKFLOW: MONITORING<br>- Aggiorna grafici<br>- lettura latest_metrics.json]
         W_MONITOR -->|Scrittura Ultime Metriche| latest_metrics.json
-        W_MONITOR -->|Se Ultima Accuracy < 0.8| W_RETRAIN
+        W_MONITOR -->|Se Ultimi Accuracy/F1_score < 0.7| W_RETRAIN
     end
 
     %% Elementi Esterni
@@ -76,6 +76,7 @@ Vedere la sezione dedicata alla schedulazione per i dettagli.
 
                              RIEPILOGO
 I workflow interagiscono con i seguenti steps:
+
 STEP1: Airflow esegue mensilmente un Retrain automatico (tramite API).
         Il Retrain genera il nuovo file metrics.db contenente accuracy , precision , recall ,f1_score e timestamp. Viene eseguito il push del file metrics.db roc_curve.png confusion_matrix.png
 

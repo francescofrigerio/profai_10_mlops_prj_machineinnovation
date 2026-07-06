@@ -1,7 +1,7 @@
                         # MACHINE INNOVATION CONTINUOS INTEGRATION 
 
-## 1. `05-ci-test.md`
-Descrizione , comandi ed elenco test (unit test e integration test)
+## 1. CONTINUOS INTEGRATION `06-ci-test.md`
+Descrizione della pipeline ci-test ((unit test e integration test)) che può essere eseguita solo manualmente dall'interfaccia web di github.
 
 ## 2. Esecuzione dei test CI
    

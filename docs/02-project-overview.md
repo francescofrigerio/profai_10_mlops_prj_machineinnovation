@@ -1,5 +1,7 @@
 # MACHINE INNOVATION - PROJECT OVERVIEW
 
+## 2. Panoramica del Progetto `02-project-overview.md`
+
 Questo documento fornisce una descrizione ad alto livello dell'architettura e dei flussi del progetto Machine Innovation, evidenziando le interazioni, i trigger e lo scambio di dati tra i vari componenti del sistema MLops.
 
 ```mermaid
@@ -61,19 +63,20 @@ Modello utilizzato: twitter-roberta-base-sentiment-latest (inizializzato su arch
 Dataset: tweeteval (specifico per compiti di classificazione di tweet).
 https://github.com/cardiffnlp/tweeteval
 
-Modalità di Esecuzione: (prod/demp/debug) Per non confondere le diverse modalità sono stati introdotti i campi timestamp e dom_name su ogni record del database metrics.db
+Modalità di Esecuzione: (prod/demo/debug) Per non confondere le diverse modalità sono stati introdotti i campi timestamp e dom_name su ogni record del database metrics.db
 
 prod (Produzione): Addestramento completo, lento ma accurato. Garantisce l'affidabilità del modello finale da distribuire agli utenti.
 Il campo dom_name può contenere train-sent-analysis-prod oppure test-sent-analysis-prod.
 I record al momento non sono mai cancellati visto che i dati sono limitati.
+Quando sarà stato raccolto un numero di dati sufficiente(ad esempio 6 mesi) verrà aggiunta anche la retention sui dati di produzione 
 
 demo (Demo/Test): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per demo rapide o test d'integrazione senza spreco di risorse computazionali. E' la stessa parametrizzazione della versione in debug solo che l'output è nelle stesse cartelle della produzione.
 Il campo dom_name può contenere train-sent-analysis-demo oppure test-sent-analysis-demo
-I record sono cancellati in fase di retention nel codice del training per non appesantire i grafici e sono mantenuti solo gli ultimi 10 records.
+I record sono cancellati in fase di retention nel codice del training per non appesantire i grafici e sono mantenuti solo gli ultimi 10 records.Quando saranno raggiunti dati sufficienti in produzione la retention sui records "demo" sarà modificata ai dati di oggi/ieri.
 
 debug (solo sviluppo nel codespace): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per test di sviluppo senza spreco di risorse computazionali.
 Il campo dom_name può contenere train-sent-analysis-debug oppure test-sent-analysis-debug
-A parte i dati di oggi e ieri i record sono cancellati in fase di retention nel codice del training per non appesantire i grafici.
+A parte i dati di oggi e ieri i record sono cancellati in fase di retention nel codice del training per non appesantire i grafici. Quando saranno raggiunti dati sufficienti in produzione i records di debug non saranno più inseriti in tabella.
 
 
 2. MODEL SERVING (Hugging Face & FastAPI)
@@ -132,17 +135,17 @@ Schedulazione: Gira ogni giorno alle 08:40.
 Azione: Scarica ed esamina il file delle ultime metriche generate.
 
 Gestione del Drift: Valuta l'accuratezza dell'ultimo modello. 
-Se l'accuratezza scende sotto la soglia di guardia di 0.70 ($Accuracy < 0.70$), 
+Se l'accuratezza oppure l'F1_score scendono sotto la soglia di guardia di 0.70 ($Accuracy < 0.70$ | $F1_Score < 0.70$), 
 Airflow rileva un Model Drift (deterioramento delle prestazioni) e anticipa immediatamente l'avvio del Retrain chiamando il workflow di train su GitHub, senza aspettare la fine del mese.
 
 6. COLLEGAMENTI E FLUSSO LOGICO DEI DATI
 
 Raccolta Dati & Monitoraggio (Airflow giornaliero): 
-Airflow monitora le metriche. Se l'accuratezza è ottimale ($>0.70$), 
+Airflow monitora le metriche. Se l'accuratezza e l'F1_score sono ottimali ($>=0.70$), 
 il sistema rimane silente.
 
 Rilevamento del Drift o Scadenza Mensile: 
-Se scatta il 1° del mese o se l'accuratezza scende sotto $0.80$, Airflow lancia il segnale d'allarme via API.
+Se scatta il 1° del mese o se accuratezza/F1_score scendono sotto $0.70$, Airflow lancia il retrain via API.
 
 Esecuzione del Training (GitHub Actions): 
 GitHub riceve l'input e avvia l'addestramento. 
@@ -150,6 +153,6 @@ Vengono generati il nuovo modello e il file metrics.db.
 
 Deploy & Aggiornamento (FastAPI & Grafana): * I pesi vengono inviati al repository modelli.
 
-Il container FastAPI viene riavviato per caricare il nuovo file.
+Alla fine di ogni training o retraining il container FastAPI viene riavviato per caricare il nuovo file.
 
 Il workflow di monitoraggio si attiva sul push di completamento, rigenerando i grafici PNG della dashboard di Grafana per mostrare i miglioramenti del nuovo modello appena distribuito.
