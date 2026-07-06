@@ -1,36 +1,12 @@
 # MACHINE INNOVATION RISULTATI SCELTE PROSSIMA VERSIONE
 
-## 1. `10-scores-choices-next-version.md`
+## 1. `10-insights-next-version.md`
 
-## 2. RISULTATI 
-In produzione (mode=prod) le prestazioni sono stabilmente sopra lo 0.70 (discrete)
-su tutte le metriche (accuracy , precision , recall , f1_score).
-Non sono stati raggiunti risultati migliori per l'esiguo numero di epoche = 2
-definito in fase di parametrizzazione del training.
-Avendo poche risorse a disposizione e considerato che le specifiche
-non prevedono di ottimizzare le prestazioni del modello si è preferito
-dedicare tempo e risorse alla progettazione e orchestrazione del progetto MLops
-come previsto dalle specifiche. 
-```bash
-[{"accuracy":0.712959947899706958,
-  "precision":0.719111669048697055,
-  "recall":0.712959947899706958,
-  "f1_score":0.711106887726644654,
-  "timestamp":"2026-07-03 15:07:14","dom_name":"test-sent-analysis-prod"}]
-```
+## 4. INSIGHTS PROSSIMA VERSIONE
+Nelle prossime versioni vanno valutate con attenzione le seguenti modifiche per migliorare le prestazioni da un livello discreto (accuracy/f1_score > 0.7 )
+ad un livello buono (accuracy/f1_score > 0.8):
 
-## 3. SCELTE
-Si è deciso di introdurre due modalità di esecuzione del train prod e demo.
-La modalità prod permette di generare i dati reali ed effettivi di produzione.
-La modalita demo permette di eseguire dei test in produzione ed è stato
-infatti possibile testare l'orchestrazione del dag giornaliero
-di monitoraggio che lancia in automatico il train tutte le volte
-che l'accuracy o l'f1_score scendono sotto la soglia dello 0.7. 
-
-## 4. PROSSIMA VERSIONE
-Nelle prossime versioni vanno valutate le seguenti modifiche:
-
-- Valuatre con maggiore attenzione il valore degli hiperparametri 
+- Valutate con maggiore attenzione il valore degli hiperparametri 
 del training in particolare aumentare il numero di epoche come minimo a 3.
 
 - Valutare se non sia il caso , sopratutto in caso

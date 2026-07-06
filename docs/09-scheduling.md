@@ -75,7 +75,7 @@ Ecco gli step eseguiti dal monitoraggio continuo di Airflow
           [Workflow Retrain]
 ```
 .
-In pratica Abbiamo 5 step nel dag di monitoraggio e due possibili flussi
+Abbiamo 5 step nel dag di monitoraggio e due possibili flussi
 ```bash
 # opzione 1 il dag termina senza eseguire il retrain (accuracy >= 0.7 )
 check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on_metrics >> end_monitoring

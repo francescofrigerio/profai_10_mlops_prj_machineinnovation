@@ -185,4 +185,15 @@ e permette di evitare il padding quindi spreco di GPU e rallentamenti.
 Il tutto si ottiene troncando ~1% dei tweet che possono anche essere 1-3 token 
 ed è quindi praticamente irrilevante per la sentiment analysis.
 
+## 6.  Screenshot dei grafici generati dal training
+Per il commento dei risultati vedere la sezione 10.
+
+![Confusion Matrix Training](./src/outputs-baseline-prod/confusion_matrix.png).
+
+![Roc Curve Training](./src/outputs-baseline-prod/roc_curve.png).
+
+
+
+
+
 

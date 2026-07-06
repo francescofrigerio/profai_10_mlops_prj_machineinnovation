@@ -78,8 +78,6 @@ def decide_next_step(**kwargs):
     if current_accuracy < TRESHOLD_VALUE or current_f1_score < TRESHOLD_VALUE:
         print(f"START RETRAIN current_accuracy: {current_accuracy} < {TRESHOLD_VALUE}")
         print(f"START RETRAIN current_f1_score: {current_f1_score} < {TRESHOLD_VALUE}")
-        # Solleviamo un'eccezione esplicita per contrassegnare il task come FAILED
-        # raise AirflowFailException(f"Accuratezza sotto la soglia: {current_accuracy}")
         return "trigger_emergency_retrain"
     else:  
         print("Monitoraggio superato. Il modello è stabile.")

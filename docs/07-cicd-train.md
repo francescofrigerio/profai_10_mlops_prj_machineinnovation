@@ -44,8 +44,10 @@ Sono eseguiti gli stessi Unit Test e Integration Test del workfloe ci-test.
             
 
 ## 4. dettagli del CD : job deploy.
-L'account Hugging Face di Machine Innovation  è configurato in questo modo
+L'account Hugging Face di Machine Innovation  è configurato in questo modo:
+
 Repository modello -> contiene solo pesi (model.safetensors, tokenizer, config)
+
 Repository Space   -> contiene app.py, Dockerfile, requirements.txt
 
 Lo Space scarica automaticamente l'ultima versione del modello dal repository modello tramite la libreria huggingface_hub. 
