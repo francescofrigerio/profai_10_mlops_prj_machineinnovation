@@ -49,7 +49,7 @@ DETTAGLIO DEI RISULTATI
     di media weighted-average. Questa scelta è cautelativa, poiché permette all'F1-Score di riflettere l'impatto di eventuali 
     sbilanciamenti tra le classi di sentiment (es. se ci sono molti più testi positivi che negativi), 
     garantendo che lo $0.71$ ottenuto in produzione sia un valore genuino e non gonfiato da una classe dominante.
-    Il codice della funzione [compute_metrics](../src/train/metrics.py)
+    Il codice della funzione [compute_metrics](./src/train/metrics.py)
     usa  l'approccio weighted il che è la scelta migliore quando 
     si ha a che fare con dataset sbilanciati.
 
