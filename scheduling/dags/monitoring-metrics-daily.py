@@ -98,7 +98,7 @@ with DAG(
     start_date=datetime(2026, MESE, GIORNO, tzinfo=local_tz),
     # ogni giorno alle 9 di mattina
     # formato cron m h g m y 
-    schedule='0 10 * * *', 
+    schedule='40 8 * * *', 
     catchup=False,
     tags=['mlops', 'monitoring'],
     # Definisce il parametro che appare sulla UI di Airflow
