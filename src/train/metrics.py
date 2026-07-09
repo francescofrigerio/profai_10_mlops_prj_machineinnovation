@@ -7,7 +7,7 @@ import evaluate
 import numpy as np
 
 accuracy = None
-f1_metric = Neone
+f1_metric = None
 precision_metric = None
 recall_metric = None
 
