@@ -73,6 +73,9 @@ jobs:
           find hf_space -maxdepth 1 -not -name 'hf_space' -not -name '.git' -exec rm -rf {} +
           cp -r model_serving/* hf_space/
           
+          echo "Contenuto dello Space:"
+          ls -lah hf_space
+
           cd hf_space
           git add .
           git diff-index --quiet HEAD || git commit -m "Deploy automatico codice da GitHub Actions"
