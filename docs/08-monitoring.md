@@ -14,7 +14,7 @@ Il sistema monitora costantemente le performance del modello (data drift, distri
 * **Visualizzazione:** Grafana
 
 ## 4.  Dashboard di Grafana
-E' stata configurato una dashboard costituita da due panel:
+E' stata configurata una dashboard costituita da due panel:
 - panel table che elenca tutte le metriche rilevate (accuracy , precision , recall , f1_score) in ordine secondo il campo timestamp.
 - time series table 
 
@@ -39,14 +39,14 @@ Per il commento dei risultati vedere la sezione 10.
 ![Grafana Dashboard Value](../images/dashboard_table.png)
 
 ## 7.  Alerting
-Gli alert su Airflow sono impostati per attivare il retraing se:
+Gli alert su Airflow sono impostati per attivare il retraining se:
 * L'accuracy è inferiore a **0.7**  oppure f1_score è inferiore a **0.7**.
 
 ## 8. Modifiche sull'applicazione Web
 
 8.1 Aggiunta Threshold al panel Table 70
 
-8.2 Creato Overrirde sul field timespace con name = time 
+8.2 Creato Override sul field timestamp con name = time 
 (premere sul pulsante show ovveride only)
 
 8.3 Impostato ordinamento sul campo time sul panel table in descending mode. 
@@ -61,8 +61,8 @@ richiesto da Grafana (Unix Epoch in secondi)
 Dividendo per 1000 perché Grafana ragiona in millisecondi, 
 mentre SQLite (e strftime %s) in secondi
 
-```bash
-SELECT CAST(strftime('%s', timestamp) AS INTEGER) AS Data_Train,
+```sql
+SELECT CAST(strftime('%s', timestamp) AS INTEGER) AS time,
   accuracy AS "Accuracy",
   precision AS "Precision",
   recall AS "Recall",
@@ -79,12 +79,13 @@ Dividendo per 1000 perché Grafana ragiona in millisecondi,
 mentre SQLite (e strftime %s) in secondi
 8.4.4. impone che il timestamp sia maggiore o uguale al primo dato storico reale
 in modo che il grafico sia visualizzato correttamente
-```bash
+
+```sql
  SELECT
   accuracy AS "Accuracy",
   precision AS "Precision",
   recall AS "Recall",
-  f1_score AS "F1-Score",
+  f1_score AS "F1-Score"
 FROM model_metrics_baseline
 WHERE CAST(strftime('%s', timestamp) AS INTEGER) >= $__from / 1000
   AND CAST(strftime('%s', timestamp) AS INTEGER) < $__to / 1000
@@ -96,20 +97,20 @@ ORDER BY timestamp ASC
 ## 9. Manutenzione del sistema
 Ogni tanto occorre fare pulizia sul disco del codespace e cancellare i vecchi container
 
-Quando si spegne il container cancelliamo il volume
-Non perdiamo nulla perchè abbiamo salvato la dashboard
-sotto grafana-provisioning e la script install_db.sh
-aggiorna il files metrics.db ad ogni esecuzione.
-```markdown
+Quando si spegne il container se cancelliamo il volume
+non perdiamo nulla perchè abbiamo salvato la dashboard
+sotto grafana-provisioning e lo script install_db.sh
+aggiorna il file metrics.db ad ogni esecuzione.
+```bash
 docker compose down -v
 docker system prune -a --volumes -f
 ```
 
-# 8. Mancato accesso alla dashboard (admin/admin)
+# 10. Mancato accesso alla dashboard (admin/admin)
 In caso di mancato accesso a grafana sul browser
 Ad esempio una verifica sul log potrebbe evidenziare
 il lock sul database sqlite.
-```markdown
+```bash
 docker logs grafana
 
 # eseguire in ordine e riprovare ad accedere
@@ -131,10 +132,10 @@ Direttiva: Il file gli dice "Guarda che i tuoi JSON si trovano in /var/lib/grafa
 Lettura/Scrittura: Grafana va in quel percorso, che è abilitato alla lettura e alla scrittura. Quando si modifica un grafico e Salviamo, Grafana genera il nuovo JSON e lo scrive in /var/lib/grafana/dashboards.
 
 Sincronizzazione col Codespace: Poiché nel docker-compose.yml hai mappato quella cartella sul tuo file system locale (- ./dashboards:/var/lib/grafana/dashboards), la modifica si riflette all'istante nel Codespace.
-```markdown
+```yaml
 docker-compose.yml
 volumes:
-      # Save Grafana data (dashboard, utsers) so we don't loses with reboot
+      # Save Grafana data (dashboard, users) so we don't lose with reboot
       - grafana-storage:/var/lib/grafana
       # docker compose parte gia' da monitoring come work dir
       # Mappa la cartella del JSON nel Codespace dentro il container di Grafana
@@ -147,7 +148,7 @@ volumes:
 ```
 
 dashboard.yml
-```markdown
+```yaml
 path: /var/lib/grafana/dashboards
 ```
 

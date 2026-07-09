@@ -2,16 +2,16 @@
            
            # MACHINE INNOVATION - PIPELINE CI CD TRAIN
 
-## 1. CONTINUOS INTEGRATION / CONTINUOS DEPLOYMENT `07-cicd-train.md`
+## 1. CONTINUOUS INTEGRATION / CONTINUOUS DEPLOYMENT `07-cicd-train.md`
 Descrizione della pipeline cicd-train
 
 ## 2. La pipeline CICD (continuos integration e continuos deployment) 
 viene eseguita con il workflow cicd-train-pipeline.yaml
-solo solo nel branch main .
-Sono eseguiti due jobs distinti : test e deploy
+solo nel branch main .
+Sono eseguiti due job distinti : test e deploy
 
 ```text
- [CI(continuos integration) : job test]
+ [CI(continuous integration) : job test]
           │
           ▼
       [GitHub Push]
@@ -26,7 +26,7 @@ Sono eseguiti due jobs distinti : test e deploy
 [Solo se tutti i test sono andati bene]
           │
           ▼ 
-[CI(continuos deployment) : job deploy]
+[CD(continuos deployment) : job deploy]
           │
           ▼ 
 [python upload_folder Hugging Face Model Repository]

@@ -25,7 +25,7 @@ graph TD
     end
 
     subgraph Monitoring["4. MONITORING - Grafana e DB"]
-        DB_Metrics[("SQLite Metrics DB(write by Train/read from Monitor")]
+        DB_Metrics[("SQLite Metrics DB write by Train/read by Monitor")]
         Grafana_Container["Docker Grafana"]
     end
 
@@ -60,7 +60,7 @@ Machine Innovation è basato su un modello di NLP per la Sentiment Analysis.
 
 Modello utilizzato: twitter-roberta-base-sentiment-latest (inizializzato su architettura RoBERTa/FastText) ottimizzato per il riconoscimento del sentiment su testi social.
 
-Dataset: tweeteval (specifico per compiti di classificazione di tweet).
+Dataset: tweet_eval (specifico per compiti di classificazione di tweet).
 https://github.com/cardiffnlp/tweeteval
 
 Modalità di Esecuzione: (prod/demo/debug) Per non confondere le diverse modalità sono stati introdotti i campi timestamp e dom_name su ogni record del database metrics.db
@@ -70,7 +70,8 @@ Il campo dom_name può contenere train-sent-analysis-prod oppure test-sent-analy
 I record al momento non sono mai cancellati visto che i dati sono limitati.
 Quando sarà stato raccolto un numero di dati sufficiente(ad esempio 6 mesi) verrà aggiunta anche la retention sui dati di produzione 
 
-demo (Demo/Test): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per demo rapide o test d'integrazione senza spreco di risorse computazionali. E' la stessa parametrizzazione della versione in debug solo che l'output è nelle stesse cartelle della produzione.
+demo (Demo/Test): Addestramento ultrarapido (es. pochissimi step/epoche) ideale per verificare l'integrità del codice nel flusso CI/CD, per demo rapide o test d'integrazione senza spreco di risorse computazionali. 
+La parametrizzazione è identica a quella in debug solo che l'output è nelle cartelle della produzione.
 Il campo dom_name può contenere train-sent-analysis-demo oppure test-sent-analysis-demo
 I record sono cancellati in fase di retention nel codice del training per non appesantire i grafici e sono mantenuti solo gli ultimi 10 records.Quando saranno raggiunti dati sufficienti in produzione la retention sui records "demo" sarà modificata ai dati di oggi/ieri.
 

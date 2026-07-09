@@ -76,7 +76,8 @@ mlflow ui --backend-store-uri sqlite:///outputs-baseline-debug/mlruns-debug/mlfl
 
 ## 4. Scelta degli Hiperparametri 
 
-    Hiperparametri più significativi in modalita demo
+  Hiperparametri più significativi in modalita demo
+
 
     ```bash
     NUM_CLASSES: int = 3
@@ -98,7 +99,7 @@ mlflow ui --backend-store-uri sqlite:///outputs-baseline-debug/mlruns-debug/mlfl
     SAVE_STRATEGY_MODE: str = "steps"
     ```
 
-    Hiperparametri più significativi in modalita prod
+  Hiperparametri più significativi in modalita prod
 
     ```bash
     NUM_CLASSES: int = 3
@@ -118,52 +119,52 @@ mlflow ui --backend-store-uri sqlite:///outputs-baseline-debug/mlruns-debug/mlfl
   In particolare il parametro MAX_LENGTH = 48 è stato
   scelto tramite il seguente codice e conseguente analisi.  
 
-  ```bash
+    ```bash
 
-  # 1. Carica il dataset
-  dataset = load_dataset("tweet_eval", "sentiment")
+    # 1. Carica il dataset
+    dataset = load_dataset("tweet_eval", "sentiment")
 
-  # 2. Mappa delle etichette del dataset tweet_eval
-  label_mapping = {
+    # 2. Mappa delle etichette del dataset tweet_eval
+    label_mapping = {
     0: "Negative",
     1: "Neutral",
     2: "Positive"
-  }
+    }
 
-  class_names = [label_mapping[i] for i in range(CONFIG.NUM_CLASSES)]
+    class_names = [label_mapping[i] for i in range(CONFIG.NUM_CLASSES)]
 
-  MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-  tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-  train_texts = dataset["train"]["text"]
-  lengths = []
+    train_texts = dataset["train"]["text"]
+    lengths = []
 
-  for text in train_texts:
+    for text in train_texts:
 
-    encoded = tokenizer(
+       encoded = tokenizer(
         text,
         truncation=False,
         padding=False
-    )
+       )
 
     lengths.append(len(encoded["input_ids"]))
 
-  #  STATISTICHE IMPORTANTI
-  print(f"Mean: {np.mean(lengths):.2f}")
-  print(f"Median: {np.median(lengths):.2f}")
+    #  STATISTICHE IMPORTANTI
+    print(f"Mean: {np.mean(lengths):.2f}")
+    print(f"Median: {np.median(lengths):.2f}")
 
-  print(f"90 percentile: {np.percentile(lengths, 90)}")
-  print(f"95 percentile: {np.percentile(lengths, 95)}")
-  print(f"98 percentile: {np.percentile(lengths, 98)}")
-  print(f"99 percentile: {np.percentile(lengths, 99)}")
+    print(f"90 percentile: {np.percentile(lengths, 90)}")
+    print(f"95 percentile: {np.percentile(lengths, 95)}")
+    print(f"98 percentile: {np.percentile(lengths, 98)}")
+    print(f"99 percentile: {np.percentile(lengths, 99)}")
 
-  print(f"Max: {np.max(lengths)}")
-   ```
+    print(f"Max: {np.max(lengths)}")
+    ```
 
   Seguono l'output e l'analisi di questo snippet di codice
   che si può osservare sul notebook notebooks/twitter_roberta_base_sentiment_latest_fine_tuning.ipynb
 
-   ```bash
+    ```bash
       metrica	             valore 
       media	                 29.12  
       mediana	             29    
@@ -173,24 +174,25 @@ mlflow ui --backend-store-uri sqlite:///outputs-baseline-debug/mlruns-debug/mlfl
       99 percentile	         49
       max	                 93 
 
-Da queste metriche si deduce che quasi tutti i tweet sono molto corti
-cosa tipica di twitter / X .
-Il fatto che:
-99% = 49
-max = 93
-significa che ci sono pochissimi outlier lunghi.
-Quindi il valore scelto MAX_LENGTH = 48
-copre circa: 98-99% del dataset con pochissimi valori troncati 
-e permette di evitare il padding quindi spreco di GPU e rallentamenti.
-Il tutto si ottiene troncando ~1% dei tweet che possono anche essere 1-3 token 
-ed è quindi praticamente irrilevante per la sentiment analysis.
+      Da queste metriche si deduce che quasi tutti i tweet sono molto corti
+      cosa tipica di twitter / X .
+      Il fatto che:
+      99% = 49
+      max = 93
+      significa che ci sono pochissimi outlier lunghi.
+      Quindi il valore scelto MAX_LENGTH = 48
+      copre circa: 98-99% del dataset con pochissimi valori troncati 
+      e permette di evitare il padding quindi spreco di GPU e rallentamenti.
+      Il tutto si ottiene troncando ~1% dei tweet che possono anche essere 1-3 token 
+      ed è quindi praticamente irrilevante per la sentiment analysis.
 
 ## 6.  Screenshot dei grafici generati dal training
-Per il commento dei risultati vedere la sezione 10.
+  Per il commento dei risultati vedere la sezione 10.
 
-![Confusion Matrix Training](./src/outputs-baseline-prod/confusion_matrix.png).
 
-![Roc Curve Training](./src/outputs-baseline-prod/roc_curve.png).
+  ![Confusion Matrix Training](../src/outputs-baseline-prod/confusion_matrix.png).
+
+  ![Roc Curve Training](../src/outputs-baseline-prod/roc_curve.png).
 
 
 

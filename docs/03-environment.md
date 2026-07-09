@@ -39,7 +39,7 @@ python -c "from transformers import AutoModelForSequenceClassification"
 1. Verifica Python (max versione 3.12)
 
 
-2. SCRIPT D'INSTALLAZIONE CONTROLLO MODIFICA E RESET ENVIRONMEN
+2. SCRIPT D'INSTALLAZIONE RESET ENVIRONMENT
 ```bash
 setup.sh --init  # (inizializza progetto , install. librerie/venv) 
 setup.sh --change  # (modifica struttura progetto , installazione nuove librerie) 
@@ -48,7 +48,7 @@ setup.sh --checks  #  (controllo GPU/CPU verifica installazione librerie)
 source .venv/bin/activate #  per attivare l'ambiente virtuale
 deactivate #  per disattivare l'ambiente virtuale
 ruff check file.py #  controllo superficiale di un file python
-cd src + PYTHONPATH=. pylint train/train_baseline.py #  per controllo profondo di un file python
+cd src ; PYTHONPATH=. pylint train/train_baseline.py #  per controllo profondo di un file python
 ./run_train_prod.sh #  Training in produzione (--demo per un training demo veloce)
 ./run_train_debug.sh #  Training in debug(default)
 ./run_pipe_prod.sh #  Pipeline Inference in produzione
@@ -75,7 +75,7 @@ sudo find / -type f -not -path '*/.git/*' -not -path '/proc/*' -not -path '/sys/
 I seguenti comandi cancellano uno dei files elencati
 ```bash
 ls /workspaces/profai_10_mlops_prj_machineinnovation/src/mlruns/
-rm -rf ls 593167092950942131/*
+rm -rf 593167092950942131/*
 ls /home/codespace/.cache/huggingface/hub/
 rm -rf /home/codespace/.cache/huggingface/hub/*
 
@@ -101,7 +101,7 @@ docker builder prune -a -f
 ```
 
 ## 7. NOTA PER GITHUB
-In caso il comando git push da il seguente errore :
+In caso il comando git push dà il seguente errore :
 
 error: failed to push some refs to 'https://github.com/francescofrigerio/profai_10_mlops_prj_machineinnovation'
 hint: Updates were rejected because the remote contains work that you do not

@@ -13,7 +13,7 @@ In fondo si trovano anche accenni sull'installazione per sistemisti e sviluppato
 , a patto che il modello non soffra 
 di data drift ( improvvisi cambi repentini di trend di mercato). 
 
-cco gli step eseguiti dal retraining automatico di Airflow
+Ecco gli step eseguiti dal retraining automatico di Airflow
 
 ```text
  [DAG Retrain Mensile]
@@ -64,7 +64,7 @@ Ecco gli step eseguiti dal monitoraggio continuo di Airflow
           200  il file è stato rigenerato
           │
           ▼
-[STEP4:Branch On Metrics (compare latest_metrics with treshold=0.7)]
+[STEP4:Branch On Metrics (compare latest_metrics with threshold=0.7)]
           │
           ├─ accuracy >= 0.70
           │      STOP
@@ -87,7 +87,7 @@ check_training >> trigger_github_monitoring >> wait_for_github_file >> branch_on
 Ecco come funziona logicamente il flusso MLOps:
 
 STEP1:
-Controlla solo che non sia in corso un'altro training
+Controlla solo che non sia in corso un altro training
 per non lanciarne due.
 
 STEP2:
@@ -123,9 +123,10 @@ docker system prune -a --volumes -f
 ```
 
 ## 4. AirFlow Setup
-4.1. La script ./setup.sh --init script ha creato la cartella scheduling e le sotto directory.
+4.1. Lo script ./setup.sh --init ha creato la cartella scheduling 
+e le sottodirectory.
 
-Alcuni directories sono montate(comando mount) dal container il che significa
+Alcuni directory sono montate(comando mount) dal container il che significa
 che il loro contenuto è sincronizzato tra il pc locale e il container.
 
 ./dags - dove mettere i file python dei singoli dag.
@@ -163,10 +164,13 @@ docker ps
 Dopo l'esecuzione controllare la visibilita della porta after 8080
 Se non funziona aggiungere la seguente configurazione all'environment
 nel file ./scheduling/docker-compose.yml
-```bash
+```yaml
 AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: 'True'
 AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
-AIRFLOW_CONN_GITHUB_API: '{"conn_type": "http", "host": "api.github.com", "schema": "https" "password": "${GITHUB_PAT}"}'
+AIRFLOW_CONN_GITHUB_API: '{"conn_type": "http", 
+                           "host": "api.github.com", 
+                           "schema": "https",
+                           "password": "${GITHUB_PAT}"}'
 ```
 
 In questa versione alpha del sistema sono state mantenute
@@ -202,7 +206,7 @@ as script Bash (BashOperator), query SQL.
 Dependencies (Edge): 
 It's the narrow that links the task
 with Airflow defines it with bitwise operators >>. 
-For example : task_A >> task_B means "run B solo after A wa terminate with succesfull".
+For example : task_A >> task_B means "run B solo after A was terminate with succesfull".
 
 4.4 Installare le estensioni di docker nel codespac(CTRL+SHIFT+X)
 ```bash
@@ -210,7 +214,7 @@ For example : task_A >> task_B means "run B solo after A wa terminate with succe
 cd ./scheduling/dag
 find . -type d -name "__pycache__" -exec rm -rf {} +
 
-# 4.5 Mancato accesso alla dashboard (airflow/airfloe)
+# 4.5 Mancato accesso alla dashboard (airflow/airflow)
 # eseguire in ordine e riprovare ad accedere
 cd scheduling/
 docker compose down -v
