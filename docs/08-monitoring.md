@@ -18,8 +18,7 @@ E' stata configurato una dashboard costituita da due panel:
 - panel table che elenca tutte le metriche rilevate (accuracy , precision , recall , f1_score) in ordine secondo il campo timestamp.
 - time series table 
 
-In questa versione alpha del sistema sono state mantenute le 
-credenziali di default di grafana.
+Sono state mantenute le credenziali di default di grafana.
 ```bash
 login admin 
 password admin

@@ -66,7 +66,7 @@ def load_model():
     # Recupera il token impostato 
     # nelle impostazioni dello Space di Hugging Face
     hf_token = os.getenv("HF_TOKEN")
-    model_repo_id = "MachineInnovation/twitter-sentiment-model"
+    model_repo_id = "francescofrigerio/machine-innovation-sentiment-model"
     CLASSIFIER = SentimentPipeline(model_repo_id, token=hf_token)
 
 
