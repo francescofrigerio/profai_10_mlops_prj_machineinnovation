@@ -28,6 +28,7 @@ cp "$SCRIPT_DIR/README.md" "$DIST_DIR/"
 # 6. Copia i file sorgenti reali dalla cartella src/ del progetto
 cp "$ROOT_DIR/src/utils/const_baseline.py" "$DIST_DIR/utils/"
 cp "$ROOT_DIR/src/utils/utils.py" "$DIST_DIR/utils/"
+cp "$ROOT_DIR/src/utils/login_mlops_hf.py" "$DIST_DIR/utils/"
 cp "$ROOT_DIR/src/train/pipe_baseline.py" "$DIST_DIR/train/"
 
 # 7. Crea i file __init__.py vuoti per i moduli Python
