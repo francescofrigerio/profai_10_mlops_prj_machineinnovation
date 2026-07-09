@@ -27,22 +27,44 @@ def run_login_hf():
 class SentimentPipeline:
     """
         SentimentPipeline Class (for inference)
+        La libreria transformers di Hugging Face 
+        fornisce una classe pipeline che semplifica l'uso 
+        dei modelli pre-addestrati per varie attività NLP, 
+        tra cui la classificazione del testo.
+     
+        Funziona passando come parametro model_source:
+        directory locale : CONFIG.OUTPUT_DIR usato nel main
+        repository Hugging Face : "MachineInnovation/twitter-sentiment-model" usato nel model serving
+        modello pubblico su internet : cardiffnlp/twitter-roberta-base-sentiment-latest
+
+        Così la stessa classe funziona in diversi contesti test  Codespace , 
+        training , Space Hugging Face.
+
     """
-    def __init__(self, model_path_or_name=""):
+    def __init__( self, 
+                  model_source: str,
+                  token: str | None = None ):
         """
             Inizalizza la classe che implementa la pipeline
         """
-        run_login_hf()
-        print(br"Caricamento del modello per l'inferenza...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path_or_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_path_or_name)
+        
+        print(f"Loading model: {model_source}")
+        self.tokenizer = AutoTokenizer.from_pretrained(model_source,token=token)
+        # num_labels=3 è pericoloso in caso di classi deprecate
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_source,
+                                                                        token=token, 
+                                                                        num_labels=3)
 
         # uso l'oggetto pipeline di Hugging Face
         self.nlp_pipeline = pipeline("text-classification",
                                      model=self.model,
-                                     tokenizer=self.tokenizer
+                                     tokenizer=self.tokenizer,
+                                     # evita errori quando arrivano
+                                     # token molto lunghi
+                                     # si puo' aggiungere anche sul tokenizer
+                                     truncation=True
                                     )
-
+        
         self.label_mapping = {
             "LABEL_0": "Negative",
             "LABEL_1": "Neutral",
@@ -118,10 +140,11 @@ if __name__ == "__main__":
         # nlp_pipeline = mlflow.transformers.load_model(model_uri)
 
     MODEL_PATH = CONFIG.OUTPUT_DIR
+    hf_token = os.getenv("HF_TOKEN")
     if args.mode == 'PROD':
-        classifier = SentimentPipeline(MODEL_PATH)
+        classifier = SentimentPipeline(MODEL_PATH,hf_token)
     else:
-        classifier = SentimentPipeline(MODEL_NAME)
+        classifier = SentimentPipeline(MODEL_NAME,hf_token)
 
     TEST_TWEET = "I love this ProfAi MLOps course! @HuggingFace http://example.com"
     prediction , info = classifier.predict(TEST_TWEET)

@@ -23,6 +23,8 @@ def client(monkeypatch):
                 CLASSIFIER = SentimentPipeline(CONFIG.MODEL_DIR)
             in realtà costruisce:
                 CLASSIFIER = MockPipeline(CONFIG.MODEL_DIR)
+            Andrebbe creata un MockTest per testare anche il loading
+            del modello sul repo di Hugging Face
         """
         
         def __init__(self, *args, **kwargs):
@@ -41,11 +43,7 @@ def client(monkeypatch):
             return None, result
 
     # importa tutto il modulo non solo l'oggetto
-    # from app import app
     import app
-    # app.CLASSIFIER = MockPipeline()
-    # monkeypatch.setattr("app.CLASSIFIER",MockPipeline())
-    # monkeypatch.setattr(app,"CLASSIFIER",MockPipeline())
     monkeypatch.setattr(app, "SentimentPipeline", MockPipeline)
     
     with TestClient(app.app) as client:

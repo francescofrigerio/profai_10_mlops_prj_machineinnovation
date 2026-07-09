@@ -60,6 +60,8 @@ def load_model():
 
     global CLASSIFIER
     
+    # Per eseguire su github e Hugging Devo caricare 
+    # il modello dal repository di Hugging Face e non dalla dir locale
     # CLASSIFIER = SentimentPipeline(CONFIG.MODEL_DIR)
     # Recupera il token impostato 
     # nelle impostazioni dello Space di Hugging Face
