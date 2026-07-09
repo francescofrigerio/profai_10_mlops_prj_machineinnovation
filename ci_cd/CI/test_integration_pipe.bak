@@ -21,6 +21,10 @@ import torch
 from src.utils.const_baseline import ConfigProdConstants
 from src.utils.login_mlops_hf import Login
 
+from src.train.pipe_baseline import SentimentPipeline
+
+CLASSIFIER = None
+
 def run_login_hf():
     obj_login = Login("MachineInnovation")
     obj_login.login_hf()
@@ -35,6 +39,19 @@ def model_and_tokenizer():
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
 
     return model, tokenizer
+
+@pytest.fixture(scope="session")
+def model_and_tokenizer_custom():
+    
+
+    # tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    # model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+    # 
+    # return model, tokenizer
+    global CLASSIFIER
+    hf_token = os.getenv("HF_TOKEN")
+    model_repo_id = "francescofrigerio/machine-innovation-sentiment-model"
+    CLASSIFIER = SentimentPipeline(model_repo_id, token=hf_token)
 
 class TestIntegrationPipe:
     """
@@ -110,7 +127,46 @@ class TestIntegrationPipe:
         assert isinstance(result["label"], str)
         assert result["label"] in ('positive','negative','neutral')
 
-    
+    def test_3_pipeline_hf(self,model_and_tokenizer):
+        """
+             Test prediction pipeline based on HF
+        """
+        
+        model, tokenizer = model_and_tokenizer_custom
+
+        # uso l'oggetto pipeline di Hugging Face
+        # La pipeline di Hugging Face è un'astrazione di alto livello: 
+        # prende il testo, 
+        # tokenizza il testo, 
+        # passa il testo tokenizzato al modello, 
+        # applica la funzione di attivazione (Softmax) 
+        # trasforma l'output in una lista di dizionari Python.
+        # Quando si scrive outputs = nlp_pipeline(text), 
+        # la variabile outputs non contiene i logit, ma una lista come:
+        
+        nlp_pipeline = pipeline("text-classification",
+                                 model=model,
+                                 tokenizer=tokenizer
+                                 )
+
+        text = "It's fantastic!! Inter wins both Italian League and Italian Cup"
+        outputs = nlp_pipeline(text)
+        
+        # Verifics che l'output sia una lista non vuota
+        assert isinstance(outputs, list)
+        assert len(outputs) > 0
+        
+        # Estrae il dizionario del primo (e unico) testo passato
+        result = outputs[0]
+        assert "label" in result
+        assert "score" in result
+        
+        # Verifica che il punteggio di confidenza sia valido (tra 0 e 1)
+        assert 0.0 <= result["score"] <= 1.0
+        
+        #  restituisce una label in formato str
+        assert isinstance(result["label"], str)
+        assert result["label"] in ('positive','negative','neutral')
 
  
     
