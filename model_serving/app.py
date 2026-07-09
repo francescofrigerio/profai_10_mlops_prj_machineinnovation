@@ -19,7 +19,7 @@ app = FastAPI(title="Machine Innovation Sentiment Analysis API",
 
 # 2. Caricamento del modello RoBERTa Standard
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-
+cd 
 CONFIG = ConfigProdConstants()
 print({"status": f"Caricamento del modello {MODEL_NAME} in corso..."})
 try:
