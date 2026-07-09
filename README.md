@@ -27,6 +27,15 @@ Avendo poche risorse a disposizione e considerato che le specifiche
 non prevedono di ottimizzare le prestazioni del modello si è preferito
 dedicare tempo e risorse alla progettazione e orchestrazione del progetto MLops. 
 
+I risultati evidenziano che :
+
+- la modalità di esecuzione "demo" abbassa stabilmente 
+le metriche di riferimento (accuracy e f1_score) sotto la soglia critica dello 0.7
+
+- la modalità di esecuzione "prod" eseguita come default dal sistema
+di orchestrazione su airflow alza le metriche stabilmente sopra
+la soglia stessa.
+
 DETTAGLIO DEI RISULTATI
 3.1 Risultati del Monitoraggio: 
    Tra maggio e luglio si osserva una crescita sul set di test di circa $+1.3\%$ 

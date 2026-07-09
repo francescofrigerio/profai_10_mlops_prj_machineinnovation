@@ -3,6 +3,8 @@
 
 ## 1. MONITORAGGIO CONTINUO `08-monitoring.md`
 Il monitoring implementa l'osservabilità del sistema. 
+Si consiglia,per avere prestazioni accettabili, l'impostazione del Run Machine Type 4k
+per sviluppi e test su grafana nel codespace.
 
 ## 2.  Monitoraggio e Osservabilità
 

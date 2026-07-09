@@ -6,6 +6,8 @@
 Questo documento descrive la configurazione Machine Innovation su Airflow
 per la schedulazione e l'orchestrazione del sistema.
 In fondo si trovano anche accenni sull'installazione per sistemisti e sviluppatori.
+Si consiglia,per avere prestazioni accettabili, l'impostazione del Run Machine Type 4k
+per sviluppi e test su airflow nel codespace.
 
 ## 2. Descrizione Schedulazione e Orchestrazione con Airflow
 
