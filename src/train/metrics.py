@@ -6,14 +6,32 @@
 import evaluate
 import numpy as np
 
-def compute_metrics(eval_pred):
+accuracy = None
+f1_metric = Neone
+precision_metric = None
+recall_metric = None
+
+def load_metrics():
     """
-        run metrics definitions
+        load metrics definitions
     """
+
+    global accuracy, f1_metric, precision_metric, recall_metric
+    
     accuracy = evaluate.load("accuracy")
     f1_metric = evaluate.load("f1")
     precision_metric = evaluate.load("precision")
     recall_metric = evaluate.load("recall")
+
+def compute_metrics(eval_pred):
+    """
+        run metrics definitions
+    """
+    # accuracy = evaluate.load("accuracy")
+    # f1_metric = evaluate.load("f1")
+    # precision_metric = evaluate.load("precision")
+    # recall_metric = evaluate.load("recall")
+    
 
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)

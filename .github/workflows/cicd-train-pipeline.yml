@@ -50,6 +50,13 @@ jobs:
           chmod +x ./run_test_ci.sh
           ./run_test_ci.sh
 
+          chmod +x ./model_serving/test_predict_from_app.sh 
+          ./model_serving/test_predict_from_app.sh  
+
+          chmod +x ./model_serving/test_predict_from_web.sh
+          ./model_serving/test_predict_from_web.sh
+
+
   # JOB DI TEST (Eseguito ad ogni Push e PR senza train)
   deploy:
     needs: test

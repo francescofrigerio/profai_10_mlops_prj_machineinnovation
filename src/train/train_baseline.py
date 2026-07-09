@@ -64,7 +64,7 @@ from utils.login_mlops_hf import Login
 from utils.const_baseline import ConfigDebugConstants, ConfigProdConstants , ConfigDemoConstants
 from utils.utils import preprocess_tweet , print_counter,init_debug_logger
 
-from train.metrics import compute_metrics
+from train.metrics import compute_metrics , load_metrics
 
 # abilita mflow alla scrittura su file disco
 os.environ["MLFLOW_ALLOW_FILE_STORE"] = "true"
@@ -409,6 +409,10 @@ def train_baseline( model_ ,
 
 
     data_collator = DataCollatorWithPadding( tokenizer=tokenizer)
+
+    # Carico le metriche globali 
+    # per non farlo ad ogni chiamata di compute_metrics
+    load_metrics()
 
     if config_.FLAG_DEBUG_MODE or config_.FLAG_DEMO_MODE:
         # debug mode con max_steps
