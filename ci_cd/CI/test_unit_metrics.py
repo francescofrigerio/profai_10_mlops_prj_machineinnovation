@@ -8,7 +8,7 @@
 import numpy as np
 
 from src.utils.utils import preprocess_tweet 
-from src.train.metrics import compute_metrics
+from src.train.metrics import compute_metrics , load_metrics
 
 class TestUnitMetrics:
     """
@@ -18,6 +18,8 @@ class TestUnitMetrics:
         """
             test compute metrics function
         """
+
+        load_metrics()
 
         logits = np.array([[10, 0, 0],
                             [0, 10, 0],
@@ -38,6 +40,8 @@ class TestUnitMetrics:
             test compute metrics function
         """
 
+        load_metrics()
+
         logits = np.array([[0, 10, 0],
                             [0, 0, 10],
                             [10, 0, 0]
@@ -56,6 +60,8 @@ class TestUnitMetrics:
         """
             test compute metrics function
         """
+        load_metrics()
+        
         logits = np.array([[1,0,0]])
 
         labels = np.array([0])
