@@ -138,6 +138,10 @@ che il loro contenuto è sincronizzato tra il pc locale e il container.
 
 
 4.2. Eseguire i seguenti comandi per installare e inizializzare airflow.
+
+Alla fine controllare che i dag siano importati correttamente nella sezione
+logs dedicata all'import sull'interfaccia web di airflow.
+
 ```bash
 cd scheduling
 # download airflow

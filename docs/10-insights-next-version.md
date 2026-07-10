@@ -2,7 +2,7 @@
 
 ## 1. `10-insights-next-version.md`
 
-## 4. INSIGHTS PROSSIMA VERSIONE
+## 4. INSIGHTS PROSSIMA VERSIONE : MLM DOMAIN ADAPTION
 Nelle prossime versioni vanno valutate con attenzione le seguenti modifiche per migliorare le prestazioni da un livello discreto (accuracy/f1_score > 0.7 )
 ad un livello buono (accuracy/f1_score > 0.8):
 
@@ -206,3 +206,105 @@ def predict_sentiment_finetuning(text):
 tweet_esempio = "NVIDIA earnings are amazing!"
 print(predict_sentiment_finetuning(tweet_esempio))
 ```
+
+## 5. INSIGHTS PROSSIMA VERSIONE : MUTUATION Testing
+
+Il Mutation Testing si applica al codice sorgente (es. la pipeline di pre-processing o la logica del server) per verificare se gli unit test sono efficaci. Nel mondo ML, esiste anche il concetto di "Data/Model Mutation" (iniettare rumore nei dati per vedere se il modello scoppia).
+Il Mutation Testing può anche essere
+usato nel caso del Model Serving per unire la robustezza del codice (qualità del software) con la stabilità del rilascio di modelli predittivi.
+Per esempio vediamo come strutturare una pipeline di Model Serving in Python e come testarla usando il Mutation Testing classico con Mutmut.
+
+Cos'è il Mutation Testing.
+Se i classici test misurano quanto codice copri (Code Coverage), il Mutation Testing misura quanto sono buoni i tuoi test.
+Il framework introduce piccole modifiche intenzionali (chiamate mutanti) nel tuo codice sorgente (es. cambia un > in <, o un + in -). Se i tuoi unit test falliscono, il mutante viene ucciso (bene!). Se i test passano comunque, il mutante sopravvive (male, significa che i test non hanno notato il bug).
+
+Esempio di Mutuation Testing con MLOps Model Serving
+Immaginiamo di avere un microservizio FastAPI che serve un modello per decidere se approvare un mutuo (validazione o una soluzione di mutui/prestiti!).
+
+Logica del Model serving (app.py) . 
+C'è una funzione che valida l'input prima di passarlo al modello.
+
+```python
+# app.py
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class LoanRequest(BaseModel):
+    income: float
+    loan_amount: float
+
+def check_eligibility(income: float, loan_amount: float) -> bool:
+    # Una logica di business semplice che vogliamo testare
+    if income <= 0:
+        return False
+    ratio = loan_amount / income
+    if ratio > 0.5:  # Se il mutuo supera il 50% del reddito, rifiutato
+        return False
+    return True
+
+@app.post("/predict")
+def predict(request: LoanRequest):
+    # In un caso reale qui caricheresti il modello: model.predict(...)
+    is_eligible = check_eligibility(request.income, request.loan_amount)
+    return {"approved": is_eligible}
+``` 
+    
+ Gli Unit Test
+
+```python
+# test_app.py
+from app import check_eligibility
+
+def test_eligible_loan():
+    assert check_eligibility(50000, 10000) is True
+
+def test_ineligible_loan():
+    assert check_eligibility(50000, 40000) is False  
+```    
+
+Eseguendo pytest, avremo il 100% di successo. 
+Ma i test sono davvero robusti?
+
+Integrare il Mutation Testing con mutmut
+In Python, lo strumento standard per il mutation testing è mutmut. 
+
+Installazione.
+```bash
+pip install mutmut pytest
+```
+
+Eeseguire il mutation testing sul nostro file app.py:
+
+```bash
+mutmut run --paths-to-mutate=app.py
+```
+
+mutmut prende app.py e crea dei mutanti. 
+Per esempio:
+
+Mutante 1: Cambierà if income <= 0: in if income < 0:
+
+Mutante 2: Cambierà if ratio > 0.5: in if ratio >= 0.5:
+
+Se eseguiamo il comando, noteremo che alcuni mutanti potrebbero sopravvivere.
+Guardando test_app.py si vede che non viene testato cosa succede esattamente quando income == 0 o quando ratio == 0.5.
+
+Per vedere i risultati dettagliati e capire dove i test falliscono:
+
+```bash
+mutmut results
+```
+E per vedere esattamente cosa ha modificato un mutante sopravvissuto 
+(es. il mutante #1):
+```bash
+mutmut show 1
+```
+
+L'obiettivo in MLOps: 
+
+Nel model serving, un bug di logica sulle soglie (es. > invece di >=) può far passare richieste di scoring fraudolente o errate al modello ML, alterando le metriche di business. Il mutation testing ti assicura che le suite di test blocchino queste regressioni in fase di CI/CD prima del deploy in produzione.
+
+Si possono eseguire anche la simulazione di mutazioni direttamente sui pesi del modello ML o sui dati di input.
+

@@ -69,7 +69,8 @@ Vedere anche la pagina dedicata alla build della cache
 https://docs.docker.com/build/cache/
 
 ## 6. Per fare il deploy su Hugging face
-eseguire 
+eseguire e alla fine controllare il log container sull'interfaccia web di Hugging Face.
+
  ```bash
  cd model_serving
 ./deploy_space.sh
