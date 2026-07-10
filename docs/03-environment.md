@@ -10,6 +10,86 @@ e la manutenzione efficiente dell'environment.
 ./setup --init
 ```
 
+Viene creata la struttura che a grandi linee è la seguente(output del comando tree).
+
+```bash
+tree -L 2
+```
+
+```text
+.
+├── README.md
+├── architecture
+├── ci_cd
+│   ├── CD
+│   ├── CI
+│   └── Dockerfile
+├── docs
+│   ├── 01-architecture.md
+│   ├── 02-project-overview.md
+│   ├── 03-environment.md
+│   ├── 04-ml-training.md
+│   ├── 05-model-serving.md
+│   ├── 06-ci-test.md
+│   ├── 07-cicd-train.md
+│   ├── 08-monitoring.md
+│   ├── 09-scheduling.md
+│   └── 10-insights-next-version.md
+├── images
+│   ├── dashboard_table.png
+│   └── dashboard_timeseries.png
+├── install_db.sh
+├── links
+│   ├── Colab_template.txt
+│   └── Hugging_Face.txt
+├── model_serving
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── __pycache__
+│   ├── app.py
+│   ├── deploy_space.sh
+│   ├── dist_space
+│   ├── requirements.txt
+│   ├── test_predict_from_app.sh
+│   ├── test_predict_from_web.sh
+│   ├── train -> ../src/train
+│   └── utils -> ../src/utils
+├── monitoring
+│   ├── all_metrics.json
+│   ├── dashboards
+│   ├── docker-compose.yaml
+│   ├── grafana-provisioning
+│   ├── latest_metrics.json
+│   └── rend_dashboard_panel.py
+├── notebooks
+│   ├── profai_10_MLOPS_prj_machineinnovation_v1_eda.ipynb
+│   ├── twitter_roberta_base_sentiment_latest_baseline.ipynb
+│   └── twitter_roberta_base_sentiment_latest_fine_tuning.ipynb
+├── pytest.ini
+├── requirements.txt
+├── run_mlruns_ui.sh
+├── run_pipe_debug.sh
+├── run_pipe_prod.sh
+├── run_test_ci.sh
+├── run_train_debug.sh
+├── run_train_prod.sh
+├── scheduling
+│   ├── config
+│   ├── dags
+│   ├── docker-compose.yaml
+│   ├── logs
+│   └── plugins
+├── setup.sh
+└── src
+    ├── __init__.py
+    ├── __pycache__
+    ├── mlruns
+    ├── outputs-baseline-debug
+    ├── outputs-baseline-prod
+    ├── train
+    └── utils
+```
+
 ## 3. RESET DELL'ENVIRONMENT E REINSTALLAZIONE DELLE LIBRERIE
 ```bash
 deactivate
@@ -121,3 +201,14 @@ git pull origin main --rebase
 # 3. Ora puoi pushare in tutta sicurezza
 git push origin main
 ```
+
+## 8. Salvare la configurazione del progetto (devcontainer.json)
+
+Nel Codespace, premere F1 (o Ctrl+Shift+P / Cmd+Shift+P).
+Cercare e seleziona: Codespaces: Add Dev Container Configuration Files...
+
+Seguire i passaggi per scegliere la configurazione.
+Verrà creata una cartella .devcontainer con un file devcontainer.json.
+
+Selezionare Create + Anaconda Python 3 + config container config come unica Additional feature
+Per procedere con la creazine dei files sotto .devcontainer premere OK
